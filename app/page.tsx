@@ -60,19 +60,20 @@ export default function Home() {
           <MapaColombia />
         </div>
 
-        {/* Blur overlay that covers the map and header when a department is selected */}
-        {selectedDept && (
-          <div 
-            className="fixed inset-0 bg-brand-black/50 backdrop-blur-sm z-30 transition-all duration-500"
-            onClick={clearSelection}
-            aria-hidden="true"
-          />
-        )}
-
-        {/* Panel lateral detallado */}
-        <SidePanel />
-
       </div>
+
+      {/* Blur overlay that covers the map and header when a department is selected */}
+      {selectedDept && (
+        <div 
+          className="fixed inset-0 bg-brand-black/50 backdrop-blur-sm z-30 transition-all duration-500"
+          onClick={clearSelection}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Panel lateral detallado */}
+      <SidePanel />
+
     </main>
   );
 }
