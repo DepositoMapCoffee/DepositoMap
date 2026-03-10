@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, Search, Filter } from 'lucide-react';
 import { useCoffeeStore } from '@/store/coffeeStore';
 import { departamentos } from '@/data/mapaData';
 import { getPanelVariants, staggerContainerVariants } from '@/lib/animations';
@@ -11,10 +11,24 @@ import CoffeeCard from './CoffeeCard';
 export default function SidePanel() {
   const { selectedDept, clearSelection, coffees, isLoading } = useCoffeeStore();
   
+  // Local state for filtering
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+
   // Encontramos los datos del departamento seleccionado para el título
-  const deptData = React.useMemo(() => 
+  const deptData = useMemo(() => 
     departamentos.find(d => d.id === selectedDept), 
   [selectedDept]);
+
+  // Filter coffees based on search term and category
+  const filteredCoffees = useMemo(() => {
+    return coffees.filter(coffee => {
+      const matchesSearch = coffee.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            coffee.finca.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = categoryFilter === 'all' || coffee.categoria === categoryFilter;
+      return matchesSearch && matchesCategory;
+    });
+  }, [coffees, searchTerm, categoryFilter]);
 
   return (
     <AnimatePresence>
@@ -39,11 +53,16 @@ export default function SidePanel() {
             </div>
             
             <button
-              onClick={clearSelection}
-              className="p-2.5 rounded-full bg-brand-gray hover:bg-brand-gray-light text-gray-400 hover:text-white transition-all duration-300 shadow-lg border border-brand-gray-light/50"
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                clearSelection();
+              }}
+              className="relative z-50 p-2.5 rounded-full bg-brand-gray hover:bg-brand-gray-light text-brand-white transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-brand-gray-light/50 cursor-pointer active:scale-90 pointer-events-auto"
               aria-label="Cerrar panel"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5 pointer-events-none" />
             </button>
           </div>
 
@@ -57,20 +76,56 @@ export default function SidePanel() {
             ) : coffees.length > 0 ? (
               <>
                 {deptData?.descripcion && (
-                  <p className="text-gray-400 text-sm leading-relaxed mb-8 italic border-l-2 border-brand-accent pl-4 py-1">
+                  <p className="text-gray-400 text-sm leading-relaxed mb-6 italic border-l-2 border-brand-accent pl-4 py-1">
                     {deptData.descripcion}
                   </p>
                 )}
-                <motion.div
-                  variants={staggerContainerVariants}
-                  initial="hidden"
-                  animate="show"
-                  className="space-y-4"
-                >
-                  {coffees.map((coffee) => (
-                    <CoffeeCard key={coffee.id} coffee={coffee} />
-                  ))}
-                </motion.div>
+
+                {/* Filtros y Búsqueda */}
+                <div className="flex flex-col gap-3 mb-6">
+                  <div className="relative w-full">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                    <input
+                      type="text"
+                      placeholder="Buscar por lote o finca..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full bg-brand-black border border-brand-gray-light rounded-xl pl-9 pr-4 py-2.5 text-sm text-brand-white focus:outline-none focus:border-brand-accent/70 transition-colors placeholder:text-gray-600 shadow-inner"
+                    />
+                  </div>
+                  <div className="relative w-full">
+                    <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="w-full bg-brand-black border border-brand-gray-light rounded-xl pl-9 pr-4 py-2.5 text-sm text-brand-white focus:outline-none focus:border-brand-accent/70 transition-colors appearance-none cursor-pointer shadow-inner"
+                    >
+                      <option value="all">Todas las categorías</option>
+                      <option value="Regional">Regional</option>
+                      <option value="Culturing">Culturing</option>
+                      <option value="Varietal">Varietal</option>
+                    </select>
+                  </div>
+                </div>
+
+                {filteredCoffees.length > 0 ? (
+                  <motion.div
+                    key={categoryFilter + searchTerm} // Forzar re-animación al filtrar
+                    variants={staggerContainerVariants}
+                    initial="hidden"
+                    animate="show"
+                    className="space-y-4"
+                  >
+                    {filteredCoffees.map((coffee) => (
+                      <CoffeeCard key={coffee.id} coffee={coffee} />
+                    ))}
+                  </motion.div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-10 text-center space-y-2 opacity-70">
+                    <p className="text-brand-accent font-serif text-lg">No hay coincidencias</p>
+                    <p className="text-xs text-gray-500">Prueba con otros términos de búsqueda o filtros.</p>
+                  </div>
+                )}
               </>
             ) : (
               <div className="flex flex-col items-center justify-center h-48 text-gray-500 space-y-2">
