@@ -24,10 +24,12 @@ export default function Home() {
 
       {/* Header Fijo */}
       <header className="absolute top-0 inset-x-0 z-20 flex justify-between items-center px-6 py-6 md:px-10">
-        <div className="flex items-center gap-3">
-          <CoffeeBeanIcon className="w-8 h-8 text-brand-accent" />
-          <div className="flex flex-col">
-            <h1 className="font-serif text-2xl md:text-3xl font-medium tracking-tight text-brand-cream leading-none">
+        <div className="flex items-center gap-3 group cursor-default">
+          <div className="p-1 rounded-full bg-brand-gray/30 border border-brand-accent/20 backdrop-blur-md shadow-[0_0_15px_rgba(200,169,126,0.3)] group-hover:shadow-[0_0_20px_rgba(200,169,126,0.5)] transition-shadow duration-500">
+            <CoffeeBeanIcon className="w-8 h-8 text-brand-accent drop-shadow-md -rotate-12 group-hover:rotate-0 transition-transform duration-500" />
+          </div>
+          <div className="flex flex-col ml-1">
+            <h1 className="font-serif text-2xl md:text-3xl font-medium tracking-tight text-brand-cream leading-none mt-1 transition-colors duration-500 group-hover:text-brand-white">
               El Depósito
             </h1>
             <span className="text-[10px] uppercase tracking-[0.2em] text-gray-500 mt-1 font-sans">
