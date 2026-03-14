@@ -35,8 +35,11 @@ interface CoffeeStore {
 
   // ─── Acciones ──────────────────────────────────────────────────
 
-  /** Selecciona un departamento y carga sus cafés */
+  /** Selecciona un departamento e inicia la carga inicial */
   selectDept: (id: string) => Promise<void>;
+
+  /** Carga o filtra los cafés con parámetros de búsqueda y categoría (Server-side) */
+  fetchCoffees: (deptId: string, search?: string, category?: string) => Promise<void>;
 
   /** Deselecciona el departamento actual y limpia el panel */
   clearSelection: () => void;
@@ -47,26 +50,42 @@ interface CoffeeStore {
 
 // ─── Store ────────────────────────────────────────────────────────
 
-export const useCoffeeStore = create<CoffeeStore>((set) => ({
+export const useCoffeeStore = create<CoffeeStore>((set, get) => ({
   // ─── Estado inicial ─────────────────────────────────────────────
   selectedDept: null,
   coffees: [],
   activeDepts: [],
   isLoading: false,
 
-  // ─── Seleccionar departamento y cargar sus cafés ─────────────────
+  // ─── Seleccionar departamento ────────────────────────────────────
   selectDept: async (id: string) => {
-    // Activamos el loading e indicamos el departamento
-    set({ selectedDept: id, isLoading: true, coffees: [] });
+    set({ selectedDept: id });
+    await get().fetchCoffees(id);
+  },
 
-    const { data, error } = await supabase
+  // ─── Cargar o filtrar cafés (Server-side) ────────────────────────
+  fetchCoffees: async (deptId: string, search?: string, category?: string) => {
+    set({ isLoading: true });
+
+    let query = supabase
       .from('cafes')
       .select('*')
-      .eq('departamento_id', id)
-      .order('created_at', { ascending: false });
+      .eq('departamento_id', deptId);
+
+    // Aplicar filtros en el servidor (Supabase)
+    if (search) {
+      // Busca en nombre o finca
+      query = query.or(`nombre.ilike.%${search}%,finca.ilike.%${search}%`);
+    }
+
+    if (category && category !== 'all') {
+      query = query.eq('categoria', category);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
-      console.error('[CoffeeStore] Error cargando cafés:', error.message);
+      console.error('[CoffeeStore] Error filtrando cafés:', error.message);
       set({ isLoading: false });
       return;
     }

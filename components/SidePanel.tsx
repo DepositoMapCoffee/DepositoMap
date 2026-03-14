@@ -9,7 +9,7 @@ import { getPanelVariants, staggerContainerVariants } from '@/lib/animations';
 import CoffeeCard from './CoffeeCard';
 
 export default function SidePanel() {
-  const { selectedDept, clearSelection, coffees, isLoading } = useCoffeeStore();
+  const { selectedDept, clearSelection, coffees, isLoading, fetchCoffees } = useCoffeeStore();
   
   // Local state for filtering
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,15 +20,17 @@ export default function SidePanel() {
     departamentos.find(d => d.id === selectedDept), 
   [selectedDept]);
 
-  // Filter coffees based on search term and category
-  const filteredCoffees = useMemo(() => {
-    return coffees.filter(coffee => {
-      const matchesSearch = coffee.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                            coffee.finca.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = categoryFilter === 'all' || coffee.categoria === categoryFilter;
-      return matchesSearch && matchesCategory;
-    });
-  }, [coffees, searchTerm, categoryFilter]);
+  // Efecto para filtrar en el servidor cuando cambian los inputs
+  React.useEffect(() => {
+    if (!selectedDept) return;
+
+    // Debounce para no saturar Supabase mientras el usuario escribe
+    const delayDebounceFn = setTimeout(() => {
+      fetchCoffees(selectedDept, searchTerm, categoryFilter);
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [selectedDept, searchTerm, categoryFilter, fetchCoffees]);
 
   return (
     <AnimatePresence>
@@ -68,12 +70,12 @@ export default function SidePanel() {
 
           {/* Contenido (Lista de Cafés) */}
           <div className="flex-1 overflow-y-auto px-6 md:px-8 pb-12 custom-scrollbar">
-            {isLoading ? (
+            {isLoading && coffees.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-48 space-y-4 text-brand-accent">
                 <Loader2 className="w-8 h-8 animate-spin" />
                 <p className="text-sm tracking-wide">Cargando orígenes...</p>
               </div>
-            ) : coffees.length > 0 ? (
+            ) : (
               <>
                 {deptData?.descripcion && (
                   <p className="text-gray-400 text-sm leading-relaxed mb-6 italic border-l-2 border-brand-accent pl-4 py-1">
@@ -108,30 +110,34 @@ export default function SidePanel() {
                   </div>
                 </div>
 
-                {filteredCoffees.length > 0 ? (
+                {isLoading && coffees.length > 0 && (
+                  <div className="flex items-center justify-center py-2 text-brand-accent/50">
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    <span className="text-xs uppercase tracking-tighter">Actualizando...</span>
+                  </div>
+                )}
+
+                {coffees.length > 0 ? (
                   <motion.div
-                    key={categoryFilter + searchTerm} // Forzar re-animación al filtrar
+                    key={selectedDept} // Re-animar solo al cambiar de departamento
                     variants={staggerContainerVariants}
                     initial="hidden"
                     animate="show"
                     className="space-y-4"
                   >
-                    {filteredCoffees.map((coffee) => (
+                    {coffees.map((coffee) => (
                       <CoffeeCard key={coffee.id} coffee={coffee} />
                     ))}
                   </motion.div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-10 text-center space-y-2 opacity-70">
-                    <p className="text-brand-accent font-serif text-lg">No hay coincidencias</p>
-                    <p className="text-xs text-gray-500">Prueba con otros términos de búsqueda o filtros.</p>
-                  </div>
+                  !isLoading && (
+                    <div className="flex flex-col items-center justify-center py-10 text-center space-y-2 opacity-70">
+                      <p className="text-brand-accent font-serif text-lg">No hay coincidencias</p>
+                      <p className="text-xs text-gray-500">Prueba con otros términos de búsqueda o filtros.</p>
+                    </div>
+                  )
                 )}
               </>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-48 text-gray-500 space-y-2">
-                <p className="font-serif text-xl text-gray-400">Sin datos disponibles</p>
-                <p className="text-sm">No tenemos cafés registrados para esta región aún.</p>
-              </div>
             )}
           </div>
         </motion.div>
