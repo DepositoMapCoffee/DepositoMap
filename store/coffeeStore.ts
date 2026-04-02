@@ -70,7 +70,8 @@ export const useCoffeeStore = create<CoffeeStore>((set, get) => ({
     let query = supabase
       .from('cafes')
       .select('*')
-      .eq('departamento_id', deptId);
+      .eq('departamento_id', deptId)
+      .eq('visible', true);
 
     // Aplicar filtros en el servidor (Supabase)
     if (search) {
@@ -102,7 +103,8 @@ export const useCoffeeStore = create<CoffeeStore>((set, get) => ({
   loadActiveDepts: async () => {
     const { data, error } = await supabase
       .from('cafes')
-      .select('departamento_id');
+      .select('departamento_id')
+      .eq('visible', true);
 
     if (error) {
       console.error('[CoffeeStore] Error cargando departamentos activos:', error.message);

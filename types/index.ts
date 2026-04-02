@@ -49,6 +49,8 @@ export interface Coffee {
   notas: string;
   /** Categoría de clasificación del café */
   categoria: CoffeeCategory;
+  /** Si el café es visible para el público */
+  visible: boolean;
   /** Fecha de creación (ISO 8601) */
   created_at: string;
 }

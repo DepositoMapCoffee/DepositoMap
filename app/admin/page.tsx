@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, Plus, Search, Trash2, Edit2, Loader2, Map as MapIcon } from 'lucide-react';
+import { LogOut, Plus, Search, Trash2, Edit2, Loader2, Map as MapIcon, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Coffee, CoffeeFormData, CoffeeCategory, CoffeeProcess } from '@/types';
 import { departamentos } from '@/data/mapaData';
@@ -16,6 +16,7 @@ const INITIAL_FORM_STATE: CoffeeFormData = {
   proceso: 'Lavado',
   notas: '',
   categoria: 'Regional',
+  visible: true,
 };
 
 export default function AdminPage() {
@@ -103,6 +104,7 @@ export default function AdminPage() {
       proceso: coffee.proceso,
       notas: coffee.notas,
       categoria: coffee.categoria,
+      visible: coffee.visible ?? true,
     });
     setEditingId(coffee.id);
     setFormError(null);
@@ -246,6 +248,7 @@ export default function AdminPage() {
                     <th className="px-6 py-4 font-medium">Lote / Nombre</th>
                     <th className="px-6 py-4 font-medium">Departamento</th>
                     <th className="px-6 py-4 font-medium">Finca</th>
+                    <th className="px-6 py-4 font-medium">Estado</th>
                     <th className="px-6 py-4 font-medium">Perfil (Proceso / Cat)</th>
                     <th className="px-6 py-4 text-right font-medium">Acciones</th>
                   </tr>
@@ -262,6 +265,19 @@ export default function AdminPage() {
                         <td className="px-6 py-4 text-gray-300">
                           <p>{coffee.finca}</p>
                           <p className="text-xs text-gray-500">{coffee.altura}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          {coffee.visible ? (
+                            <div className="flex items-center gap-1.5 text-emerald-400">
+                              <Eye className="w-3.5 h-3.5" />
+                              <span className="text-[10px] uppercase font-bold tracking-widest">Público</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5 text-gray-500">
+                              <EyeOff className="w-3.5 h-3.5" />
+                              <span className="text-[10px] uppercase font-bold tracking-widest">Oculto</span>
+                            </div>
+                          )}
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex flex-col gap-1 items-start">
@@ -426,6 +442,20 @@ export default function AdminPage() {
                     className="w-full bg-brand-gray border border-brand-gray-light rounded-xl px-4 py-2.5 text-white focus:border-brand-accent focus:outline-none resize-none"
                     placeholder="Ej: Notas florales, acidez brillante, cuerpo sedoso..."
                   />
+                </div>
+
+                <div className="sm:col-span-2 flex items-center gap-3 p-4 bg-brand-gray-light/20 rounded-xl border border-brand-gray-light/50">
+                  <input
+                    type="checkbox"
+                    id="visible"
+                    checked={formData.visible}
+                    onChange={e => setFormData({...formData, visible: e.target.checked})}
+                    className="w-5 h-5 rounded border-brand-gray-light bg-brand-gray text-brand-accent focus:ring-brand-accent focus:ring-offset-brand-black"
+                  />
+                  <label htmlFor="visible" className="flex flex-col cursor-pointer">
+                    <span className="text-sm font-medium text-brand-cream">Visible en la tienda pública</span>
+                    <span className="text-xs text-gray-500">Si se desmarca, el café solo será visible en este panel administrativo.</span>
+                  </label>
                 </div>
               </div>
 
