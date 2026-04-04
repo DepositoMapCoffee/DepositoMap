@@ -17,6 +17,10 @@ const INITIAL_FORM_STATE: CoffeeFormData = {
   notas: '',
   categoria: 'Regional',
   visible: true,
+  preparacion: '',
+  sugerencias: '',
+  descripcion_larga: '',
+  metodo_sugerido: '',
 };
 
 export default function AdminPage() {
@@ -105,6 +109,10 @@ export default function AdminPage() {
       notas: coffee.notas,
       categoria: coffee.categoria,
       visible: coffee.visible ?? true,
+      preparacion: coffee.preparacion || '',
+      sugerencias: coffee.sugerencias || '',
+      descripcion_larga: coffee.descripcion_larga || '',
+      metodo_sugerido: coffee.metodo_sugerido || '',
     });
     setEditingId(coffee.id);
     setFormError(null);
@@ -442,6 +450,62 @@ export default function AdminPage() {
                     className="w-full bg-brand-gray border border-brand-gray-light rounded-xl px-4 py-2.5 text-white focus:border-brand-accent focus:outline-none resize-none"
                     placeholder="Ej: Notas florales, acidez brillante, cuerpo sedoso..."
                   />
+                </div>
+
+                <div className="sm:col-span-2 space-y-4">
+                  <div>
+                    <label className="block text-xs uppercase text-gray-500 mb-2 font-bold tracking-wider">Histotria / Descripción Ampliada</label>
+                    <textarea 
+                      rows={5}
+                      value={formData.descripcion_larga}
+                      onChange={e => setFormData({...formData, descripcion_larga: e.target.value})}
+                      className="w-full bg-brand-gray border border-brand-gray-light rounded-xl px-4 py-2.5 text-white focus:border-brand-accent focus:outline-none resize-none"
+                      placeholder="Detalles sobre el origen, el productor, historia de la finca..."
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs uppercase text-gray-500 mb-2 font-bold tracking-wider">Método Sugerido</label>
+                      <input 
+                        type="text"
+                        value={formData.metodo_sugerido}
+                        onChange={e => setFormData({...formData, metodo_sugerido: e.target.value})}
+                        className="w-full bg-brand-gray border border-brand-gray-light rounded-xl px-4 py-2.5 text-white focus:border-brand-accent focus:outline-none"
+                        placeholder="Ej: V60, Chemex, Prensa..."
+                        list="metodos"
+                      />
+                      <datalist id="metodos">
+                        <option value="V60" />
+                        <option value="Chemex" />
+                        <option value="AeroPress" />
+                        <option value="Prensa Francesa" />
+                        <option value="Moka Pot" />
+                        <option value="Espresso" />
+                        <option value="Cold Brew" />
+                      </datalist>
+                    </div>
+                    <div>
+                      <label className="block text-xs uppercase text-gray-500 mb-2 font-bold tracking-wider">Preparación Sugerida</label>
+                      <textarea 
+                        rows={3}
+                        value={formData.preparacion}
+                        onChange={e => setFormData({...formData, preparacion: e.target.value})}
+                        className="w-full bg-brand-gray border border-brand-gray-light rounded-xl px-4 py-2.5 text-white focus:border-brand-accent focus:outline-none resize-none"
+                        placeholder="Ej: Ratio 1:15, Temperatura 92°C, Molienda media..."
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs uppercase text-gray-500 mb-2 font-bold tracking-wider">Sugerencias del Tostador</label>
+                      <textarea 
+                        rows={3}
+                        value={formData.sugerencias}
+                        onChange={e => setFormData({...formData, sugerencias: e.target.value})}
+                        className="w-full bg-brand-gray border border-brand-gray-light rounded-xl px-4 py-2.5 text-white focus:border-brand-accent focus:outline-none resize-none"
+                        placeholder="Ej: Ideal para la mañana, marida bien con chocolate negro..."
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="sm:col-span-2 flex items-center gap-3 p-4 bg-brand-gray-light/20 rounded-xl border border-brand-gray-light/50">

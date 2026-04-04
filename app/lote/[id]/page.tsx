@@ -4,8 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Coffee } from '@/types';
-import { Loader2, ArrowLeft, MapPin, Mountain } from 'lucide-react';
+import { Loader2, ArrowLeft, MapPin, Mountain, Coffee as CoffeeIcon, Sparkles, BookOpen, Clock, Thermometer, Droplets } from 'lucide-react';
 import { departamentos } from '@/data/mapaData';
+import { motion } from 'framer-motion';
 
 export default function LoteDetail() {
   const { id } = useParams();
@@ -65,10 +66,14 @@ export default function LoteDetail() {
           Volver al Mapa
         </button>
 
-        <div className="grid md:grid-cols-2 gap-12">
-          {/* Header & Main Info */}
-          <div>
-            <div className="mb-6 flex gap-3 items-center">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        >
+          {/* 1. Header & Main Info (Col-span-2) */}
+          <div className="md:col-span-2 space-y-8">
+            <div className="flex gap-3 items-center">
               <span className="px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-md bg-brand-gray-light border border-brand-gray text-gray-300">
                 {coffee.proceso}
               </span>
@@ -81,37 +86,136 @@ export default function LoteDetail() {
               </span>
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-serif font-medium text-brand-cream mb-4 leading-tight">
-              {coffee.nombre}
-            </h1>
-            
-            <p className="text-lg md:text-xl text-brand-accent/90 font-serif italic mb-8">
-              {coffee.finca}
-            </p>
+            <div>
+              <h1 className="text-5xl md:text-7xl font-serif font-medium text-brand-cream mb-4 leading-tight">
+                {coffee.nombre}
+              </h1>
+              <p className="text-xl md:text-2xl text-brand-accent/90 font-serif italic">
+                {coffee.finca}
+              </p>
+            </div>
 
-            <div className="space-y-4 text-gray-300">
+            <div className="flex flex-wrap gap-6 text-gray-400">
               <div className="flex items-center gap-3">
-                <MapPin className="w-5 h-5 text-gray-500" />
+                <MapPin className="w-5 h-5 text-brand-accent/60" />
                 <span className="text-lg">{deptoName}</span>
               </div>
               <div className="flex items-center gap-3">
-                <Mountain className="w-5 h-5 text-gray-500" />
+                <Mountain className="w-5 h-5 text-brand-accent/60" />
                 <span className="text-lg">{coffee.altura}</span>
               </div>
             </div>
           </div>
 
-          {/* Tasting Notes & Details */}
-          <div className="bg-brand-gray/50 backdrop-blur-md rounded-2xl p-8 border border-brand-gray-light/50 h-fit">
-            <h3 className="font-serif text-xl tracking-wide text-brand-cream mb-4 flex items-center gap-2">
-              <span className="w-6 h-px bg-brand-accent block"></span>
+          {/* 2. Tasting Notes (Side Block) */}
+          <div className="bg-brand-gray/40 backdrop-blur-md rounded-3xl p-8 border border-brand-gray-light/50 flex flex-col justify-center">
+            <h3 className="font-serif text-xl text-brand-cream mb-4 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-brand-accent" />
               Perfil de Taza
             </h3>
-            <p className="text-gray-300 leading-relaxed">
-              {coffee.notas || 'No hay notas de cata disponibles para este lote.'}
+            <p className="text-gray-300 leading-relaxed italic text-lg">
+              "{coffee.notas || 'Perfil equilibrado con notas sutiles.'}"
             </p>
           </div>
-        </div>
+
+          {/* 3. Long Description (Bento Large) */}
+          <div className="md:col-span-2 bg-brand-gray/30 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-brand-gray-light/30">
+            <h3 className="text-xs uppercase tracking-[0.2em] text-brand-accent/80 mb-6 font-bold flex items-center gap-3">
+              <BookOpen className="w-4 h-4" />
+              Historia y Detalles del Lote
+            </h3>
+            <div className="prose prose-invert max-w-none">
+              <p className="text-gray-300 leading-relaxed text-lg whitespace-pre-line">
+                {coffee.descripcion_larga || `Este exclusivo lote proveniente de la finca ${coffee.finca} representa la excelencia del café en ${deptoName}. Un proceso de ${coffee.proceso} meticuloso que resalta las mejores cualidades de su variedad botánica.`}
+              </p>
+            </div>
+          </div>
+
+          {/* 4. Image Placeholder 1 */}
+          <div className="aspect-square md:aspect-auto bg-brand-gray/20 rounded-3xl border border-dashed border-brand-gray-light/50 flex flex-col items-center justify-center group overflow-hidden relative">
+            <img 
+              src={`/images/coffees/${coffee.id}/photo1.jpg`} 
+              alt={coffee.nombre}
+              className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+              onError={(e) => (e.currentTarget.style.display = 'none')}
+            />
+            <div className="text-center p-6 group-hover:opacity-0 transition-opacity duration-300">
+              <div className="w-12 h-12 rounded-full bg-brand-gray-light/30 flex items-center justify-center mx-auto mb-3">
+                <CoffeeIcon className="w-6 h-6 text-gray-500" />
+              </div>
+              <p className="text-xs text-gray-500 uppercase tracking-widest">Fotografía del Lote</p>
+            </div>
+          </div>
+
+          {/* 5. Preparation (Bento Medium) */}
+          <div className="bg-linear-to-br from-brand-accent/10 to-transparent rounded-3xl p-8 border border-brand-accent/20">
+            <h3 className="text-xs uppercase tracking-[0.2em] text-brand-accent mb-6 font-bold flex items-center gap-3">
+              <CoffeeIcon className="w-4 h-4" />
+              Preparación Sugerida
+            </h3>
+            {coffee.preparacion ? (
+              <div className="space-y-4">
+                {coffee.metodo_sugerido && (
+                  <div className="flex items-center gap-3 text-brand-accent font-serif text-lg mb-2">
+                    <CoffeeIcon className="w-5 h-5" />
+                    <span>{coffee.metodo_sugerido}</span>
+                  </div>
+                )}
+                <p className="text-gray-300 leading-relaxed whitespace-pre-line">
+                  {coffee.preparacion}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {coffee.metodo_sugerido && (
+                  <div className="flex items-center gap-3 text-brand-accent font-serif text-lg mb-2">
+                    <CoffeeIcon className="w-5 h-5" />
+                    <span>{coffee.metodo_sugerido}</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-3 text-sm text-gray-400">
+                  <Droplets className="w-4 h-4 text-brand-accent/50" />
+                  <span>Ratio: 1:15</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-gray-400">
+                  <Thermometer className="w-4 h-4 text-brand-accent/50" />
+                  <span>Temp: 92°C - 94°C</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-gray-400">
+                  <Clock className="w-4 h-4 text-brand-accent/50" />
+                  <span>Tiempo: 3:00 - 3:30 min</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 6. Image Placeholder 2 */}
+          <div className="aspect-square md:aspect-auto bg-brand-gray/20 rounded-3xl border border-dashed border-brand-gray-light/50 flex flex-col items-center justify-center group overflow-hidden relative">
+            <img 
+              src={`/images/coffees/${coffee.id}/photo2.jpg`} 
+              alt="Finca"
+              className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+              onError={(e) => (e.currentTarget.style.display = 'none')}
+            />
+            <div className="text-center p-6 group-hover:opacity-0 transition-opacity duration-300">
+              <div className="w-12 h-12 rounded-full bg-brand-gray-light/30 flex items-center justify-center mx-auto mb-3">
+                <MapPin className="w-6 h-6 text-gray-500" />
+              </div>
+              <p className="text-xs text-gray-500 uppercase tracking-widest">Sobre la Finca</p>
+            </div>
+          </div>
+
+          {/* 7. Suggestions (Bento Medium) */}
+          <div className="bg-brand-gray/30 backdrop-blur-sm rounded-3xl p-8 border border-brand-gray-light/30">
+            <h3 className="text-xs uppercase tracking-[0.2em] text-brand-accent/80 mb-6 font-bold flex items-center gap-3">
+              <Sparkles className="w-4 h-4" />
+              Sugerencias del Tostador
+            </h3>
+            <p className="text-gray-400 leading-relaxed text-sm italic">
+              {coffee.sugerencias || 'Marida perfectamente con postres cítricos o chocolate con alta concentración de cacao.'}
+            </p>
+          </div>
+        </motion.div>
       </div>
     </main>
   );

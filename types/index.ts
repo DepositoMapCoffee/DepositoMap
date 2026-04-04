@@ -51,6 +51,14 @@ export interface Coffee {
   categoria: CoffeeCategory;
   /** Si el café es visible para el público */
   visible: boolean;
+  /** Información sobre preparación sugerida */
+  preparacion?: string;
+  /** Sugerencias del tostador */
+  sugerencias?: string;
+  /** Descripción detallada o historia del lote */
+  descripcion_larga?: string;
+  /** Método de extracción sugerido */
+  metodo_sugerido?: string;
   /** Fecha de creación (ISO 8601) */
   created_at: string;
 }
