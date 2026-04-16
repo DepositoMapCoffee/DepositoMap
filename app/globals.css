@@ -4,18 +4,19 @@
   --font-sans: var(--font-inter);
   --font-serif: var(--font-newsreader);
 
-  --color-brand-black: #0D0D0D;
-  --color-brand-white: #FFFFFF;
+  --color-brand-black: #0A0A0A;
+  --color-brand-white: #F2F3F5;
   --color-brand-cream: #E8E0D4;
   --color-brand-gray: #1A1A1A;
   --color-brand-gray-light: #2A2A2A;
-  --color-brand-accent: #C8A97E;
+  --color-brand-accent: #2FA36B;
+  --color-brand-gold: #C8A97E;
 }
 
 @layer base {
   :root {
-    --background: #0D0D0D;
-    --foreground: #FFFFFF;
+    --background: #0A0A0A;
+    --foreground: #F2F3F5;
   }
 
   body {

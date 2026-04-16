@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useCoffeeStore } from '@/store/coffeeStore';
 import MapaColombia from '@/components/MapaColombia';
 import SidePanel from '@/components/SidePanel';
-import CoffeeBeanIcon from '@/components/CoffeeBeanIcon';
 
 export default function Home() {
   const { loadActiveDepts, selectedDept, clearSelection } = useCoffeeStore();
@@ -24,21 +23,28 @@ export default function Home() {
 
       {/* Header Fijo */}
       <header className="absolute top-0 inset-x-0 z-20 flex justify-between items-center px-6 py-6 md:px-10">
-        <div className="flex items-center gap-3 group cursor-default">
-          <div className="relative flex items-center justify-center">
-            {/* Brillo de fondo */}
+        <div className="flex items-center gap-4 group cursor-default">
+
+          {/* Isotipo */}
+          <div className="relative flex items-center justify-center" style={{ flexShrink: 0 }}>
             <div className="absolute inset-0 bg-brand-accent/20 blur-xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-            
-            <CoffeeBeanIcon className="w-10 h-10 md:w-12 md:h-12 text-brand-accent drop-shadow-[0_0_8px_rgba(200,169,126,0.5)] -rotate-12 group-hover:rotate-0 transition-all duration-700 ease-out z-10" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/Isotipo.svg"
+              alt=""
+              aria-hidden="true"
+              className="relative z-10 h-12 md:h-16 w-auto drop-shadow-[0_0_8px_rgba(242,243,245,0.15)]"
+            />
           </div>
-          <div className="flex flex-col ml-2">
-            <h1 className="font-serif text-2xl md:text-3xl font-medium tracking-tight text-brand-cream leading-none mt-1 transition-colors duration-500 group-hover:text-brand-white">
-              El Depósito
-            </h1>
-            <span className="text-[10px] uppercase tracking-[0.2em] text-gray-500 mt-1 font-sans">
-              Specialty Coffee
-            </span>
-          </div>
+
+          {/* Logo wordmark + fecha */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/Logo.svg"
+            alt="El Depósito"
+            className="h-16 md:h-20 w-auto"
+            style={{ flexShrink: 0 }}
+          />
         </div>
 
         {/* Acceso Admin */}
