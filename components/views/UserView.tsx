@@ -24,7 +24,7 @@ export default function UserView() {
       setSession(session);
       if (session?.user?.email) {
         const { data } = await supabase.from('admins').select('*').eq('email', session.user.email);
-        setIsAdmin(data && data.length > 0);
+        setIsAdmin((data?.length ?? 0) > 0);
       }
       setLoadingSession(false);
     });
@@ -34,7 +34,7 @@ export default function UserView() {
       setSession(session);
       if (session?.user?.email) {
         const { data } = await supabase.from('admins').select('*').eq('email', session.user.email);
-        setIsAdmin(data && data.length > 0);
+        setIsAdmin((data?.length ?? 0) > 0);
       } else {
         setIsAdmin(false);
       }
