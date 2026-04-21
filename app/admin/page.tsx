@@ -43,20 +43,33 @@ export default function AdminPage() {
 
   // 1. Check Auth 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
-      setLoadingAuth(false);
+      
       if (!session) {
+        setLoadingAuth(false);
         router.push('/admin/login');
+      } else if (session?.user?.email) {
+        const { data } = await supabase.from('admins').select('*').eq('email', session.user.email);
+        if (!data || data.length === 0) {
+          router.push('/');
+        } else {
+          setLoadingAuth(false);
+        }
       }
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
       if (!session) {
         router.push('/admin/login');
+      } else if (session?.user?.email) {
+        const { data } = await supabase.from('admins').select('*').eq('email', session.user.email);
+        if (!data || data.length === 0) {
+          router.push('/');
+        }
       }
     });
 
