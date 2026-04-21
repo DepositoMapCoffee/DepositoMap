@@ -127,20 +127,25 @@ export const getPathAnimation = (
   hasData: boolean,
   deptColor: string,
 ) => {
-  /** Color inactivo: gris oscuro para el mapa negro */
-  const inactive = '#2A2A2A';
-  /** Color activo del departamento (único por hash) */
+  /** Color inactivo: superficie oscura del canvas */
+  const inactive = '#1A1A1A';
+  /** Color activo del departamento (hash full-spectrum) */
   const active = deptColor;
-  /** Color de selección: blanco roto elegante */
+  /** Color seleccionado: crema clara sobre fondo negro */
   const selected = '#E8E0D4';
 
   return {
     initial: { fill: inactive },
     animate: {
       fill: isSelected ? selected : isHovered || hasData ? active : inactive,
-      stroke: isSelected ? '#FFFFFF' : '#0D0D0D',
-      strokeWidth: isSelected ? 2 : 0.8,
+      stroke: isSelected ? '#2fa36b' : '#0A0A0A',
+      strokeWidth: isSelected ? 1.5 : 0.7,
       scale: isSelected ? 1.03 : 1,
+      filter: isSelected
+        ? 'drop-shadow(0 0 8px rgba(47,163,107,0.4))'
+        : hasData && isHovered
+        ? 'drop-shadow(0 0 3px rgba(47,163,107,0.15))'
+        : 'none',
       transition: {
         duration: 0.3,
         ease: EASE_SMOOTH,
