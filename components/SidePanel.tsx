@@ -10,25 +10,19 @@ import CoffeeCard from './CoffeeCard';
 
 export default function SidePanel() {
   const { selectedDept, clearSelection, coffees, isLoading, fetchCoffees } = useCoffeeStore();
-  
-  // Local state for filtering
+
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
-  // Encontramos los datos del departamento seleccionado para el título
-  const deptData = useMemo(() => 
-    departamentos.find(d => d.id === selectedDept), 
+  const deptData = useMemo(() =>
+    departamentos.find(d => d.id === selectedDept),
   [selectedDept]);
 
-  // Efecto para filtrar en el servidor cuando cambian los inputs
   React.useEffect(() => {
     if (!selectedDept) return;
-
-    // Debounce para no saturar Supabase mientras el usuario escribe
     const delayDebounceFn = setTimeout(() => {
       fetchCoffees(selectedDept, searchTerm, categoryFilter);
     }, 400);
-
     return () => clearTimeout(delayDebounceFn);
   }, [selectedDept, searchTerm, categoryFilter, fetchCoffees]);
 
@@ -40,67 +34,104 @@ export default function SidePanel() {
           initial="initial"
           animate="animate"
           exit="exit"
-          className="fixed inset-x-0 bottom-0 top-[40vh] md:inset-y-0 md:left-auto md:right-0 md:w-[480px] bg-brand-black/95 backdrop-blur-xl border-t md:border-t-0 md:border-l border-brand-gray-light shadow-2xl flex flex-col z-40 rounded-t-3xl md:rounded-none"
+          className="fixed inset-x-0 bottom-[68px] top-[42vh] md:top-[38vh] lg:inset-y-0 lg:left-auto lg:right-0 lg:w-[480px]
+            flex flex-col z-40 rounded-t-3xl lg:rounded-none overflow-hidden
+            shadow-[0_-8px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(90,90,90,0.15)]"
+          style={{
+            background: 'rgba(19, 19, 19, 0.92)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+          }}
         >
-          {/* Header */}
-          <div className="sticky top-0 z-20 flex justify-between items-center p-6 md:p-8 bg-linear-to-b from-brand-black/95 to-transparent border-b border-brand-gray-light/50">
-            <div>
-              <h2 className="font-serif text-3xl text-brand-white mb-2 drop-shadow-md">
-                {deptData?.nombre}
-              </h2>
-              <div className="flex items-center gap-2 text-brand-accent/80 text-sm tracking-widest uppercase">
-                <span className="w-8 h-px bg-brand-accent/50 block"></span>
-                Selección de Origen
-              </div>
-            </div>
-            
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                clearSelection();
-              }}
-              className="relative z-50 p-2.5 rounded-full bg-brand-gray hover:bg-brand-gray-light text-brand-white transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.5)] border border-brand-gray-light/50 cursor-pointer active:scale-90 pointer-events-auto"
-              aria-label="Cerrar panel"
-            >
-              <X className="w-5 h-5 pointer-events-none" />
-            </button>
+          {/* ── Mobile drag pill ── */}
+          <div className="flex justify-center pt-3 pb-1 md:hidden">
+            <div className="w-10 h-1 rounded-full bg-outline-soft/50" />
           </div>
 
-          {/* Contenido (Lista de Cafés) */}
-          <div className="flex-1 overflow-y-auto px-6 md:px-8 pb-12 custom-scrollbar">
+          {/* ── Header del panel ── */}
+          <div
+            className="sticky top-0 z-20 px-7 md:px-8 pt-6 pb-5"
+            style={{
+              background: 'linear-gradient(to bottom, rgba(19,19,19,1) 70%, rgba(19,19,19,0))',
+            }}
+          >
+            <div className="flex justify-between items-start">
+              {/* Nombre del departamento */}
+              <div>
+                {/* Eyebrow */}
+                <div className="flex items-center gap-2.5 mb-2">
+                  <span className="block w-6 h-px bg-brand-accent/60" />
+                  <span className="text-[10px] uppercase tracking-[0.22em] text-brand-accent/70 font-sans font-semibold">
+                    Selección de Origen
+                  </span>
+                </div>
+                <h2 className="font-serif text-4xl font-medium text-on-surface tracking-tight leading-none">
+                  {deptData?.nombre}
+                </h2>
+              </div>
+
+              {/* Botón cerrar */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  clearSelection();
+                }}
+                className="mt-1 p-2 rounded-full
+                  bg-surface-highest/70 hover:bg-surface-bright
+                  border border-outline-soft/30 hover:border-gold-container/40
+                  text-on-surface-soft hover:text-gold-primary
+                  transition-all duration-300 cursor-pointer active:scale-90 pointer-events-auto"
+                aria-label="Cerrar panel"
+              >
+                <X className="w-4 h-4 pointer-events-none" />
+              </button>
+            </div>
+          </div>
+
+          {/* ── Contenido scrolleable ── */}
+          <div className="flex-1 overflow-y-auto px-7 md:px-8 pb-12">
             {isLoading && coffees.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-48 space-y-4 text-brand-accent">
-                <Loader2 className="w-8 h-8 animate-spin" />
-                <p className="text-sm tracking-wide">Cargando orígenes...</p>
+              <div className="flex flex-col items-center justify-center h-48 space-y-4">
+                <Loader2 className="w-6 h-6 animate-spin text-brand-accent" />
+                <p className="text-xs uppercase tracking-[0.15em] text-on-surface-soft/60">Cargando orígenes…</p>
               </div>
             ) : (
               <>
+                {/* Descripción con Gold Thread */}
                 {deptData?.descripcion && (
-                  <p className="text-gray-400 text-sm leading-relaxed mb-6 italic border-l-2 border-brand-accent pl-4 py-1">
+                  <p className="text-on-surface-soft/70 text-sm leading-relaxed mb-7 italic gold-thread pl-4 py-1">
                     {deptData.descripcion}
                   </p>
                 )}
 
-                {/* Filtros y Búsqueda */}
-                <div className="flex flex-col gap-3 mb-6">
+                {/* ── Filtros ── */}
+                <div className="flex flex-col gap-2.5 mb-7">
+                  {/* Búsqueda */}
                   <div className="relative w-full">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-outline/70 pointer-events-none" />
                     <input
                       type="text"
-                      placeholder="Buscar por lote o finca..."
+                      placeholder="Buscar por lote o finca…"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full bg-brand-black border border-brand-gray-light rounded-xl pl-9 pr-4 py-2.5 text-sm text-brand-white focus:outline-none focus:border-brand-accent/70 transition-colors placeholder:text-gray-600 shadow-inner"
+                      className="w-full bg-surface-lowest/80 pl-9 pr-4 py-2.5 text-sm text-on-surface
+                        rounded-lg ghost-border
+                        focus:outline-none focus:border-gold-container/50
+                        transition-colors placeholder:text-outline/50"
                     />
                   </div>
+                  {/* Categoría */}
                   <div className="relative w-full">
-                    <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+                    <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-outline/70 pointer-events-none" />
                     <select
                       value={categoryFilter}
                       onChange={(e) => setCategoryFilter(e.target.value)}
-                      className="w-full bg-brand-black border border-brand-gray-light rounded-xl pl-9 pr-4 py-2.5 text-sm text-brand-white focus:outline-none focus:border-brand-accent/70 transition-colors appearance-none cursor-pointer shadow-inner"
+                      className="w-full bg-surface-lowest/80 pl-9 pr-4 py-2.5 text-sm text-on-surface
+                        rounded-lg ghost-border
+                        focus:outline-none focus:border-gold-container/50
+                        transition-colors appearance-none cursor-pointer"
                     >
                       <option value="all">Todas las categorías</option>
                       <option value="Regional">Regional</option>
@@ -110,20 +141,22 @@ export default function SidePanel() {
                   </div>
                 </div>
 
+                {/* Indicador de recarga */}
                 {isLoading && coffees.length > 0 && (
-                  <div className="flex items-center justify-center py-2 text-brand-accent/50">
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    <span className="text-xs uppercase tracking-tighter">Actualizando...</span>
+                  <div className="flex items-center justify-center py-2 text-brand-accent/40 mb-2">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />
+                    <span className="text-[10px] uppercase tracking-wider">Actualizando…</span>
                   </div>
                 )}
 
+                {/* Lista de cafés */}
                 {coffees.length > 0 ? (
                   <motion.div
-                    key={selectedDept} // Re-animar solo al cambiar de departamento
+                    key={selectedDept}
                     variants={staggerContainerVariants}
                     initial="hidden"
                     animate="show"
-                    className="space-y-4"
+                    className="space-y-3"
                   >
                     {coffees.map((coffee) => (
                       <CoffeeCard key={coffee.id} coffee={coffee} />
@@ -131,9 +164,11 @@ export default function SidePanel() {
                   </motion.div>
                 ) : (
                   !isLoading && (
-                    <div className="flex flex-col items-center justify-center py-10 text-center space-y-2 opacity-70">
-                      <p className="text-brand-accent font-serif text-lg">No hay coincidencias</p>
-                      <p className="text-xs text-gray-500">Prueba con otros términos de búsqueda o filtros.</p>
+                    <div className="flex flex-col items-center justify-center py-12 text-center space-y-2 opacity-60">
+                      <p className="text-brand-accent font-serif text-xl">No hay coincidencias</p>
+                      <p className="text-xs text-outline/70 tracking-wide">
+                        Prueba con otros términos de búsqueda o filtros.
+                      </p>
                     </div>
                   )
                 )}
