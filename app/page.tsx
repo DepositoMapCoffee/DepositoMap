@@ -69,20 +69,11 @@ export default function HomePage() {
       {/* ══════════════════════════════════════════
           TOP HEADER — mobile / tablet (< lg)
       ══════════════════════════════════════════ */}
-      <header className="lg:hidden fixed top-0 inset-x-0 z-30 flex justify-between items-center
+      <header className="lg:hidden fixed top-0 inset-x-0 z-30 flex justify-center items-center
         px-5 py-4 bg-brand-black/85 backdrop-blur-md border-b border-outline-soft/10">
-        <button className="p-2 rounded-lg text-on-surface-soft/60 hover:text-on-surface transition-colors cursor-pointer">
-          <Menu className="w-5 h-5" />
-        </button>
-
         <span className="font-serif text-xl font-medium text-brand-accent tracking-wide">
           El Depósito
         </span>
-
-        <button onClick={() => handleNav('user')}
-          className={`p-2 rounded-lg transition-colors cursor-pointer ${activeTab === 'user' ? 'text-brand-accent' : 'text-on-surface-soft/60 hover:text-brand-accent'}`}>
-          <User className="w-5 h-5" />
-        </button>
       </header>
 
       {/* ══════════════════════════════════════════
