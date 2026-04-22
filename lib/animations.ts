@@ -138,8 +138,8 @@ export const getPathAnimation = (
     initial: { fill: inactive },
     animate: {
       fill: isSelected ? selected : isHovered || hasData ? active : inactive,
-      stroke: isSelected ? '#2fa36b' : '#0A0A0A',
-      strokeWidth: isSelected ? 1.5 : 0.7,
+      stroke: isSelected ? '#2fa36b' : 'rgba(47,163,107,0.35)',
+      strokeWidth: isSelected ? 1.5 : 0.6,
       scale: isSelected ? 1.03 : 1,
       filter: isSelected
         ? 'drop-shadow(0 0 8px rgba(47,163,107,0.4))'
