@@ -22,6 +22,21 @@ function getHashColor(str: string): string {
 export default function MapaColombia() {
   const { selectedDept, selectDept, activeDepts, clearSelection } = useCoffeeStore();
   const [hoveredDept, setHoveredDept] = React.useState<string | null>(null);
+  const svgRef = React.useRef<SVGSVGElement>(null);
+  const [viewBox, setViewBox] = React.useState<string>("260 270 600 760");
+
+  /* Auto-calcula el viewBox exacto a partir del bounding box real de los paths */
+  React.useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const g = svg.querySelector('g');
+    if (!g) return;
+    try {
+      const b = (g as SVGGElement).getBBox();
+      const pad = 20;
+      setViewBox(`${b.x - pad} ${b.y - pad} ${b.width + pad * 2} ${b.height + pad * 2}`);
+    } catch (_) { /* mantiene el valor fallback */ }
+  }, []);
 
   const deptColors = useMemo(() => {
     const colors: Record<string, string> = {};
@@ -54,13 +69,13 @@ export default function MapaColombia() {
 
       {/* ── SVG del mapa ── */}
       <svg
-        viewBox="0 0 1000 1000"
+        ref={svgRef}
+        viewBox={viewBox}
         className="w-full h-full relative z-[5]"
         preserveAspectRatio="xMidYMid meet"
-        style={{ padding: '5vh 8vw' }}
         onClick={() => clearSelection()}
       >
-        <g strokeLinecap="round" strokeLinejoin="round" transform="translate(45,-6)">
+        <g strokeLinecap="round" strokeLinejoin="round">
           {departamentos.map((dept) => {
             const isSelected = selectedDept === dept.id;
             const isHovered  = hoveredDept   === dept.id;
@@ -127,18 +142,7 @@ export default function MapaColombia() {
         </AnimatePresence>
       </div>
 
-      {/* ══════════════════════════════════════════════
-          BOTTOM LABEL — branding fijo
-      ══════════════════════════════════════════════ */}
-      <div className="absolute bottom-6 inset-x-0 z-20 pointer-events-none
-        flex flex-col items-center gap-0.5">
-        <p className="text-[10px] uppercase tracking-[0.5em] text-on-surface-soft/30 font-sans">
-          Colombia
-        </p>
-        <p className="text-[8px] uppercase tracking-[0.2em] text-on-surface-soft/15 font-sans">
-          Specialty Coffee
-        </p>
-      </div>
+
     </div>
   );
 }
