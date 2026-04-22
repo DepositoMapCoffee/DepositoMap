@@ -34,7 +34,7 @@ export default function SidePanel() {
           initial="initial"
           animate="animate"
           exit="exit"
-          className="fixed inset-x-0 bottom-[68px] top-[42vh] md:top-[38vh] lg:inset-y-0 lg:left-auto lg:right-0 lg:w-[480px]
+          className="fixed inset-x-0 bottom-[68px] top-[57px] lg:inset-y-0 lg:left-auto lg:right-0 lg:w-[480px]
             flex flex-col z-40 rounded-t-3xl lg:rounded-none overflow-hidden
             shadow-[0_-8px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(90,90,90,0.15)]"
           style={{
