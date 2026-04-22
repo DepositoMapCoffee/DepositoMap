@@ -19,7 +19,12 @@ const NAV_ITEMS = [
 
 export default function HomePage() {
   const { loadActiveDepts, selectedDept, clearSelection } = useCoffeeStore();
-  const [activeTab, setActiveTab] = useState<string>('home');
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('deposito_active_tab') ?? 'home';
+    }
+    return 'home';
+  });
 
   useEffect(() => {
     loadActiveDepts();
@@ -27,6 +32,7 @@ export default function HomePage() {
 
   const handleNav = (id: string) => {
     setActiveTab(id);
+    localStorage.setItem('deposito_active_tab', id);
     if (id === 'home' || id === 'catalog' || id === 'user') clearSelection();
   };
 
