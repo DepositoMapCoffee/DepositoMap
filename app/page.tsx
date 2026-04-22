@@ -19,12 +19,13 @@ const NAV_ITEMS = [
 
 export default function HomePage() {
   const { loadActiveDepts, selectedDept, clearSelection } = useCoffeeStore();
-  const [activeTab, setActiveTab] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('deposito_active_tab') ?? 'home';
-    }
-    return 'home';
-  });
+  const [activeTab, setActiveTab] = useState<string>('home');
+
+  // Restaurar la pestaña activa desde localStorage (solo en cliente)
+  useEffect(() => {
+    const saved = localStorage.getItem('deposito_active_tab');
+    if (saved) setActiveTab(saved);
+  }, []);
 
   useEffect(() => {
     loadActiveDepts();
