@@ -56,9 +56,24 @@ export default function CatalogView() {
   const router = useRouter();
 
   // Datos y carga
-  const [coffees,   setCoffees]   = useState<Coffee[]>([]);
-  const [loading,   setLoading]   = useState(true);
-  const [total,     setTotal]     = useState(0);
+  const [coffees,       setCoffees]       = useState<Coffee[]>([]);
+  const [loading,       setLoading]       = useState(true);
+  const [total,         setTotal]         = useState(0);
+  const [activeDeptIds, setActiveDeptIds] = useState<string[]>([]);
+
+  // Carga los departamentos que tienen al menos un café visible
+  useEffect(() => {
+    supabase
+      .from('cafes')
+      .select('departamento_id')
+      .eq('visible', true)
+      .then(({ data }) => {
+        if (data) {
+          const unique = [...new Set(data.map((r: any) => r.departamento_id as string))];
+          setActiveDeptIds(unique);
+        }
+      });
+  }, []);
 
   // Filtros
   const [search,    setSearch]    = useState('');
@@ -206,9 +221,11 @@ export default function CatalogView() {
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <FilterPill label="Todos" active={!deptId} onClick={() => setDeptId('')} />
-                  {departamentos.map(d => (
-                    <FilterPill key={d.id} label={d.nombre} active={deptId === d.id} onClick={() => setDeptId(deptId === d.id ? '' : d.id)} />
-                  ))}
+                  {departamentos
+                    .filter(d => activeDeptIds.includes(d.id))
+                    .map(d => (
+                      <FilterPill key={d.id} label={d.nombre} active={deptId === d.id} onClick={() => setDeptId(deptId === d.id ? '' : d.id)} />
+                    ))}
                 </div>
               </div>
 
