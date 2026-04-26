@@ -74,6 +74,7 @@ export default function MapaColombia() {
         className="w-full h-full relative z-[5]"
         preserveAspectRatio="xMidYMid meet"
         onClick={() => clearSelection()}
+        onMouseLeave={() => setHoveredDept(null)}
       >
         <g strokeLinecap="round" strokeLinejoin="round">
           {departamentos.map((dept) => {
