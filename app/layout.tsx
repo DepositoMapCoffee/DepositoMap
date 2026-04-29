@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Noto_Serif } from 'next/font/google';
 import './globals.css';
+import ToastContainer from '@/components/ui/ToastContainer';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -31,6 +32,7 @@ export default function RootLayout({
     <html lang="es" className={`${inter.variable} ${notoSerif.variable}`}>
       <body className="antialiased font-sans bg-brand-black text-brand-white">
         {children}
+        <ToastContainer />
       </body>
     </html>
   );

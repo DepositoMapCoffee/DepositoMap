@@ -2,46 +2,21 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, LogOut, Bookmark, Edit3, Settings, Loader2, Lock, ArrowRight, UserPlus, LogIn } from 'lucide-react';
+import { Mail, LogOut, Bookmark, Edit3, Settings, Loader2, Lock, ArrowRight, UserPlus, LogIn, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { useUserStore } from '@/store/userStore';
 
 export default function UserView() {
-  const [session, setSession] = useState<any>(null);
-  const [loadingSession, setLoadingSession] = useState(true);
+  const { session, isAdmin, isLoadingSession, favoriteIds, favoriteCoffees } = useUserStore();
+  const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
   
   // Auth state
-  const [isAdmin, setIsAdmin] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
   const [authMessage, setAuthMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
-  useEffect(() => {
-    // Revisar sesión actual
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      if (session?.user?.email) {
-        const { data } = await supabase.from('admins').select('*').eq('email', session.user.email);
-        setIsAdmin((data?.length ?? 0) > 0);
-      }
-      setLoadingSession(false);
-    });
-
-    // Escuchar cambios de autenticación
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      if (session?.user?.email) {
-        const { data } = await supabase.from('admins').select('*').eq('email', session.user.email);
-        setIsAdmin((data?.length ?? 0) > 0);
-      } else {
-        setIsAdmin(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,7 +56,7 @@ export default function UserView() {
     await supabase.auth.signOut();
   };
 
-  if (loadingSession) {
+  if (isLoadingSession) {
     return (
       <div className="w-full h-full flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-brand-accent animate-spin opacity-50" />
@@ -223,7 +198,7 @@ export default function UserView() {
             <div className="grid grid-cols-2 gap-4 mb-8">
               <div className="flex flex-col items-center p-6 rounded-2xl bg-surface-low/50 border border-outline-soft/10 ghost-border hover:bg-surface-low transition-colors">
                 <Bookmark className="w-6 h-6 text-on-surface-soft/40 mb-3" />
-                <span className="text-2xl font-serif text-on-surface mb-1">0</span>
+                <span className="text-2xl font-serif text-on-surface mb-1">{favoriteIds.length}</span>
                 <span className="text-[9px] uppercase tracking-widest text-on-surface-soft/40 font-sans text-center">Favoritos</span>
               </div>
               <div className="flex flex-col items-center p-6 rounded-2xl bg-surface-low/50 border border-outline-soft/10 ghost-border hover:bg-surface-low transition-colors">
@@ -231,6 +206,48 @@ export default function UserView() {
                 <span className="text-2xl font-serif text-on-surface mb-1">0</span>
                 <span className="text-[9px] uppercase tracking-widest text-on-surface-soft/40 font-sans text-center">Notas de cata</span>
               </div>
+            </div>
+
+            {/* Favoritos Accordion */}
+            <div className="w-full mb-8 bg-surface-low/50 border border-outline-soft/10 rounded-2xl overflow-hidden">
+              <button 
+                onClick={() => setIsFavoritesOpen(!isFavoritesOpen)}
+                className="w-full flex items-center justify-between p-4 hover:bg-surface-low transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <Bookmark className="w-5 h-5 text-brand-gold" />
+                  <span className="font-serif text-lg text-brand-white">Mis Favoritos</span>
+                </div>
+                <ChevronDown className={`w-5 h-5 text-on-surface-soft/50 transition-transform ${isFavoritesOpen ? 'rotate-180' : ''}`} />
+              </button>
+              
+              <AnimatePresence>
+                {isFavoritesOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="px-4 pb-4 overflow-hidden"
+                  >
+                    <div className="flex flex-col gap-3 mt-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
+                      {favoriteCoffees.length === 0 ? (
+                        <p className="text-sm text-center text-on-surface-soft/50 py-4 font-sans">Aún no tienes cafés favoritos guardados.</p>
+                      ) : (
+                        favoriteCoffees.map(coffee => (
+                          <div key={coffee.id} className="flex flex-col p-4 rounded-xl bg-surface-highest/40 border border-outline-soft/10">
+                            <span className="font-serif text-brand-white text-lg">{coffee.nombre}</span>
+                            <div className="flex items-center gap-2 mt-1">
+                              {coffee.finca && <span className="text-xs font-sans text-brand-accent">{coffee.finca}</span>}
+                              {coffee.finca && coffee.proceso && <span className="text-xs text-on-surface-soft/30">•</span>}
+                              {coffee.proceso && <span className="text-xs font-sans text-on-surface-soft/70">{coffee.proceso}</span>}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Acciones */}

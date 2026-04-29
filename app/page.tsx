@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Home, Map, BookOpen, User, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useCoffeeStore } from '@/store/coffeeStore';
+import { useUserStore } from '@/store/userStore';
 import MapaColombia from '@/components/MapaColombia';
 import SidePanel from '@/components/SidePanel';
 import HomeView from '@/components/views/HomeView';
@@ -20,6 +21,11 @@ const NAV_ITEMS = [
 export default function HomePage() {
   const { loadActiveDepts, selectedDept, clearSelection } = useCoffeeStore();
   const [activeTab, setActiveTab] = useState<string>('home');
+  const { initAuth } = useUserStore();
+
+  useEffect(() => {
+    initAuth();
+  }, [initAuth]);
 
   // Restaurar la pestaña activa desde localStorage (solo en cliente)
   useEffect(() => {

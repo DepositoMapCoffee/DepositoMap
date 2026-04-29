@@ -3,9 +3,11 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { MapPin, Mountain, Coffee as CoffeeIcon, ArrowRight } from 'lucide-react';
+import { MapPin, Mountain, Coffee as CoffeeIcon, ArrowRight, Heart } from 'lucide-react';
 import { Coffee } from '@/types';
 import { cardVariants } from '@/lib/animations';
+import { useUserStore } from '@/store/userStore';
+import { useToastStore } from '@/store/toastStore';
 
 interface CoffeeCardProps {
   coffee: Coffee;
@@ -30,7 +32,34 @@ function TastingChip({ note }: { note: string }) {
 
 export default function CoffeeCard({ coffee }: CoffeeCardProps) {
   const router = useRouter();
+  const { session, favoriteIds, toggleFavorite } = useUserStore();
+  const { addToast } = useToastStore();
   const cat = categoryConfig[coffee.categoria] ?? categoryConfig['Regional'];
+
+  const isFavorited = favoriteIds.includes(coffee.id);
+
+  const handleFavoriteClick = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // prevent navigation
+    
+    if (!session?.user) {
+      addToast('Debes iniciar sesión en "Usuario" para guardar favoritos.', 'info');
+      return;
+    }
+
+    const { success, requiresAuth } = await toggleFavorite(coffee.id);
+    
+    if (requiresAuth) {
+      addToast('Debes iniciar sesión en "Usuario" para guardar favoritos.', 'info');
+    } else if (success) {
+      if (isFavorited) {
+        addToast('Café eliminado de tus favoritos', 'info');
+      } else {
+        addToast('¡Café guardado en tus favoritos!', 'success');
+      }
+    } else {
+      addToast('Hubo un error al actualizar tus favoritos.', 'error');
+    }
+  };
 
   /* Parsear notas de cata en chips individuales */
   const notaChips = coffee.notas
@@ -59,15 +88,30 @@ export default function CoffeeCard({ coffee }: CoffeeCardProps) {
       {/* Gold Thread vertical al hover */}
       <div className="absolute left-0 top-3 bottom-3 w-[2px] rounded-full bg-brand-accent opacity-0 group-hover:opacity-100 transition-opacity duration-400" />
 
-      {/* ── Header: nombre + categoría ── */}
+      {/* ── Header: nombre + categoría + favorito ── */}
       <div className="flex justify-between items-start mb-3 relative z-10">
         <h3 className="font-serif text-[1.15rem] leading-snug text-on-surface
           group-hover:text-gold-primary transition-colors duration-300 pr-2">
           {coffee.nombre}
         </h3>
-        <span className={`shrink-0 text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full ${cat.style}`}>
-          {cat.label}
-        </span>
+        <div className="flex items-center gap-2 shrink-0">
+          <button 
+            onClick={handleFavoriteClick}
+            className={`p-1.5 rounded-full transition-all duration-300
+              ${isFavorited 
+                ? 'bg-brand-accent/20 text-brand-accent shadow-[0_0_10px_rgba(47,163,107,0.3)]' 
+                : 'bg-surface-highest/50 text-outline-soft/60 hover:text-brand-accent hover:bg-surface-highest'
+              }
+            `}
+          >
+            <Heart 
+              className={`w-3.5 h-3.5 transition-transform duration-300 ${isFavorited ? 'fill-brand-accent scale-110' : 'scale-100 hover:scale-110'}`} 
+            />
+          </button>
+          <span className={`text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full ${cat.style}`}>
+            {cat.label}
+          </span>
+        </div>
       </div>
 
       {/* ── Detalles ── */}
