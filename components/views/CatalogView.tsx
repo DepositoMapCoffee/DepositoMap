@@ -3,9 +3,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, SlidersHorizontal, X, Mountain, MapPin, ArrowRight, Loader2 } from 'lucide-react';
+import { Search, SlidersHorizontal, X, Mountain, MapPin, ArrowRight, Loader2, Heart } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { departamentos } from '@/data/mapaData';
+import { useUserStore } from '@/store/userStore';
+import { useToastStore } from '@/store/toastStore';
 import type { Coffee } from '@/types';
 
 // ─── Opciones de filtro ────────────────────────────────────────────
@@ -54,6 +56,8 @@ function FilterPill({
 
 export default function CatalogView() {
   const router = useRouter();
+  const { session, favoriteIds, toggleFavorite } = useUserStore();
+  const { addToast } = useToastStore();
 
   // Datos y carga
   const [coffees,       setCoffees]       = useState<Coffee[]>([]);
@@ -318,15 +322,49 @@ export default function CatalogView() {
 
                   {/* Contenido principal */}
                   <div className="flex-1 min-w-0">
-                    {/* Nombre + categoría */}
-                    <div className="flex items-baseline gap-3 mb-1.5 flex-wrap">
+                    {/* Nombre + categoría + Favorito */}
+                    <div className="flex items-center gap-3 mb-1.5 flex-wrap">
                       <h3 className="font-serif text-lg text-on-surface leading-tight
                         group-hover:text-brand-accent transition-colors duration-250">
                         {coffee.nombre}
                       </h3>
-                      <span className={`shrink-0 px-2 py-0.5 rounded-full text-[9px] uppercase tracking-widest font-bold ${catStyle[coffee.categoria] ?? catStyle['Regional']}`}>
-                        {coffee.categoria}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`shrink-0 px-2 py-0.5 rounded-full text-[9px] uppercase tracking-widest font-bold ${catStyle[coffee.categoria] ?? catStyle['Regional']}`}>
+                          {coffee.categoria}
+                        </span>
+                        
+                        <button 
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (!session?.user) {
+                              addToast('Debes iniciar sesión en "Usuario" para guardar favoritos.', 'info');
+                              return;
+                            }
+                            const { success, requiresAuth } = await toggleFavorite(coffee.id);
+                            if (requiresAuth) {
+                              addToast('Debes iniciar sesión en "Usuario" para guardar favoritos.', 'info');
+                            } else if (success) {
+                              if (favoriteIds.includes(coffee.id)) {
+                                addToast('Café eliminado de tus favoritos', 'info');
+                              } else {
+                                addToast('¡Café guardado en tus favoritos!', 'success');
+                              }
+                            } else {
+                              addToast('Hubo un error al actualizar tus favoritos.', 'error');
+                            }
+                          }}
+                          className={`p-1.5 rounded-full transition-all duration-300
+                            ${favoriteIds.includes(coffee.id) 
+                              ? 'bg-brand-accent/20 text-brand-accent shadow-[0_0_10px_rgba(47,163,107,0.3)]' 
+                              : 'bg-surface-highest/50 text-outline-soft/60 hover:text-brand-accent hover:bg-surface-highest'
+                            }
+                          `}
+                        >
+                          <Heart 
+                            className={`w-3.5 h-3.5 transition-transform duration-300 ${favoriteIds.includes(coffee.id) ? 'fill-brand-accent scale-110' : 'scale-100 hover:scale-110'}`} 
+                          />
+                        </button>
+                      </div>
                     </div>
 
                     {/* Meta info */}
