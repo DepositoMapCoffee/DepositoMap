@@ -18,11 +18,23 @@ export default function SidePanel() {
     departamentos.find(d => d.id === selectedDept),
   [selectedDept]);
 
+  const prevDeptRef = React.useRef(selectedDept);
+
   React.useEffect(() => {
     if (!selectedDept) return;
+
+    // Si el departamento cambió, la carga es inmediata para no dar sensación de lentitud
+    if (selectedDept !== prevDeptRef.current) {
+      fetchCoffees(selectedDept, searchTerm, categoryFilter);
+      prevDeptRef.current = selectedDept;
+      return;
+    }
+
+    // Si el departamento es el mismo pero cambió el buscador o filtro, aplicamos debounce de 400ms
     const delayDebounceFn = setTimeout(() => {
       fetchCoffees(selectedDept, searchTerm, categoryFilter);
     }, 400);
+
     return () => clearTimeout(delayDebounceFn);
   }, [selectedDept, searchTerm, categoryFilter, fetchCoffees]);
 

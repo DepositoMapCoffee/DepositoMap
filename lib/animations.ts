@@ -82,8 +82,8 @@ export const staggerContainerVariants: Variants = {
   show: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.07,
-      delayChildren: 0.05,
+      staggerChildren: 0.03, // Antes era 0.07
+      delayChildren: 0.02,
       when: 'beforeChildren',
     },
   },
