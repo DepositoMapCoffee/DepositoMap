@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, useAnimation, type Variants } from 'framer-motion';
 import { Map, BookOpen, Heart, ArrowRight, LogIn, UserPlus } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import type { Session } from '@supabase/supabase-js';
+import { useUserStore } from '@/store/userStore';
 
 interface HomeViewProps {
   onMapClick: () => void;
@@ -74,14 +74,8 @@ const ACCESS_CARDS = [
    Component
 ───────────────────────────────────────── */
 export default function HomeView({ onMapClick, onUserClick, onCatalogClick }: HomeViewProps) {
-  const [session, setSession] = useState<Session | null>(null);
+  const { session, isLoadingSession } = useUserStore();
   const isotipoControls = useAnimation();
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
-    return () => subscription.unsubscribe();
-  }, []);
 
   /* Isotipo: entrada dramática → pulso infinito */
   useEffect(() => {
@@ -202,8 +196,12 @@ export default function HomeView({ onMapClick, onUserClick, onCatalogClick }: Ho
           </motion.p>
 
           {/* ── Auth buttons (compactos en la zona hero) ── */}
-          <motion.div variants={fadeUp} className="flex gap-3 w-full max-w-xs">
-            {!session ? (
+          <motion.div variants={fadeUp} className="flex gap-3 w-full max-w-xs min-h-[48px]">
+            {isLoadingSession ? (
+              <div className="w-full flex items-center justify-center">
+                <div className="w-5 h-5 rounded-full border-2 border-brand-accent border-t-transparent animate-spin" />
+              </div>
+            ) : !session ? (
               <>
                 <button
                   onClick={onUserClick}
