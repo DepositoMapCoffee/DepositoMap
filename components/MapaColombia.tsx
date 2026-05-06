@@ -27,6 +27,20 @@ export default function MapaColombia() {
 
   const [hoveredCenter, setHoveredCenter] = React.useState<{ x: number, y: number } | null>(null);
 
+  /** 
+   * Lista de departamentos que son considerados regiones cafeteras.
+   */
+  const REGIONES_CAFETERAS = [
+    'Antioquia', 'Caldas', 'Risaralda', 'Quindío', 'Tolima', 'Huila', 'Cauca',
+    'Nariño', 'Valle Del Cauca', 'Santander', 'Norte De Santander', 'Boyacá',
+    'Cundinamarca', 'Magdalena', 'Cesar', 'La Guajira', 'Caquetá', 'Putumayo',
+    'Meta', 'Casanare', 'Arauca', 'Guaviare'
+  ];
+
+  const isCoffeeRegion = (nombre: string) => {
+    return REGIONES_CAFETERAS.some(r => r.toLowerCase() === nombre.toLowerCase());
+  };
+
   /* Auto-calcula el viewBox exacto respondiendo al tamaño de pantalla */
   React.useEffect(() => {
     const computeViewBox = () => {
@@ -96,13 +110,15 @@ export default function MapaColombia() {
     // La línea horizontal llegará justo hasta el borde del padding
     const endX = isLeft ? vbX + 380 : vbX + vbW - 380;
 
-    // Altura del quiebre
-    const elbowY = Math.max(vbY + 80, Math.min(vbY + vbH - 180, hoveredCenter.y - 40));
+    // Altura del quiebre (ajustada para que sea un poco más arriba)
+    const elbowY = Math.max(vbY + 60, Math.min(vbY + vbH - 200, hoveredCenter.y - 60));
 
     const color = hasData ? '#2fa36b' : '#E8E0D4';
 
     // Posición del cuadro de texto para que respire bien (Aumentado de tamaño)
     const textBoxX = isLeft ? endX - 390 : endX + 20;
+
+    const isCoffee = isCoffeeRegion(displayData.nombre);
 
     return (
       <AnimatePresence>
@@ -136,7 +152,7 @@ export default function MapaColombia() {
           {/* Cuadro de texto HTML ampliado para textos grandes */}
           <foreignObject
             x={textBoxX}
-            y={elbowY - 100}
+            y={elbowY - 140}
             width="380"
             height="500"
             className="overflow-visible"
@@ -160,16 +176,16 @@ export default function MapaColombia() {
               }}
             >
               <div className="flex items-center gap-3 mb-1">
-                <div className={`w-3 h-3 rounded-full ${hasData ? 'bg-brand-accent shadow-[0_0_10px_rgba(47,163,107,0.8)]' : 'bg-on-surface-soft/40'}`} />
-                <p className={`text-sm uppercase tracking-[0.2em] font-sans font-bold ${hasData ? 'text-brand-accent' : 'text-on-surface-soft/60'}`}>
-                  {hasData ? 'Origen Disponible' : 'Región Cafetera'}
+                <div className={`w-3 h-3 rounded-full ${hasData ? 'bg-brand-accent shadow-[0_0_10px_rgba(47,163,107,0.8)]' : isCoffee ? 'bg-brand-accent/60' : 'bg-on-surface-soft/40'}`} />
+                <p className={`text-sm uppercase tracking-[0.2em] font-sans font-bold ${hasData ? 'text-brand-accent' : isCoffee ? 'text-brand-accent/80' : 'text-on-surface-soft/60'}`}>
+                  {hasData ? 'Origen Disponible' : isCoffee ? 'Región Cafetera' : 'Departamento de Colombia'}
                 </p>
               </div>
               <h3 className="font-serif text-[64px] text-brand-white leading-none tracking-tight">
                 {displayData.nombre}
               </h3>
               <p className="text-xl text-on-surface-soft/90 leading-relaxed font-sans mt-2">
-                {displayData.descripcion || 'Región productora con un ecosistema biodiverso. Sus microclimas y la dedicación de sus caficultores le otorgan a sus granos un perfil de taza excepcional, reconocido a nivel mundial.'}
+                {displayData.descripcion || 'Territorio con una riqueza natural única y una biodiversidad que define la identidad de nuestro país.'}
               </p>
             </motion.div>
           </foreignObject>
@@ -205,6 +221,7 @@ export default function MapaColombia() {
             const isHovered = hoveredDept === dept.id;
             const dHasData = activeDepts.includes(dept.id);
             const color = deptColors[dept.id];
+            const isCoffee = isCoffeeRegion(dept.nombre);
             const anim = getPathAnimation(isSelected, isHovered, dHasData, color);
 
             return (
@@ -212,7 +229,13 @@ export default function MapaColombia() {
                 key={dept.id}
                 d={dept.path}
                 initial={anim.initial}
-                animate={anim.animate}
+                animate={{
+                  ...anim.animate,
+                  // Distintivo sutil: un trazo más definido o punteado para regiones cafeteras
+                  stroke: isSelected ? '#2fa36b' : isCoffee ? 'rgba(47,163,107,0.45)' : anim.animate.stroke,
+                  strokeWidth: isSelected ? 1.5 : isCoffee ? 0.8 : 0.6,
+                  strokeDasharray: isCoffee && !isSelected && !isHovered ? '2 2' : 'none',
+                }}
                 whileHover={anim.whileHover}
                 onMouseEnter={(e: any) => {
                   setHoveredDept(dept.id);
@@ -249,14 +272,14 @@ export default function MapaColombia() {
             onClick={(e) => { e.stopPropagation(); hasData && handleDeptClick(displayData.id, hasData); }}
           >
             <div className="flex items-center gap-2 mb-2">
-              <div className={`w-2.5 h-2.5 rounded-full ${hasData ? 'bg-brand-accent shadow-[0_0_8px_rgba(47,163,107,0.8)]' : 'bg-on-surface-soft/40'}`} />
-              <p className={`text-[10px] uppercase tracking-widest font-sans font-bold ${hasData ? 'text-brand-accent' : 'text-on-surface-soft/60'}`}>
-                {hasData ? 'Origen Disponible' : 'Región Cafetera'}
+              <div className={`w-2.5 h-2.5 rounded-full ${hasData ? 'bg-brand-accent shadow-[0_0_8px_rgba(47,163,107,0.8)]' : isCoffeeRegion(displayData.nombre) ? 'bg-brand-accent/60' : 'bg-on-surface-soft/40'}`} />
+              <p className={`text-[10px] uppercase tracking-widest font-sans font-bold ${hasData ? 'text-brand-accent' : isCoffeeRegion(displayData.nombre) ? 'text-brand-accent/80' : 'text-on-surface-soft/60'}`}>
+                {hasData ? 'Origen Disponible' : isCoffeeRegion(displayData.nombre) ? 'Región Cafetera' : 'Departamento de Colombia'}
               </p>
             </div>
             <h3 className="font-serif text-3xl text-brand-white mb-2">{displayData.nombre}</h3>
             <p className="text-xs text-on-surface-soft/90 leading-relaxed font-sans line-clamp-3">
-              {displayData.descripcion || 'Región productora con un ecosistema biodiverso. Sus microclimas le otorgan a sus granos un perfil excepcional.'}
+              {displayData.descripcion || 'Territorio con una riqueza natural única y una biodiversidad que define la identidad de nuestro país.'}
             </p>
             {hasData && (
               <p className="text-brand-accent text-[10px] font-semibold tracking-wider uppercase mt-4 flex items-center gap-1">

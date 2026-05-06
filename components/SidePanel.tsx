@@ -14,9 +14,22 @@ export default function SidePanel() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
+  const REGIONES_CAFETERAS = [
+    'Antioquia', 'Caldas', 'Risaralda', 'Quindío', 'Tolima', 'Huila', 'Cauca',
+    'Nariño', 'Valle Del Cauca', 'Santander', 'Norte De Santander', 'Boyacá',
+    'Cundinamarca', 'Magdalena', 'Cesar', 'La Guajira', 'Caquetá', 'Putumayo',
+    'Meta', 'Casanare', 'Arauca', 'Guaviare'
+  ];
+
+  const isCoffeeRegion = (nombre: string) => {
+    return REGIONES_CAFETERAS.some(r => r.toLowerCase() === nombre.toLowerCase());
+  };
+
   const deptData = useMemo(() =>
     departamentos.find(d => d.id === selectedDept),
   [selectedDept]);
+
+  const isCoffee = deptData ? isCoffeeRegion(deptData.nombre) : false;
 
   const prevDeptRef = React.useRef(selectedDept);
 
@@ -74,7 +87,7 @@ export default function SidePanel() {
                 <div className="flex items-center gap-2.5 mb-2">
                   <span className="block w-6 h-px bg-brand-accent/60" />
                   <span className="text-[10px] uppercase tracking-[0.22em] text-brand-accent/70 font-sans font-semibold">
-                    Selección de Origen
+                    {isCoffee ? 'Región Cafetera' : 'Departamento de Colombia'}
                   </span>
                 </div>
                 <h2 className="font-serif text-4xl font-medium text-on-surface tracking-tight leading-none">
