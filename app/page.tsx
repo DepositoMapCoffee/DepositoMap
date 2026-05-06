@@ -50,7 +50,7 @@ export default function HomePage() {
   };
 
   return (
-    <main className="bg-brand-black text-brand-white overflow-hidden relative flex flex-col lg:flex-row h-screen selection:bg-brand-accent/20">
+    <main className="bg-brand-black text-brand-white overflow-hidden relative flex flex-col lg:flex-row h-dvh selection:bg-brand-accent/20">
 
       {/* ══════════════════════════════════════════
           SIDEBAR — desktop only (lg+)
@@ -59,7 +59,11 @@ export default function HomePage() {
       <motion.nav
         className="hidden lg:flex flex-col items-start py-8 gap-1.5 z-40
           fixed left-0 top-0 bottom-0 overflow-hidden
-          bg-surface-low/90 backdrop-blur-xl border-r border-outline-soft/20"
+          bg-surface-low/90 border-r border-outline-soft/20"
+        style={{
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',   /* Safari */
+        }}
         animate={{ width: sidebarOpen ? SIDEBAR_EXPANDED : SIDEBAR_COLLAPSED }}
         transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
         onMouseEnter={() => setSidebarOpen(true)}
@@ -166,7 +170,11 @@ export default function HomePage() {
       ══════════════════════════════════════════ */}
       <header className="lg:hidden fixed top-0 inset-x-0 z-30
         flex justify-between items-center
-        px-5 py-3.5 bg-brand-black/90 backdrop-blur-md border-b border-outline-soft/10">
+        px-5 py-3.5 bg-brand-black/90 border-b border-outline-soft/10"
+        style={{
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',   /* Safari */
+        }}>
 
         {/* Isotipo pequeño */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -223,11 +231,19 @@ export default function HomePage() {
           BOTTOM NAV — mobile / tablet (< lg)
           Pill indicator deslizante + haptic feel
       ══════════════════════════════════════════ */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40
-        flex items-center justify-around
-        px-1 pt-1 pb-[env(safe-area-inset-bottom,8px)]
-        bg-surface-low/95 backdrop-blur-xl border-t border-outline-soft/20
-        min-h-[60px]">
+      <nav
+        className="lg:hidden fixed bottom-0 inset-x-0 z-40
+          flex items-center justify-around
+          px-1 pt-1 border-t border-outline-soft/20
+          min-h-[60px] bg-surface-low/95"
+        style={{
+          /* safe-area-inset-bottom: espacio extra en iPhone con notch/Dynamic Island.
+             Requiere viewport-fit=cover en el meta tag (ya añadido en layout.tsx). */
+          paddingBottom: 'max(8px, env(safe-area-inset-bottom))',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',   /* Safari */
+        }}
+      >
 
         {NAV_ITEMS.map(({ id, icon: Icon, label }) => {
           const isActive = activeTab === id;
@@ -272,6 +288,7 @@ export default function HomePage() {
               className="cursor-pointer flex-1 flex justify-center"
               aria-label={label}
               aria-current={isActive ? 'page' : undefined}
+              style={{ touchAction: 'manipulation' }} /* Evita el retraso de 300ms en iOS */
             >
               {inner}
             </button>

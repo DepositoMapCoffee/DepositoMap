@@ -95,6 +95,7 @@ export default function SidePanel() {
                   border border-outline-soft/30 hover:border-gold-container/40
                   text-on-surface-soft hover:text-gold-primary
                   transition-all duration-300 cursor-pointer active:scale-90 pointer-events-auto"
+                style={{ touchAction: 'manipulation' }}  /* elimina retraso 300ms en iOS */
                 aria-label="Cerrar panel"
               >
                 <X className="w-4 h-4 pointer-events-none" />
@@ -103,7 +104,8 @@ export default function SidePanel() {
           </div>
 
           {/* ── Contenido scrolleable ── */}
-          <div className="flex-1 overflow-y-auto px-7 md:px-8 pb-12">
+          {/* scroll-touch activa -webkit-overflow-scrolling: touch para scroll inercial en iOS */}
+          <div className="flex-1 overflow-y-auto scroll-touch px-7 md:px-8 pb-12">
             {isLoading && coffees.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-48 space-y-4">
                 <Loader2 className="w-6 h-6 animate-spin text-brand-accent" />

@@ -29,24 +29,42 @@ export default function MapaColombia() {
 
   /* Auto-calcula el viewBox exacto respondiendo al tamaño de pantalla */
   React.useEffect(() => {
-    const updateViewBox = () => {
+    const computeViewBox = () => {
       const svg = svgRef.current;
       if (!svg) return;
       const g = svg.querySelector('g');
       if (!g) return;
       try {
         const b = (g as SVGGElement).getBBox();
+        // Safari puede retornar {x:0,y:0,w:0,h:0} si el elemento no está pintado aún.
+        // Verificamos que el bbox sea válido antes de aplicarlo.
+        if (b.width === 0 || b.height === 0) return;
         const isMobile = window.innerWidth < 768;
         // En desktop necesitamos 380px de padding para las súper-tarjetas. En móvil, casi nada.
-        const padX = isMobile ? 20 : 380; 
+        const padX = isMobile ? 20 : 380;
         const padY = isMobile ? 40 : 80;
         setViewBox(`${b.x - padX} ${b.y - padY} ${b.width + padX * 2} ${b.height + padY * 2}`);
       } catch (_) {}
     };
 
-    updateViewBox();
-    window.addEventListener('resize', updateViewBox);
-    return () => window.removeEventListener('resize', updateViewBox);
+    // requestAnimationFrame garantiza que el SVG esté pintado antes de medir.
+    // Crítico en Safari que ejecuta efectos antes del primer paint.
+    let rafId = requestAnimationFrame(() => {
+      computeViewBox();
+      // Segundo rAF como seguro adicional para Safari en hardware lento
+      rafId = requestAnimationFrame(computeViewBox);
+    });
+
+    const handleResize = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(computeViewBox);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   const deptColors = useMemo(() => {
@@ -123,12 +141,23 @@ export default function MapaColombia() {
             height="500"
             className="overflow-visible"
           >
+            {/*
+              xmlns es obligatorio dentro de foreignObject en WebKit/Safari.
+              Sin él, el contenido HTML no se renderiza correctamente.
+            */}
             <motion.div
+              xmlns="http://www.w3.org/1999/xhtml"
               initial={{ opacity: 0, x: isLeft ? 15 : -15 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.25, type: 'spring', stiffness: 200, damping: 20 }}
-              className="flex flex-col gap-4 p-6 bg-brand-black/60 backdrop-blur-xl rounded-2xl border border-white/10"
-              style={{ textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}
+              className="flex flex-col gap-4 p-6 rounded-2xl border border-white/10"
+              style={{
+                background: 'rgba(10,10,10,0.6)',
+                /* -webkit-backdrop-filter debe ir ANTES de backdrop-filter en Safari */
+                WebkitBackdropFilter: 'blur(20px)',
+                backdropFilter: 'blur(20px)',
+                textShadow: '0 2px 10px rgba(0,0,0,0.8)',
+              }}
             >
               <div className="flex items-center gap-3 mb-1">
                 <div className={`w-3 h-3 rounded-full ${hasData ? 'bg-brand-accent shadow-[0_0_10px_rgba(47,163,107,0.8)]' : 'bg-on-surface-soft/40'}`} />

@@ -57,10 +57,19 @@
     --foreground: #F5F5F5;
   }
 
+  html {
+    /* Evita que iOS Safari agrande automáticamente el texto al rotar */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
   body {
     background-color: var(--background);
     color: var(--foreground);
     @apply font-sans antialiased;
+    /* Evita el scroll de rebote (rubber-band) en iOS que puede
+       mostrar el fondo negro debajo del contenido */
+    overscroll-behavior: none;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -68,7 +77,28 @@
   }
 }
 
-/* ── Scrollbar minimalista ── */
+/* ─────────────────────────────────────────────────────────
+   Utilidades de viewport dinámico
+   100dvh = alto REAL disponible descontando la barra del
+   navegador en iOS Safari. Fallback: 100vh para browsers
+   sin soporte (< Safari 15.4, < Chrome 108).
+───────────────────────────────────────────────────────── */
+.h-dvh {
+  height: 100vh;       /* fallback */
+  height: 100dvh;
+}
+.min-h-dvh {
+  min-height: 100vh;   /* fallback */
+  min-height: 100dvh;
+}
+.max-h-dvh {
+  max-height: 100vh;   /* fallback */
+  max-height: 100dvh;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Scrollbar minimalista — WebKit (Chrome, Safari, Edge)
+───────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
@@ -79,11 +109,25 @@
   background-color: #2fa36b;
 }
 
-/* ── Glassmorphism card ── */
+/* ─────────────────────────────────────────────────────────
+   Scrollbar minimalista — Firefox (scrollbar-width API)
+───────────────────────────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2e2e2e transparent;
+}
+*:hover {
+  scrollbar-color: #2fa36b transparent;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Glassmorphism card
+   Siempre con prefijo -webkit- para Safari
+───────────────────────────────────────────────────────── */
 .glass-card {
   background: rgba(42, 42, 42, 0.35);
-  backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   border: 1px solid rgba(90, 90, 90, 0.18);
 }
 
@@ -95,4 +139,23 @@
 /* ── Gold Thread (ahora: Verde Thread) ── */
 .gold-thread {
   border-left: 2px solid #2fa36b;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Scroll suave con inercia en iOS
+   Necesario en cualquier contenedor con overflow-y: scroll
+───────────────────────────────────────────────────────── */
+.scroll-touch {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: scroll;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Normalización de <select> para Firefox
+   (appearance-none + flechas custom)
+───────────────────────────────────────────────────────── */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
