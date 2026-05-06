@@ -136,7 +136,7 @@ export default function MapaColombia() {
           {/* Cuadro de texto HTML ampliado para textos grandes */}
           <foreignObject
             x={textBoxX}
-            y={elbowY - 60}
+            y={elbowY - 100}
             width="380"
             height="500"
             className="overflow-visible"
