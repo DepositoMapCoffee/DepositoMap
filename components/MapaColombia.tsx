@@ -13,9 +13,9 @@ function getHashColor(str: string): string {
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-  const hue        = Math.abs(hash % 360);
-  const saturation = 40 + Math.abs((hash >> 8)  % 30);
-  const lightness  = 38 + Math.abs((hash >> 16) % 15);
+  const hue = Math.abs(hash % 360);
+  const saturation = 40 + Math.abs((hash >> 8) % 30);
+  const lightness = 38 + Math.abs((hash >> 16) % 15);
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
@@ -25,7 +25,7 @@ export default function MapaColombia() {
   const svgRef = React.useRef<SVGSVGElement>(null);
   const [viewBox, setViewBox] = React.useState<string>("260 270 600 760");
 
-  const [hoveredCenter, setHoveredCenter] = React.useState<{x: number, y: number} | null>(null);
+  const [hoveredCenter, setHoveredCenter] = React.useState<{ x: number, y: number } | null>(null);
 
   /* Auto-calcula el viewBox exacto respondiendo al tamaño de pantalla */
   React.useEffect(() => {
@@ -44,7 +44,7 @@ export default function MapaColombia() {
         const padX = isMobile ? 20 : 380;
         const padY = isMobile ? 40 : 80;
         setViewBox(`${b.x - padX} ${b.y - padY} ${b.width + padX * 2} ${b.height + padY * 2}`);
-      } catch (_) {}
+      } catch (_) { }
     };
 
     // requestAnimationFrame garantiza que el SVG esté pintado antes de medir.
@@ -81,26 +81,26 @@ export default function MapaColombia() {
 
   /* Cuál departamento mostrar en el overlay */
   // En móviles al tocar (emula hover) o al estar seleccionado
-  const displayId   = hoveredDept || selectedDept;
+  const displayId = hoveredDept || selectedDept;
   const displayData = departamentos.find(d => d.id === displayId);
-  const hasData     = displayId ? activeDepts.includes(displayId) : false;
+  const hasData = displayId ? activeDepts.includes(displayId) : false;
 
   /* Renderizado de la etiqueta infográfica dinámica (Desktop) */
   const renderDesktopInfographic = () => {
     if (!hoveredCenter || !displayData || !hoveredDept) return null;
-    
+
     const [vbX, vbY, vbW, vbH] = viewBox.split(' ').map(Number);
     const mapCenterX = vbX + vbW / 2;
     const isLeft = hoveredCenter.x < mapCenterX;
 
     // La línea horizontal llegará justo hasta el borde del padding
-    const endX = isLeft ? vbX + 380 : vbX + vbW - 380; 
-    
+    const endX = isLeft ? vbX + 380 : vbX + vbW - 380;
+
     // Altura del quiebre
     const elbowY = Math.max(vbY + 80, Math.min(vbY + vbH - 180, hoveredCenter.y - 40));
 
     const color = hasData ? '#2fa36b' : '#E8E0D4';
-    
+
     // Posición del cuadro de texto para que respire bien (Aumentado de tamaño)
     const textBoxX = isLeft ? endX - 390 : endX + 20;
 
@@ -124,13 +124,13 @@ export default function MapaColombia() {
             animate={{ pathLength: 1, opacity: 0.6 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           />
-          
-          <motion.circle 
-            cx={hoveredCenter.x} cy={hoveredCenter.y} r="5" 
+
+          <motion.circle
+            cx={hoveredCenter.x} cy={hoveredCenter.y} r="5"
             fill={color}
             initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.1 }}
           />
-          
+
           <circle cx={endX} cy={elbowY} r="3" fill={color} opacity={0.6} />
 
           {/* Cuadro de texto HTML ampliado para textos grandes */}
@@ -146,7 +146,7 @@ export default function MapaColombia() {
               Sin él, el contenido HTML no se renderiza correctamente.
             */}
             <motion.div
-              xmlns="http://www.w3.org/1999/xhtml"
+              {...{ xmlns: "http://www.w3.org/1999/xhtml" } as any}
               initial={{ opacity: 0, x: isLeft ? 15 : -15 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.25, type: 'spring', stiffness: 200, damping: 20 }}
@@ -202,10 +202,10 @@ export default function MapaColombia() {
         <g strokeLinecap="round" strokeLinejoin="round">
           {departamentos.map((dept) => {
             const isSelected = selectedDept === dept.id;
-            const isHovered  = hoveredDept   === dept.id;
-            const dHasData   = activeDepts.includes(dept.id);
-            const color      = deptColors[dept.id];
-            const anim       = getPathAnimation(isSelected, isHovered, dHasData, color);
+            const isHovered = hoveredDept === dept.id;
+            const dHasData = activeDepts.includes(dept.id);
+            const color = deptColors[dept.id];
+            const anim = getPathAnimation(isSelected, isHovered, dHasData, color);
 
             return (
               <motion.path
@@ -219,7 +219,7 @@ export default function MapaColombia() {
                   try {
                     const bbox = e.target.getBBox();
                     setHoveredCenter({ x: bbox.x + bbox.width / 2, y: bbox.y + bbox.height / 2 });
-                  } catch (_) {}
+                  } catch (_) { }
                 }}
                 onMouseLeave={() => { setHoveredDept(null); setHoveredCenter(null); }}
                 onClick={(e) => { e.stopPropagation(); handleDeptClick(dept.id, dHasData); }}
@@ -229,7 +229,7 @@ export default function MapaColombia() {
             );
           })}
         </g>
-        
+
         {/* Tooltip Infográfico gigante para Escritorio */}
         {renderDesktopInfographic()}
       </svg>
