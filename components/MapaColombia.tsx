@@ -206,6 +206,15 @@ export default function MapaColombia() {
         }}
       />
 
+      {/* ── Logo del negocio flotante (Esquina superior derecha) ── */}
+      <div className="absolute top-10 right-10 z-20 hidden md:flex flex-col items-end pointer-events-none opacity-[0.85] drop-shadow-[0_2px_10px_rgba(0,0,0,0.6)]">
+        <img 
+          src="/Logo.svg" 
+          alt="El Depósito" 
+          className="h-20 lg:h-24 w-auto mb-1" 
+        />
+      </div>
+
       {/* ── SVG del mapa ── */}
       <svg
         ref={svgRef}
