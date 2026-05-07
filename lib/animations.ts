@@ -126,9 +126,12 @@ export const getPathAnimation = (
   isHovered: boolean,
   hasData: boolean,
   deptColor: string,
+  isCoffee: boolean,
 ) => {
   /** Color inactivo: superficie oscura del canvas */
   const inactive = '#1A1A1A';
+  /** Color inactivo para regiones cafeteras: verde bosque muy profundo */
+  const inactiveCoffee = '#0D1410'; 
   /** Color activo del departamento (hash full-spectrum) */
   const active = deptColor;
   /** Color seleccionado: crema clara sobre fondo negro */
@@ -137,8 +140,14 @@ export const getPathAnimation = (
   return {
     initial: { fill: inactive },
     animate: {
-      fill: isSelected ? selected : isHovered || hasData ? active : inactive,
-      stroke: isSelected ? '#2fa36b' : 'rgba(47,163,107,0.35)',
+      fill: isSelected 
+        ? selected 
+        : isHovered || hasData 
+          ? active 
+          : isCoffee 
+            ? '#122B1E' 
+            : inactive,
+      stroke: isSelected ? '#2fa36b' : isCoffee ? 'rgba(47,163,107,0.45)' : 'rgba(47,163,107,0.35)',
       strokeWidth: isSelected ? 1.5 : 0.6,
       scale: isSelected ? 1.03 : 1,
       filter: isSelected

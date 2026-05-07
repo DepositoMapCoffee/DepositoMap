@@ -76,8 +76,8 @@ export default function MapaColombia() {
 
     window.addEventListener('resize', handleResize);
     return () => {
-      cancelAnimationFrame(rafId);
       window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(rafId);
     };
   }, []);
 
@@ -215,6 +215,12 @@ export default function MapaColombia() {
         onClick={() => clearSelection()}
         onMouseLeave={() => { setHoveredDept(null); setHoveredCenter(null); }}
       >
+        <defs>
+          <pattern id="hatched-pattern" patternUnits="userSpaceOnUse" width="3" height="3" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="3" stroke="rgba(47,163,107,0.15)" strokeWidth="0.5" />
+          </pattern>
+        </defs>
+
         <g strokeLinecap="round" strokeLinejoin="round">
           {departamentos.map((dept) => {
             const isSelected = selectedDept === dept.id;
@@ -222,33 +228,39 @@ export default function MapaColombia() {
             const dHasData = activeDepts.includes(dept.id);
             const color = deptColors[dept.id];
             const isCoffee = isCoffeeRegion(dept.nombre);
-            const anim = getPathAnimation(isSelected, isHovered, dHasData, color);
+            const anim = getPathAnimation(isSelected, isHovered, dHasData, color, isCoffee);
 
             return (
-              <motion.path
-                key={dept.id}
-                d={dept.path}
-                initial={anim.initial}
-                animate={{
-                  ...anim.animate,
-                  // Distintivo sutil: un trazo más definido o punteado para regiones cafeteras
-                  stroke: isSelected ? '#2fa36b' : isCoffee ? 'rgba(47,163,107,0.45)' : anim.animate.stroke,
-                  strokeWidth: isSelected ? 1.5 : isCoffee ? 0.8 : 0.6,
-                  strokeDasharray: isCoffee && !isSelected && !isHovered ? '2 2' : 'none',
-                }}
-                whileHover={anim.whileHover}
-                onMouseEnter={(e: any) => {
-                  setHoveredDept(dept.id);
-                  try {
-                    const bbox = e.target.getBBox();
-                    setHoveredCenter({ x: bbox.x + bbox.width / 2, y: bbox.y + bbox.height / 2 });
-                  } catch (_) { }
-                }}
-                onMouseLeave={() => { setHoveredDept(null); setHoveredCenter(null); }}
-                onClick={(e) => { e.stopPropagation(); handleDeptClick(dept.id, dHasData); }}
-                className={`cursor-${dHasData ? 'pointer' : 'default'} outline-none select-none`}
-                style={{ transformOrigin: 'center' }}
-              />
+              <React.Fragment key={dept.id}>
+                <motion.path
+                  d={dept.path}
+                  initial={anim.initial}
+                  animate={anim.animate}
+                  whileHover={anim.whileHover}
+                  onMouseEnter={(e: any) => {
+                    setHoveredDept(dept.id);
+                    try {
+                      const bbox = e.target.getBBox();
+                      setHoveredCenter({ x: bbox.x + bbox.width / 2, y: bbox.y + bbox.height / 2 });
+                    } catch (_) { }
+                  }}
+                  onMouseLeave={() => { setHoveredDept(null); setHoveredCenter(null); }}
+                  onClick={(e) => { e.stopPropagation(); handleDeptClick(dept.id, dHasData); }}
+                  className={`cursor-${dHasData ? 'pointer' : 'default'} outline-none select-none`}
+                  style={{ transformOrigin: 'center' }}
+                />
+                {/* Overlay de textura para regiones cafeteras */}
+                {isCoffee && !isSelected && !isHovered && !dHasData && (
+                  <motion.path
+                    d={dept.path}
+                    fill="url(#hatched-pattern)"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="pointer-events-none"
+                    style={{ transformOrigin: 'center' }}
+                  />
+                )}
+              </React.Fragment>
             );
           })}
         </g>
