@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, useAnimation, type Variants } from 'framer-motion';
-import { Map, BookOpen, Heart, ArrowRight, LogIn, UserPlus } from 'lucide-react';
+import { BookOpen, Heart, ArrowRight, LogIn, UserPlus } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useUserStore } from '@/store/userStore';
+import ColombiaIcon from '@/components/ColombiaIcon';
+
 
 interface HomeViewProps {
   onMapClick: () => void;
@@ -46,7 +48,7 @@ const cardVariant: Variants = {
 const ACCESS_CARDS = [
   {
     id: 'map',
-    icon: Map,
+    icon: ColombiaIcon,
     title: 'Mapa Cafetero',
     description: 'Explora los orígenes de nuestros cafés sobre el mapa de Colombia.',
     color: 'verde',

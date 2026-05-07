@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Home, Map, BookOpen, User } from 'lucide-react';
+import { Home, BookOpen, User } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCoffeeStore } from '@/store/coffeeStore';
@@ -11,13 +11,14 @@ import SidePanel from '@/components/SidePanel';
 import HomeView from '@/components/views/HomeView';
 import CatalogView from '@/components/views/CatalogView';
 import UserView from '@/components/views/UserView';
+import ColombiaIcon from '@/components/ColombiaIcon';
 
 /* ─────────────────────────────────────────
    Nav items
 ───────────────────────────────────────── */
 const NAV_ITEMS = [
   { id: 'home',    icon: Home,     label: 'Inicio',   description: 'Pantalla principal' },
-  { id: 'map',     icon: Map,      label: 'Mapa',     description: 'Mapa cafetero' },
+  { id: 'map',     icon: ColombiaIcon,      label: 'Mapa',     description: 'Mapa cafetero' },
   { id: 'catalog', icon: BookOpen, label: 'Catálogo', description: 'Todos los lotes' },
   { id: 'user',    icon: User,     label: 'Usuario',  description: 'Perfil y favoritos' },
 ] as const;

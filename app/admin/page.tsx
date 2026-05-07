@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, Plus, Search, Trash2, Edit2, Loader2, Map as MapIcon, Eye, EyeOff } from 'lucide-react';
+import { LogOut, Plus, Search, Trash2, Edit2, Loader2, Map as MapIcon, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Coffee, CoffeeFormData, CoffeeCategory, CoffeeProcess } from '@/types';
 import { departamentos } from '@/data/mapaData';
@@ -216,8 +216,8 @@ export default function AdminPage() {
               onClick={() => router.push('/')}
               className="flex items-center gap-2 px-4 py-2 text-sm bg-brand-gray hover:bg-brand-gray-light border border-brand-gray-light rounded-lg transition-colors text-gray-300"
             >
-              <MapIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">Ver Mapa</span>
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Volver</span>
             </button>
             <button
               onClick={handleLogout}
