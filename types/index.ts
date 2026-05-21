@@ -15,7 +15,7 @@
  * - Culturing: café cultivado con técnicas de cultivo especiales
  * - Varietal: café de una variedad botánica específica
  */
-export type CoffeeCategory = 'Regional' | 'Culturing' | 'Varietal';
+export type CoffeeCategory = 'Regional' | 'Culturing' | 'Varietal' | 'Chocolate';
 
 /**
  * Métodos de procesamiento post-cosecha del café.
@@ -41,9 +41,9 @@ export interface Coffee {
   departamento_id: string;
   /** Nombre de la finca de origen */
   finca: string;
-  /** Altitud del cultivo en msnm (ej: '1850 msnm') */
+  /** Altitud del cultivo en msnm (ej: '1850 msnm') o Presentación (ej: '40 gr') */
   altura: string;
-  /** Método de procesamiento post-cosecha */
+  /** Método de procesamiento post-cosecha o Porcentaje de Cacao */
   proceso: CoffeeProcess;
   /** Notas de cata / perfil de sabor */
   notas: string;
@@ -51,6 +51,8 @@ export interface Coffee {
   categoria: CoffeeCategory;
   /** Si el café es visible para el público */
   visible: boolean;
+  /** Tipo de producto (cafe | chocolate) */
+  tipo_producto?: 'cafe' | 'chocolate';
   /** Información sobre preparación sugerida */
   preparacion?: string;
   /** Sugerencias del tostador */

@@ -21,6 +21,7 @@ const INITIAL_FORM_STATE: CoffeeFormData = {
   sugerencias: '',
   descripcion_larga: '',
   metodo_sugerido: '',
+  tipo_producto: 'cafe',
 };
 
 export default function AdminPage() {
@@ -126,14 +127,17 @@ export default function AdminPage() {
       sugerencias: coffee.sugerencias || '',
       descripcion_larga: coffee.descripcion_larga || '',
       metodo_sugerido: coffee.metodo_sugerido || '',
+      tipo_producto: coffee.tipo_producto || 'cafe',
     });
     setEditingId(coffee.id);
     setFormError(null);
     setIsModalOpen(true);
   };
 
+  const isChocolate = formData.tipo_producto === 'chocolate';
+
   const handleDelete = async (id: string) => {
-    if (!window.confirm('¿Seguro que deseas eliminar este café?')) return;
+    if (!window.confirm('¿Seguro que deseas eliminar este producto?')) return;
     
     try {
       const { error } = await supabase.from('cafes').delete().eq('id', id);
@@ -251,7 +255,7 @@ export default function AdminPage() {
             className="w-full sm:w-auto flex items-center justify-center gap-2 bg-brand-accent hover:bg-[#b09060] text-brand-black font-semibold rounded-xl px-6 py-2.5 transition-colors shadow-lg shadow-brand-accent/20"
           >
             <Plus className="w-5 h-5" />
-            Añadir Café
+            Añadir Producto
           </button>
         </div>
 
@@ -267,6 +271,7 @@ export default function AdminPage() {
                 <thead className="uppercase tracking-wider text-xs bg-brand-black/50 text-gray-400 border-b border-brand-gray-light">
                   <tr>
                     <th className="px-6 py-4 font-medium">Lote / Nombre</th>
+                    <th className="px-6 py-4 font-medium">Tipo</th>
                     <th className="px-6 py-4 font-medium">Departamento</th>
                     <th className="px-6 py-4 font-medium">Finca</th>
                     <th className="px-6 py-4 font-medium">Estado</th>
@@ -281,6 +286,11 @@ export default function AdminPage() {
                       <tr key={coffee.id} className="hover:bg-brand-gray-light/20 transition-colors group">
                         <td className="px-6 py-4">
                           <p className="font-serif text-lg text-brand-cream">{coffee.nombre}</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-md ${coffee.tipo_producto === 'chocolate' ? 'text-emerald-300 bg-emerald-900/30' : 'text-amber-300 bg-amber-900/30'}`}>
+                            {coffee.tipo_producto === 'chocolate' ? 'Chocolate' : 'Café'}
+                          </span>
                         </td>
                         <td className="px-6 py-4 text-gray-300">{deptoName}</td>
                         <td className="px-6 py-4 text-gray-300">
@@ -356,7 +366,7 @@ export default function AdminPage() {
             
             <div className="sticky top-0 bg-brand-black/95 backdrop-blur z-10 px-6 py-5 border-b border-brand-gray-light flex justify-between items-center">
               <h2 className="font-serif text-2xl text-brand-cream">
-                {editingId ? 'Editar Café' : 'Nuevo Café'}
+                {editingId ? (isChocolate ? 'Editar Chocolate' : 'Editar Café') : (isChocolate ? 'Nuevo Chocolate' : 'Nuevo Café')}
               </h2>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white">
                 <LogOut className="w-5 h-5 rotate-45" /> {/* Use as cross */}
@@ -371,15 +381,45 @@ export default function AdminPage() {
               )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+                {/* Tipo de producto */}
+                <div className="sm:col-span-2">
+                  <label className="block text-xs uppercase text-gray-500 mb-2">Tipo de Producto *</label>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({...formData, tipo_producto: 'cafe', categoria: 'Regional', proceso: 'Lavado', altura: ''})}
+                      className={`flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-all ${
+                        formData.tipo_producto !== 'chocolate'
+                          ? 'bg-brand-accent/20 border-brand-accent text-brand-accent'
+                          : 'bg-brand-gray border-brand-gray-light text-gray-400 hover:border-gray-500'
+                      }`}
+                    >
+                      ☕ Café
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({...formData, tipo_producto: 'chocolate', categoria: 'Chocolate', proceso: '72% Cacao', altura: '40 gr'})}
+                      className={`flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-all ${
+                        formData.tipo_producto === 'chocolate'
+                          ? 'bg-emerald-900/30 border-emerald-700 text-emerald-300'
+                          : 'bg-brand-gray border-brand-gray-light text-gray-400 hover:border-gray-500'
+                      }`}
+                    >
+                      🍫 Chocolate
+                    </button>
+                  </div>
+                </div>
+
                 <div>
-                  <label className="block text-xs uppercase text-gray-500 mb-2">Nombre del Lote / Café *</label>
+                  <label className="block text-xs uppercase text-gray-500 mb-2">{isChocolate ? 'Nombre del Producto *' : 'Nombre del Lote / Café *'}</label>
                   <input
                     required
                     type="text"
                     value={formData.nombre}
                     onChange={e => setFormData({...formData, nombre: e.target.value})}
                     className="w-full bg-brand-gray border border-brand-gray-light rounded-xl px-4 py-2.5 text-white focus:border-brand-accent focus:outline-none"
-                    placeholder="Ej: Geisha Lavado Especial"
+                    placeholder={isChocolate ? 'Ej: Barra 72% Cacao 40gr' : 'Ej: Geisha Lavado Especial'}
                   />
                 </div>
 
@@ -411,33 +451,50 @@ export default function AdminPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase text-gray-500 mb-2">Altura (msnm)</label>
+                  <label className="block text-xs uppercase text-gray-500 mb-2">{isChocolate ? 'Presentación (peso)' : 'Altura (msnm)'}</label>
                   <input
                     type="text"
                     value={formData.altura}
                     onChange={e => setFormData({...formData, altura: e.target.value})}
                     className="w-full bg-brand-gray border border-brand-gray-light rounded-xl px-4 py-2.5 text-white focus:border-brand-accent focus:outline-none"
-                    placeholder="Ej: 1950 msnm"
+                    placeholder={isChocolate ? 'Ej: 40 gr, 80 gr' : 'Ej: 1950 msnm'}
+                    list={isChocolate ? 'presentaciones' : undefined}
                   />
+                  {isChocolate && (
+                    <datalist id="presentaciones">
+                      <option value="40 gr" />
+                      <option value="60 gr" />
+                      <option value="80 gr" />
+                    </datalist>
+                  )}
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase text-gray-500 mb-2">Proceso</label>
+                  <label className="block text-xs uppercase text-gray-500 mb-2">{isChocolate ? 'Porcentaje de Cacao' : 'Proceso'}</label>
                   <input
                     type="text"
                     value={formData.proceso}
                     onChange={e => setFormData({...formData, proceso: e.target.value})}
                     className="w-full bg-brand-gray border border-brand-gray-light rounded-xl px-4 py-2.5 text-white focus:border-brand-accent focus:outline-none"
-                    placeholder="Ej: Lavado, Honey, Natural..."
-                    list="procesos"
+                    placeholder={isChocolate ? 'Ej: 72% Cacao, 100% Cacao' : 'Ej: Lavado, Honey, Natural...'}
+                    list={isChocolate ? 'cacaoPercents' : 'procesos'}
                   />
-                  <datalist id="procesos">
-                    <option value="Lavado" />
-                    <option value="Natural" />
-                    <option value="Honey" />
-                    <option value="Anaeróbico" />
-                    <option value="Semi-Lavado" />
-                  </datalist>
+                  {isChocolate ? (
+                    <datalist id="cacaoPercents">
+                      <option value="62% Cacao" />
+                      <option value="72% Cacao" />
+                      <option value="86% Cacao" />
+                      <option value="100% Cacao" />
+                    </datalist>
+                  ) : (
+                    <datalist id="procesos">
+                      <option value="Lavado" />
+                      <option value="Natural" />
+                      <option value="Honey" />
+                      <option value="Anaeróbico" />
+                      <option value="Semi-Lavado" />
+                    </datalist>
+                  )}
                 </div>
 
                 <div>
@@ -448,14 +505,20 @@ export default function AdminPage() {
                     onChange={e => setFormData({...formData, categoria: e.target.value as CoffeeCategory})}
                     className="w-full bg-brand-gray border border-brand-gray-light rounded-xl px-4 py-2.5 text-white focus:border-brand-accent focus:outline-none appearance-none"
                   >
-                    <option value="Regional">Regional</option>
-                    <option value="Culturing">Culturing</option>
-                    <option value="Varietal">Varietal</option>
+                    {isChocolate ? (
+                      <option value="Chocolate">Chocolate</option>
+                    ) : (
+                      <>
+                        <option value="Regional">Regional</option>
+                        <option value="Culturing">Culturing</option>
+                        <option value="Varietal">Varietal</option>
+                      </>
+                    )}
                   </select>
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs uppercase text-gray-500 mb-2">Notas de cata</label>
+                  <label className="block text-xs uppercase text-gray-500 mb-2">{isChocolate ? 'Notas de sabor' : 'Notas de cata'}</label>
                   <textarea
                     rows={3}
                     value={formData.notas}
@@ -550,7 +613,7 @@ export default function AdminPage() {
                   className="px-6 py-2.5 rounded-xl bg-brand-accent hover:bg-[#b09060] text-brand-black transition-colors font-semibold text-sm disabled:opacity-50 flex items-center gap-2"
                 >
                   {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {saving ? 'Guardando...' : 'Guardar Café'}
+                  {saving ? 'Guardando...' : (isChocolate ? 'Guardar Chocolate' : 'Guardar Café')}
                 </button>
               </div>
 

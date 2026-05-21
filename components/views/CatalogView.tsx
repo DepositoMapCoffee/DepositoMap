@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, SlidersHorizontal, X, Mountain, MapPin, ArrowRight, Loader2, Heart } from 'lucide-react';
+import { Search, SlidersHorizontal, X, Mountain, MapPin, ArrowRight, Loader2, Heart, Package } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { departamentos } from '@/data/mapaData';
 import { useUserStore } from '@/store/userStore';
@@ -21,12 +21,16 @@ const ALTURAS    = [
   { label: 'Más de 2.100 msnm',   min: 2101, max: 9999 },
 ] as const;
 
+const CHOCOLATE_PROCESOS = ['62% Cacao', '72% Cacao', '86% Cacao', '100% Cacao'] as const;
+const CHOCOLATE_PRESENTACIONES = ['40 gr', '60 gr', '80 gr'] as const;
+
 // ─── Helpers ────────────────────────────────────────────────────────
 
 const catStyle: Record<string, string> = {
   Varietal:  'bg-purple-950/50 text-purple-200/70 ring-1 ring-purple-700/25',
   Culturing: 'bg-amber-950/50  text-amber-200/70  ring-1 ring-amber-700/25',
   Regional:  'bg-surface-highest/60 text-on-surface-soft/70 ring-1 ring-outline-soft/20',
+  Chocolate: 'bg-emerald-950/50 text-emerald-200/70 ring-1 ring-emerald-700/25',
 };
 
 function parseAltura(s: string): number {
@@ -85,6 +89,7 @@ export default function CatalogView() {
   const [categoria, setCategoria] = useState('');
   const [proceso,   setProceso]   = useState('');
   const [alturaKey, setAlturaKey] = useState('');
+  const [tipoProducto, setTipoProducto] = useState<string>(''); // '' | 'cafe' | 'chocolate'
   const [showFilters, setShowFilters] = useState(false);
 
   const activeFilters =
@@ -92,7 +97,7 @@ export default function CatalogView() {
 
   const clearAll = () => {
     setSearch(''); setDeptId(''); setCategoria('');
-    setProceso(''); setAlturaKey('');
+    setProceso(''); setAlturaKey(''); setTipoProducto('');
   };
 
   // ─── Fetch ─────────────────────────────────────────────────────────
@@ -104,25 +109,30 @@ export default function CatalogView() {
     if (deptId)    q = q.eq('departamento_id', deptId);
     if (categoria) q = q.eq('categoria', categoria);
     if (proceso)   q = q.eq('proceso', proceso);
+    if (tipoProducto) q = q.eq('tipo_producto', tipoProducto);
 
     const { data, error } = await q.order('nombre');
     if (error) { setLoading(false); return; }
 
     let list = (data as Coffee[]) ?? [];
 
-    // Filtro de altura (client-side — es string)
+    // Filtro de altura / presentación (client-side — es string)
     if (alturaKey) {
-      const range = ALTURAS.find(a => a.label === alturaKey);
-      if (range) list = list.filter(c => {
-        const h = parseAltura(c.altura);
-        return h >= range.min && h <= range.max;
-      });
+      if (tipoProducto === 'chocolate') {
+        list = list.filter(c => c.altura.toLowerCase().includes(alturaKey.toLowerCase()));
+      } else {
+        const range = ALTURAS.find(a => a.label === alturaKey);
+        if (range) list = list.filter(c => {
+          const h = parseAltura(c.altura);
+          return h >= range.min && h <= range.max;
+        });
+      }
     }
 
     setCoffees(list);
     setTotal(list.length);
     setLoading(false);
-  }, [search, deptId, categoria, proceso, alturaKey]);
+  }, [search, deptId, categoria, proceso, alturaKey, tipoProducto]);
 
   // Debounce en search
   useEffect(() => {
@@ -176,30 +186,53 @@ export default function CatalogView() {
         </div>
 
         {/* Barra de control de filtros */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowFilters(f => !f)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-sans
-              transition-all duration-200 cursor-pointer
-              ${showFilters
-                ? 'bg-brand-accent/15 text-brand-accent ring-1 ring-brand-accent/30'
-                : 'bg-surface-highest/50 text-on-surface-soft/50 ring-1 ring-outline-soft/20 hover:text-on-surface-soft/70'
-              }`}
-          >
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-            Filtros
-            {activeFilters > 0 && (
-              <span className="ml-1 w-4 h-4 rounded-full bg-brand-accent text-brand-black text-[9px] font-bold flex items-center justify-center">
-                {activeFilters}
-              </span>
-            )}
-          </button>
-          {activeFilters > 0 && (
-            <button onClick={clearAll}
-              className="flex items-center gap-1 text-[10px] text-on-surface-soft/35 hover:text-brand-accent transition-colors cursor-pointer">
-              <X className="w-3 h-3" /> Limpiar todo
+        <div className="flex items-center justify-between gap-2 mt-4 flex-wrap">
+          <div className="flex items-center bg-surface-low/80 p-0.5 rounded-lg border border-outline-soft/10">
+            <button
+              onClick={() => { setTipoProducto(''); setCategoria(''); setProceso(''); setAlturaKey(''); }}
+              className={`px-3 py-1 text-[11px] uppercase tracking-wider rounded-md transition-all font-sans cursor-pointer ${!tipoProducto ? 'bg-brand-accent/15 text-brand-accent font-semibold' : 'text-on-surface-soft/50 hover:text-on-surface'}`}
+            >
+              Todos
             </button>
-          )}
+            <button
+              onClick={() => { setTipoProducto('cafe'); setCategoria(''); setProceso(''); setAlturaKey(''); }}
+              className={`px-3 py-1 text-[11px] uppercase tracking-wider rounded-md transition-all font-sans cursor-pointer ${tipoProducto === 'cafe' ? 'bg-brand-accent/15 text-brand-accent font-semibold' : 'text-on-surface-soft/50 hover:text-on-surface'}`}
+            >
+              Cafés
+            </button>
+            <button
+              onClick={() => { setTipoProducto('chocolate'); setCategoria(''); setProceso(''); setAlturaKey(''); }}
+              className={`px-3 py-1 text-[11px] uppercase tracking-wider rounded-md transition-all font-sans cursor-pointer ${tipoProducto === 'chocolate' ? 'bg-brand-accent/15 text-brand-accent font-semibold' : 'text-on-surface-soft/50 hover:text-on-surface'}`}
+            >
+              Chocolates
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowFilters(f => !f)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-sans
+                transition-all duration-200 cursor-pointer
+                ${showFilters
+                  ? 'bg-brand-accent/15 text-brand-accent ring-1 ring-brand-accent/30'
+                  : 'bg-surface-highest/50 text-on-surface-soft/50 ring-1 ring-outline-soft/20 hover:text-on-surface-soft/70'
+                }`}
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              Filtros
+              {activeFilters > 0 && (
+                <span className="ml-1 w-4 h-4 rounded-full bg-brand-accent text-brand-black text-[9px] font-bold flex items-center justify-center">
+                  {activeFilters}
+                </span>
+              )}
+            </button>
+            {activeFilters > 0 && (
+              <button onClick={clearAll}
+                className="flex items-center gap-1 text-[10px] text-on-surface-soft/35 hover:text-brand-accent transition-colors cursor-pointer">
+                <X className="w-3 h-3" /> Limpiar todo
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -233,42 +266,58 @@ export default function CatalogView() {
                 </div>
               </div>
 
-              {/* Categoría */}
-              <div>
-                <p className="text-[9px] uppercase tracking-[0.3em] text-on-surface-soft/35 font-sans mb-2.5">
-                  Categoría
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <FilterPill label="Todas" active={!categoria} onClick={() => setCategoria('')} />
-                  {CATEGORIAS.map(c => (
-                    <FilterPill key={c} label={c} active={categoria === c} onClick={() => setCategoria(categoria === c ? '' : c)} />
-                  ))}
+              {/* Categoría (solo para café) */}
+              {tipoProducto !== 'chocolate' && (
+                <div>
+                  <p className="text-[9px] uppercase tracking-[0.3em] text-on-surface-soft/35 font-sans mb-2.5">
+                    Categoría
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <FilterPill label="Todas" active={!categoria} onClick={() => setCategoria('')} />
+                    {CATEGORIAS.map(c => (
+                      <FilterPill key={c} label={c} active={categoria === c} onClick={() => setCategoria(categoria === c ? '' : c)} />
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* Proceso */}
+              {/* Proceso / Cacao */}
               <div>
                 <p className="text-[9px] uppercase tracking-[0.3em] text-on-surface-soft/35 font-sans mb-2.5">
-                  Proceso
+                  {tipoProducto === 'chocolate' ? 'Porcentaje de Cacao' : 'Proceso'}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <FilterPill label="Todos" active={!proceso} onClick={() => setProceso('')} />
-                  {PROCESOS.map(p => (
-                    <FilterPill key={p} label={p} active={proceso === p} onClick={() => setProceso(proceso === p ? '' : p)} />
-                  ))}
+                  {tipoProducto === 'chocolate'
+                    ? CHOCOLATE_PROCESOS.map(p => (
+                        <FilterPill key={p} label={p} active={proceso === p} onClick={() => setProceso(proceso === p ? '' : p)} />
+                      ))
+                    : PROCESOS.map(p => (
+                        <FilterPill key={p} label={p} active={proceso === p} onClick={() => setProceso(proceso === p ? '' : p)} />
+                      ))
+                  }
                 </div>
               </div>
 
-              {/* Altura */}
+              {/* Altura / Presentación */}
               <div>
                 <p className="text-[9px] uppercase tracking-[0.3em] text-on-surface-soft/35 font-sans mb-2.5">
-                  Altura
+                  {tipoProducto === 'chocolate' ? 'Presentación' : 'Altura'}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <FilterPill label="Cualquier altura" active={!alturaKey} onClick={() => setAlturaKey('')} />
-                  {ALTURAS.map(a => (
-                    <FilterPill key={a.label} label={a.label} active={alturaKey === a.label} onClick={() => setAlturaKey(alturaKey === a.label ? '' : a.label)} />
-                  ))}
+                  <FilterPill
+                    label={tipoProducto === 'chocolate' ? 'Cualquier presentación' : 'Cualquier altura'}
+                    active={!alturaKey}
+                    onClick={() => setAlturaKey('')}
+                  />
+                  {tipoProducto === 'chocolate'
+                    ? CHOCOLATE_PRESENTACIONES.map(p => (
+                        <FilterPill key={p} label={p} active={alturaKey === p} onClick={() => setAlturaKey(alturaKey === p ? '' : p)} />
+                      ))
+                    : ALTURAS.map(a => (
+                        <FilterPill key={a.label} label={a.label} active={alturaKey === a.label} onClick={() => setAlturaKey(alturaKey === a.label ? '' : a.label)} />
+                      ))
+                  }
                 </div>
               </div>
             </div>
@@ -374,7 +423,11 @@ export default function CatalogView() {
                         {coffee.finca}{deptName ? ` · ${deptName}` : ''}
                       </span>
                       <span className="flex items-center gap-1.5">
-                        <Mountain className="w-3 h-3 shrink-0" />
+                        {coffee.tipo_producto === 'chocolate' ? (
+                          <Package className="w-3 h-3 shrink-0 text-brand-accent/70" />
+                        ) : (
+                          <Mountain className="w-3 h-3 shrink-0" />
+                        )}
                         {coffee.altura}
                       </span>
                       <span className="text-on-surface-soft/35 italic">

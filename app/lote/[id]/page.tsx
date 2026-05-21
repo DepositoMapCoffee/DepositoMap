@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { Coffee } from '@/types';
 import {
   Loader2, ArrowLeft, MapPin, Mountain, Coffee as CoffeeIcon,
-  Sparkles, BookOpen, Clock, Thermometer, Droplets
+  Sparkles, BookOpen, Clock, Thermometer, Droplets, Package
 } from 'lucide-react';
 import { departamentos } from '@/data/mapaData';
 import { motion } from 'framer-motion';
@@ -17,6 +17,7 @@ const categoryStyle: Record<string, string> = {
   Varietal:  'text-purple-200/80 bg-purple-950/60 ring-1 ring-purple-700/30',
   Culturing: 'text-amber-200/80  bg-amber-950/60  ring-1 ring-amber-700/30',
   Regional:  'text-on-surface-soft bg-surface-high/60 ring-1 ring-outline-soft/25',
+  Chocolate: 'text-emerald-200/80 bg-emerald-950/60 ring-1 ring-emerald-700/30',
 };
 
 function Chip({ children, className = '' }: { children: React.ReactNode; className?: string }) {
@@ -170,7 +171,11 @@ export default function LoteDetail() {
                 <span>{deptoName}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Mountain className="w-4 h-4 text-brand-accent/50 shrink-0" />
+                {coffee.tipo_producto === 'chocolate' ? (
+                  <Package className="w-4 h-4 text-brand-accent/50 shrink-0" />
+                ) : (
+                  <Mountain className="w-4 h-4 text-brand-accent/50 shrink-0" />
+                )}
                 <span>{coffee.altura}</span>
               </div>
             </div>
@@ -239,14 +244,20 @@ export default function LoteDetail() {
             />
             <div className="absolute inset-0 flex flex-col items-center justify-center group-hover:opacity-0 transition-opacity duration-300 p-5">
               <div className="w-10 h-10 rounded-full bg-surface-highest/40 flex items-center justify-center mb-2">
-                <CoffeeIcon className="w-5 h-5 text-outline/50" />
+                {coffee.tipo_producto === 'chocolate' ? (
+                  <Package className="w-5 h-5 text-outline/50" />
+                ) : (
+                  <CoffeeIcon className="w-5 h-5 text-outline/50" />
+                )}
               </div>
-              <p className="text-[10px] text-outline/50 uppercase tracking-widest text-center">Fotografía del Lote</p>
+              <p className="text-[10px] text-outline/50 uppercase tracking-widest text-center">
+                {coffee.tipo_producto === 'chocolate' ? 'Fotografía del Producto' : 'Fotografía del Lote'}
+              </p>
             </div>
           </div>
 
           {/* ═══════════════════════════════════════════════════════
-              5. Preparación sugerida
+              5. Preparación sugerida / Sugerencia de Consumo
           ══════════════════════════════════════════════════════════ */}
           <BentoBlock
             className="md:col-span-1"
@@ -255,32 +266,66 @@ export default function LoteDetail() {
               border: '1px solid rgba(212,175,55,0.14)',
             }}
           >
-            <Eyebrow icon={CoffeeIcon} label="Preparación Sugerida" />
-            {coffee.metodo_sugerido && (
-              <div className="flex items-center gap-2 text-brand-accent font-serif text-base mb-4">
-                <CoffeeIcon className="w-4 h-4 shrink-0" />
-                <span>{coffee.metodo_sugerido}</span>
-              </div>
-            )}
-            {coffee.preparacion ? (
-              <p className="text-on-surface-soft/75 leading-relaxed text-sm whitespace-pre-line">
-                {coffee.preparacion}
-              </p>
+            {coffee.tipo_producto === 'chocolate' ? (
+              <>
+                <Eyebrow icon={Sparkles} label="Sugerencia de Consumo" />
+                {coffee.metodo_sugerido && (
+                  <div className="flex items-center gap-2 text-brand-accent font-serif text-base mb-4">
+                    <Package className="w-4 h-4 shrink-0" />
+                    <span>{coffee.metodo_sugerido}</span>
+                  </div>
+                )}
+                {coffee.preparacion ? (
+                  <p className="text-on-surface-soft/75 leading-relaxed text-sm whitespace-pre-line">
+                    {coffee.preparacion}
+                  </p>
+                ) : (
+                  <div className="space-y-3 text-sm text-on-surface-soft/60">
+                    <div className="flex items-center gap-2.5">
+                      <Thermometer className="w-3.5 h-3.5 text-brand-accent/50 shrink-0" />
+                      <span>Temperatura: 15°C – 18°C</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <Droplets className="w-3.5 h-3.5 text-brand-accent/50 shrink-0" />
+                      <span>Conservación: Lugar fresco y seco</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <Clock className="w-3.5 h-3.5 text-brand-accent/50 shrink-0" />
+                      <span>Degustación: Consumir al clima</span>
+                    </div>
+                  </div>
+                )}
+              </>
             ) : (
-              <div className="space-y-3 text-sm text-on-surface-soft/60">
-                <div className="flex items-center gap-2.5">
-                  <Droplets className="w-3.5 h-3.5 text-brand-accent/50 shrink-0" />
-                  <span>Ratio: 1:15</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <Thermometer className="w-3.5 h-3.5 text-brand-accent/50 shrink-0" />
-                  <span>Temperatura: 92°C – 94°C</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <Clock className="w-3.5 h-3.5 text-brand-accent/50 shrink-0" />
-                  <span>Tiempo: 3:00 – 3:30 min</span>
-                </div>
-              </div>
+              <>
+                <Eyebrow icon={CoffeeIcon} label="Preparación Sugerida" />
+                {coffee.metodo_sugerido && (
+                  <div className="flex items-center gap-2 text-brand-accent font-serif text-base mb-4">
+                    <CoffeeIcon className="w-4 h-4 shrink-0" />
+                    <span>{coffee.metodo_sugerido}</span>
+                  </div>
+                )}
+                {coffee.preparacion ? (
+                  <p className="text-on-surface-soft/75 leading-relaxed text-sm whitespace-pre-line">
+                    {coffee.preparacion}
+                  </p>
+                ) : (
+                  <div className="space-y-3 text-sm text-on-surface-soft/60">
+                    <div className="flex items-center gap-2.5">
+                      <Droplets className="w-3.5 h-3.5 text-brand-accent/50 shrink-0" />
+                      <span>Ratio: 1:15</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <Thermometer className="w-3.5 h-3.5 text-brand-accent/50 shrink-0" />
+                      <span>Temperatura: 92°C – 94°C</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <Clock className="w-3.5 h-3.5 text-brand-accent/50 shrink-0" />
+                      <span>Tiempo: 3:00 – 3:30 min</span>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </BentoBlock>
 

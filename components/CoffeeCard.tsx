@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { MapPin, Mountain, Coffee as CoffeeIcon, ArrowRight, Heart } from 'lucide-react';
+import { MapPin, Mountain, Coffee as CoffeeIcon, ArrowRight, Heart, Package, Percent } from 'lucide-react';
 import { Coffee } from '@/types';
 import { cardVariants } from '@/lib/animations';
 import { useUserStore } from '@/store/userStore';
@@ -18,6 +18,7 @@ const categoryConfig: Record<string, { label: string; style: string }> = {
   Varietal:  { label: 'Varietal',  style: 'bg-purple-950/50 text-purple-200/80 ring-1 ring-purple-700/25' },
   Culturing: { label: 'Culturing', style: 'bg-amber-950/50  text-amber-200/80  ring-1 ring-amber-700/25'  },
   Regional:  { label: 'Regional',  style: 'bg-surface-high/70 text-on-surface-soft ring-1 ring-outline-soft/20' },
+  Chocolate: { label: 'Chocolate', style: 'bg-emerald-950/50 text-emerald-200/80 ring-1 ring-emerald-700/25' },
 };
 
 /** Chip de nota de cata — "Tasting Note Chip" del design system */
@@ -121,11 +122,19 @@ export default function CoffeeCard({ coffee }: CoffeeCardProps) {
           <span className="text-on-surface-soft/70 truncate max-w-[130px]" title={coffee.finca}>{coffee.finca}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <Mountain className="w-3.5 h-3.5 text-brand-accent/60 shrink-0" />
+          {coffee.tipo_producto === 'chocolate' ? (
+            <Package className="w-3.5 h-3.5 text-brand-accent/60 shrink-0" />
+          ) : (
+            <Mountain className="w-3.5 h-3.5 text-brand-accent/60 shrink-0" />
+          )}
           <span className="text-on-surface-soft/70">{coffee.altura}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <CoffeeIcon className="w-3.5 h-3.5 text-brand-accent/60 shrink-0" />
+          {coffee.tipo_producto === 'chocolate' ? (
+            <Percent className="w-3.5 h-3.5 text-brand-accent/60 shrink-0" />
+          ) : (
+            <CoffeeIcon className="w-3.5 h-3.5 text-brand-accent/60 shrink-0" />
+          )}
           <span className="text-on-surface-soft/80">{coffee.proceso}</span>
         </div>
       </div>
