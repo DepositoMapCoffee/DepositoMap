@@ -31,6 +31,12 @@ export default function SidePanel() {
 
   const isCoffee = deptData ? isCoffeeRegion(deptData.nombre) : false;
 
+  const { cafesList, chocolatesList } = useMemo(() => {
+    const cafes = coffees.filter(c => !c.tipo_producto || c.tipo_producto === 'cafe');
+    const chocolates = coffees.filter(c => c.tipo_producto === 'chocolate');
+    return { cafesList: cafes, chocolatesList: chocolates };
+  }, [coffees]);
+
   const prevDeptRef = React.useRef(selectedDept);
 
   React.useEffect(() => {
@@ -164,6 +170,7 @@ export default function SidePanel() {
                       <option value="Regional">Regional</option>
                       <option value="Culturing">Culturing</option>
                       <option value="Varietal">Varietal</option>
+                      <option value="Chocolate">Chocolate</option>
                     </select>
                   </div>
                 </div>
@@ -176,18 +183,46 @@ export default function SidePanel() {
                   </div>
                 )}
 
-                {/* Lista de cafés */}
+                {/* Lista de cafés y chocolates */}
                 {coffees.length > 0 ? (
                   <motion.div
                     key={selectedDept}
                     variants={staggerContainerVariants}
                     initial="hidden"
                     animate="show"
-                    className="space-y-3"
+                    className="space-y-6"
                   >
-                    {coffees.map((coffee) => (
-                      <CoffeeCard key={coffee.id} coffee={coffee} />
-                    ))}
+                    {/* Sección de Cafés */}
+                    {cafesList.length > 0 && (
+                      <div className="space-y-3">
+                        {chocolatesList.length > 0 && (
+                          <h4 className="text-[10px] uppercase tracking-[0.25em] text-brand-accent/60 font-sans font-semibold mb-2">
+                            Cafés de Especialidad
+                          </h4>
+                        )}
+                        <div className="space-y-3">
+                          {cafesList.map((coffee) => (
+                            <CoffeeCard key={coffee.id} coffee={coffee} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Sección de Chocolates */}
+                    {chocolatesList.length > 0 && (
+                      <div className="space-y-3">
+                        {cafesList.length > 0 && (
+                          <h4 className="text-[10px] uppercase tracking-[0.25em] text-brand-accent/60 font-sans font-semibold mb-2">
+                            Chocolates de Finca
+                          </h4>
+                        )}
+                        <div className="space-y-3">
+                          {chocolatesList.map((coffee) => (
+                            <CoffeeCard key={coffee.id} coffee={coffee} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </motion.div>
                 ) : (
                   !isLoading && (
