@@ -52,13 +52,31 @@ const STEPS = [
 /* ─────────────────────────────────────────
    Helpers
 ────────────────────────────────────────── */
-function tomorrow(): string {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
+/** Retorna la fecha minima permitida segun la hora actual */
+function getMinDate(): string {
+  const now = new Date();
+  // Si son las 12:00 o mas, el minimo es manana
+  if (now.getHours() >= 12) {
+    now.setDate(now.getDate() + 1);
+  }
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+/** Retorna true si la fecha dada es hoy */
+function esHoy(fecha: string): boolean {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return fecha === `${y}-${m}-${d}`;
+}
+
+/** Retorna true si son antes de las 12:00 */
+function esAntesDeMedioDia(): boolean {
+  return new Date().getHours() < 12;
 }
 
 function formatCurrency(n: number): string {
@@ -66,8 +84,36 @@ function formatCurrency(n: number): string {
 }
 
 async function checkAvailability(fecha: string): Promise<AvailabilityInfo[]> {
+  const isToday = esHoy(fecha);
+  const beforeNoon = esAntesDeMedioDia();
+
   const results = await Promise.all(
-    TIME_SLOTS.map(async ({ id: horario }) => {
+    TIME_SLOTS.map(async ({ id: horario, label }) => {
+      // ── Logica same-day ──
+      if (isToday && !beforeNoon) {
+        // Despues de las 12:00 → no hay horarios para hoy
+        return {
+          horario,
+          label,
+          ocupados: CUPO_MAXIMO_POR_HORARIO,
+          disponibles: 0,
+          maximo: CUPO_MAXIMO_POR_HORARIO,
+          motivo: 'Ya no hay horarios disponibles para hoy',
+        };
+      }
+      if (isToday && beforeNoon && horario === '10-11') {
+        // Antes de las 12:00 → el slot 10-11 ya paso
+        return {
+          horario,
+          label,
+          ocupados: CUPO_MAXIMO_POR_HORARIO,
+          disponibles: 0,
+          maximo: CUPO_MAXIMO_POR_HORARIO,
+          motivo: 'Horario de la mañana ya pasado',
+        };
+      }
+
+      // ── Consulta normal a DB ──
       const { data, error } = await supabase
         .from('reservations')
         .select('cupos')
@@ -79,7 +125,7 @@ async function checkAvailability(fecha: string): Promise<AvailabilityInfo[]> {
         console.error('Error checking availability:', error);
         return {
           horario,
-          label: horario,
+          label,
           ocupados: 0,
           disponibles: 0,
           maximo: CUPO_MAXIMO_POR_HORARIO,
@@ -89,7 +135,7 @@ async function checkAvailability(fecha: string): Promise<AvailabilityInfo[]> {
       const ocupados = data?.reduce((sum, r) => sum + (r.cupos ?? 1), 0) ?? 0;
       return {
         horario,
-        label: horario,
+        label,
         ocupados,
         disponibles: Math.max(0, CUPO_MAXIMO_POR_HORARIO - ocupados),
         maximo: CUPO_MAXIMO_POR_HORARIO,
@@ -508,7 +554,7 @@ export default function ReservasView() {
                     <CalendarDays className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-outline/60 pointer-events-none" />
                     <input
                       type="date"
-                      min={tomorrow()}
+                      min={getMinDate()}
                       value={formData.fecha}
                       onChange={e => {
                         setFormData(p => ({ ...p, fecha: e.target.value, horario: '' as TimeSlot }));
@@ -532,6 +578,30 @@ export default function ReservasView() {
                           </span>
                         )}
                       </p>
+
+                      {/* ── Banner informativo same-day ── */}
+                      {!checkingAvailability && availability.length > 0 && esHoy(formData.fecha) && (() => {
+                        const todosConMotivo = availability.every(a => a.motivo);
+                        if (todosConMotivo) {
+                          return (
+                            <div className="mb-4 px-4 py-3 rounded-xl bg-amber-900/20 ring-1 ring-amber-700/30 text-amber-300/90 text-sm font-sans flex items-start gap-2.5">
+                              <Clock className="w-4 h-4 mt-0.5 shrink-0 text-amber-400/70" />
+                              <span>Ya no hay horarios disponibles para hoy. Elige una fecha a partir de mañana.</span>
+                            </div>
+                          );
+                        }
+                        const soloMananaBloqueado = availability.find(a => a.horario === '10-11')?.motivo;
+                        if (soloMananaBloqueado) {
+                          return (
+                            <div className="mb-4 px-4 py-3 rounded-xl bg-brand-accent/10 ring-1 ring-brand-accent/20 text-brand-accent/90 text-sm font-sans flex items-start gap-2.5">
+                              <Clock className="w-4 h-4 mt-0.5 shrink-0 text-brand-accent/70" />
+                              <span>Hoy solo hay disponibles horarios de tarde (2:00 PM - 4:00 PM).</span>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+
                       <div className="grid gap-2.5">
                         {TIME_SLOTS.map(slot => {
                           const info = availability.find(a => a.horario === slot.id);
@@ -556,8 +626,10 @@ export default function ReservasView() {
                               <Clock className={`w-4 h-4 ${isSelected ? 'text-brand-accent' : ''}`} />
                               <span className="flex-1 text-left">{slot.label}</span>
                               {isFull ? (
-                                <span className="text-[10px] uppercase tracking-wider text-red-400/60 font-semibold">
-                                  Completo
+                                <span className={`text-[10px] uppercase tracking-wider font-semibold
+                                  ${info?.motivo ? 'text-amber-400/60' : 'text-red-400/60'}`}
+                                >
+                                  {info?.motivo || 'Completo'}
                                 </span>
                               ) : info ? (
                                 <span className={`text-[10px] font-sans tabular-nums

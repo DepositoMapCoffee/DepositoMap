@@ -141,6 +141,7 @@ export interface AvailabilityInfo {
   ocupados: number;
   disponibles: number;
   maximo: number;
+  motivo?: string; // razon por la que no esta disponible (same-day logic)
 }
 
 // ─── Departamento ─────────────────────────────────────────────────
