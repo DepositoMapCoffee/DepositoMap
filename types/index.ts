@@ -71,6 +71,78 @@ export interface Coffee {
  */
 export type CoffeeFormData = Omit<Coffee, 'id' | 'created_at'>;
 
+// ─── Reservas / Coffee Testing ─────────────────────────────────────
+
+/**
+ * IDs de los paquetes de Coffee Testing disponibles.
+ */
+export type ReservationPackageId = 'testing_1' | 'testing_2';
+
+/**
+ * Paquete de Coffee Testing con su precio y descripción.
+ */
+export interface ReservationPackage {
+  id: ReservationPackageId;
+  nombre: string;
+  /** Precio en pesos colombianos (COP) */
+  precio: number;
+  descripcion: string;
+  /** Duración en minutos */
+  duracion: number;
+  /** Temática del testing */
+  tematica: string;
+  /** Número de cafés incluidos */
+  cafes: string;
+  /** Idiomas disponibles */
+  idiomas: string;
+  /** Ubicación */
+  ubicacion: string;
+}
+
+/**
+ * Horarios disponibles para agendar una reserva.
+ */
+export type TimeSlot = '10-11' | '14-15' | '15-16';
+
+/**
+ * Estados posibles de una reserva.
+ */
+export type ReservationStatus = 'pendiente' | 'confirmada' | 'cancelada';
+
+/**
+ * Datos del formulario de agendamiento (antes de enviar).
+ */
+export interface ReservationFormData {
+  nombre: string;
+  email: string;
+  telefono: string;
+  fecha: string;
+  horario: TimeSlot;
+  paquete: ReservationPackageId;
+  /** Número de personas (cupos a reservar) */
+  cupos: number;
+}
+
+/**
+ * Modelo completo de una reserva (corresponde a la tabla `reservations`).
+ */
+export interface Reservation extends ReservationFormData {
+  id: string;
+  estado: ReservationStatus;
+  created_at: string;
+}
+
+/**
+ * Información de disponibilidad para un horario específico en una fecha.
+ */
+export interface AvailabilityInfo {
+  horario: TimeSlot;
+  label: string;
+  ocupados: number;
+  disponibles: number;
+  maximo: number;
+}
+
 // ─── Departamento ─────────────────────────────────────────────────
 
 /**
