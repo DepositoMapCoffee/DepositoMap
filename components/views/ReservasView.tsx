@@ -350,7 +350,7 @@ export default function ReservasView() {
       {/* ══════════════════════════════════════════
           CONTENIDO
       ══════════════════════════════════════════ */}
-      <div className="flex-1 overflow-y-auto scroll-touch">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden scroll-touch">
         <div className="max-w-2xl mx-auto px-5 md:px-8 py-8 relative">
 
           {/* ── Mensaje de éxito ── */}
@@ -432,7 +432,7 @@ export default function ReservasView() {
                               </div>
                               <div className="flex items-center gap-2 text-[11px] text-on-surface-soft/60 font-sans">
                                 <Coffee className="w-3.5 h-3.5 shrink-0" />
-                                <span>{pkg.cafes}</span>
+                                <span className="break-words">{pkg.cafes}</span>
                               </div>
                               <div className="flex items-center gap-2 text-[11px] text-on-surface-soft/60 font-sans">
                                 <Globe className="w-3.5 h-3.5 shrink-0" />
@@ -729,9 +729,9 @@ export default function ReservasView() {
                       <p className="text-[9px] uppercase tracking-[0.25em] text-brand-accent/60 font-sans mb-2">
                         Paquete seleccionado
                       </p>
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-serif text-xl text-on-surface">{paqueteSeleccionado.nombre}</h3>
-                        <span className="font-sans font-bold text-brand-accent">{formatCurrency(paqueteSeleccionado.precio)}</span>
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="font-serif text-xl text-on-surface min-w-0">{paqueteSeleccionado.nombre}</h3>
+                        <span className="font-sans font-bold text-brand-accent whitespace-nowrap shrink-0">{formatCurrency(paqueteSeleccionado.precio)}</span>
                       </div>
                       <div className="flex items-center gap-2 mt-2 text-[11px] text-on-surface-soft/60 font-sans">
                         <Clock3 className="w-3.5 h-3.5 shrink-0" />
@@ -786,11 +786,11 @@ export default function ReservasView() {
                   {/* Total */}
                   {paqueteSeleccionado && (
                     <div className="p-5 rounded-2xl border border-brand-accent/20 bg-brand-accent/5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[9px] uppercase tracking-[0.25em] text-brand-accent/60 font-sans">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[9px] uppercase tracking-[0.25em] text-brand-accent/60 font-sans min-w-0">
                           Total estimado
                         </span>
-                        <span className="font-sans font-bold text-xl text-brand-accent">
+                        <span className="font-sans font-bold text-xl text-brand-accent whitespace-nowrap shrink-0">
                           {formatCurrency(paqueteSeleccionado.precio * formData.cupos)}
                         </span>
                       </div>
