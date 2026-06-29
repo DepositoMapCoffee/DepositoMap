@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Home, BookOpen, User } from 'lucide-react';
+import { Home, CalendarClock, User } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCoffeeStore } from '@/store/coffeeStore';
@@ -9,7 +9,7 @@ import { useUserStore } from '@/store/userStore';
 import MapaColombia from '@/components/MapaColombia';
 import SidePanel from '@/components/SidePanel';
 import HomeView from '@/components/views/HomeView';
-import CatalogView from '@/components/views/CatalogView';
+import ReservasView from '@/components/views/ReservasView';
 import UserView from '@/components/views/UserView';
 import ColombiaIcon from '@/components/ColombiaIcon';
 
@@ -17,10 +17,10 @@ import ColombiaIcon from '@/components/ColombiaIcon';
    Nav items
 ───────────────────────────────────────── */
 const NAV_ITEMS = [
-  { id: 'home',    icon: Home,     label: 'Inicio',   description: 'Pantalla principal' },
-  { id: 'map',     icon: ColombiaIcon,      label: 'Mapa',     description: 'Mapa cafetero' },
-  { id: 'catalog', icon: BookOpen, label: 'Catálogo', description: 'Todos los lotes' },
-  { id: 'user',    icon: User,     label: 'Usuario',  description: 'Perfil y favoritos' },
+  { id: 'home',        icon: Home,          label: 'Inicio',   description: 'Pantalla principal' },
+  { id: 'map',         icon: ColombiaIcon,  label: 'Mapa',     description: 'Mapa cafetero' },
+  { id: 'reservations', icon: CalendarClock, label: 'Reservas', description: 'Coffee Testing' },
+  { id: 'user',        icon: User,          label: 'Usuario',  description: 'Perfil y favoritos' },
 ] as const;
 
 /* ─────────────────────────────────────────
@@ -210,10 +210,10 @@ export default function HomePage() {
         lg:ml-[68px]
         ${selectedDept && activeTab === 'map' ? 'lg:mr-[480px]' : ''}
       `}>
-        {activeTab === 'home'    && <HomeView onMapClick={() => handleNav('map')} onUserClick={() => handleNav('user')} onCatalogClick={() => handleNav('catalog')} />}
-        {activeTab === 'map'     && <MapaColombia />}
-        {activeTab === 'catalog' && <CatalogView />}
-        {activeTab === 'user'    && <UserView />}
+        {activeTab === 'home'        && <HomeView onMapClick={() => handleNav('map')} onUserClick={() => handleNav('user')} onReservationsClick={() => handleNav('reservations')} />}
+        {activeTab === 'map'         && <MapaColombia />}
+        {activeTab === 'reservations' && <ReservasView />}
+        {activeTab === 'user'        && <UserView />}
       </div>
 
       {/* ── Blur overlay when side panel open (mobile) ── */}

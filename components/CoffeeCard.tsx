@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { MapPin, Mountain, Coffee as CoffeeIcon, ArrowRight, Heart, Package, Percent } from 'lucide-react';
 import { Coffee } from '@/types';
@@ -32,7 +31,6 @@ function TastingChip({ note }: { note: string }) {
 }
 
 export default function CoffeeCard({ coffee }: CoffeeCardProps) {
-  const router = useRouter();
   const { session, favoriteIds, toggleFavorite } = useUserStore();
   const { addToast } = useToastStore();
   const cat = categoryConfig[coffee.categoria] ?? categoryConfig['Regional'];
@@ -70,7 +68,6 @@ export default function CoffeeCard({ coffee }: CoffeeCardProps) {
   return (
     <motion.div
       variants={cardVariants}
-      onClick={() => router.push(`/lote/${coffee.id}`)}
       className="relative rounded-xl p-5 cursor-pointer overflow-hidden group
         transition-all duration-350
         hover:shadow-[0_4px_30px_rgba(212,175,55,0.08)]"
