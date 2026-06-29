@@ -265,7 +265,7 @@ export default function UserView() {
                       <Settings className="w-4 h-4 text-brand-gold" />
                     </div>
                     <span className="font-sans text-sm text-on-surface group-hover:text-brand-gold transition-colors">
-                      Gestión de Catálogo
+                      Panel de Administración
                     </span>
                   </div>
                   <span className="text-[10px] uppercase tracking-widest text-on-surface-soft/30 flex items-center gap-1">

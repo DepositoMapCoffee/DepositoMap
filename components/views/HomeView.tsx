@@ -1,17 +1,15 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { motion, useAnimation, type Variants } from 'framer-motion';
-import { BookOpen, Heart, ArrowRight, LogIn, UserPlus } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import { useUserStore } from '@/store/userStore';
+import { CalendarClock, Heart, ArrowRight } from 'lucide-react';
 import ColombiaIcon from '@/components/ColombiaIcon';
 
 
 interface HomeViewProps {
   onMapClick: () => void;
   onUserClick: () => void;
-  onCatalogClick?: () => void;
+  onReservationsClick?: () => void;
 }
 
 /* ─────────────────────────────────────────
@@ -32,9 +30,14 @@ const fadeIn: Variants = {
   show:   { opacity: 1, transition: { duration: 0.9, ease: 'easeOut' } },
 };
 
+const sectionTitle: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
+};
+
 const cardContainer: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.1, delayChildren: 0.6 } },
+  show: { transition: { staggerChildren: 0.1, delayChildren: 0.4 } },
 };
 
 const cardVariant: Variants = {
@@ -55,10 +58,10 @@ const ACCESS_CARDS = [
     accent: 'rgba(47,163,107,',
   },
   {
-    id: 'catalog',
-    icon: BookOpen,
-    title: 'Catálogo',
-    description: 'Conoce cada lote: variedades, procesos y perfiles de sabor.',
+    id: 'reservations',
+    icon: CalendarClock,
+    title: 'Reservas',
+    description: 'Agenda un Coffee Testing y vive la experiencia.',
     color: 'marrom',
     accent: 'rgba(149,90,35,',
   },
@@ -75,8 +78,7 @@ const ACCESS_CARDS = [
 /* ─────────────────────────────────────────
    Component
 ───────────────────────────────────────── */
-export default function HomeView({ onMapClick, onUserClick, onCatalogClick }: HomeViewProps) {
-  const { session, isLoadingSession } = useUserStore();
+export default function HomeView({ onMapClick, onUserClick, onReservationsClick }: HomeViewProps) {
   const isotipoControls = useAnimation();
 
   /* Isotipo: entrada dramática → pulso infinito */
@@ -95,45 +97,42 @@ export default function HomeView({ onMapClick, onUserClick, onCatalogClick }: Ho
   }, [isotipoControls]);
 
   const handleCard = (id: string) => {
-    if (id === 'map')     onMapClick();
-    if (id === 'user')    onUserClick();
-    if (id === 'catalog') onCatalogClick ? onCatalogClick() : undefined;
+    if (id === 'map')          onMapClick();
+    if (id === 'user')         onUserClick();
+    if (id === 'reservations' && onReservationsClick) onReservationsClick();
   };
 
   return (
-    <div className="w-full h-full flex flex-col overflow-hidden relative">
+    <div className="w-full h-full overflow-y-auto overflow-x-hidden scroll-touch relative">
 
       {/* ════════════════════════════════════════════
           AMBIENT BACKGROUNDS
       ════════════════════════════════════════════ */}
-      {/* Glow verde superior */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="fixed inset-0 pointer-events-none"
         style={{
           background:
             'radial-gradient(ellipse 70% 55% at 50% 10%, rgba(47,163,107,0.08) 0%, transparent 65%)',
         }}
       />
-      {/* Glow marrom inferior */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="fixed inset-0 pointer-events-none"
         style={{
           background:
             'radial-gradient(ellipse 60% 40% at 50% 95%, rgba(149,90,35,0.07) 0%, transparent 65%)',
         }}
       />
-      {/* Noise texture overlay */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-[0.025]"
+        className="fixed inset-0 pointer-events-none opacity-[0.025]"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
         }}
       />
 
       {/* ════════════════════════════════════════════
-          HERO ZONE — top ~58%
+          HERO ZONE
       ════════════════════════════════════════════ */}
-      <div className="flex-[0_0_58%] flex flex-col items-center justify-center relative z-10 px-6">
+      <section className="min-h-[60dvh] flex flex-col items-center justify-center relative z-10 px-6 py-16">
 
         <motion.div
           variants={heroContainer}
@@ -141,13 +140,12 @@ export default function HomeView({ onMapClick, onUserClick, onCatalogClick }: Ho
           animate="show"
           className="flex flex-col items-center"
         >
-          {/* ── Isotipo con animación espectacular ── */}
+          {/* ── Isotipo ── */}
           <motion.div
             initial={{ opacity: 0, scale: 0.4, rotate: -15 }}
             animate={isotipoControls}
             className="mb-7 relative"
           >
-            {/* Glow ring detrás del isotipo */}
             <motion.div
               animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.12, 1] }}
               transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
@@ -166,12 +164,11 @@ export default function HomeView({ onMapClick, onUserClick, onCatalogClick }: Ho
             />
           </motion.div>
 
-          {/* ── Logo wordmark con fade elegante ── */}
+          {/* ── Logo wordmark ── */}
           <motion.div
             variants={fadeIn}
             className="mb-4 relative overflow-hidden"
           >
-            {/* Shimmer sweep animation */}
             <motion.div
               initial={{ x: '-120%' }}
               animate={{ x: '220%' }}
@@ -189,7 +186,7 @@ export default function HomeView({ onMapClick, onUserClick, onCatalogClick }: Ho
             />
           </motion.div>
 
-          {/* ── Tagline poética ── */}
+          {/* ── Tagline ── */}
           <motion.p
             variants={fadeUp}
             className="text-[10px] uppercase tracking-[0.45em] text-on-surface-soft/40 font-sans mb-10 text-center"
@@ -197,87 +194,148 @@ export default function HomeView({ onMapClick, onUserClick, onCatalogClick }: Ho
             Specialty Coffee · Colombia
           </motion.p>
 
-          {/* ── Auth buttons (compactos en la zona hero) ── */}
-          <motion.div variants={fadeUp} className="flex gap-3 w-full max-w-xs min-h-[48px]">
-            {isLoadingSession ? (
-              <div className="w-full flex items-center justify-center">
-                <div className="w-5 h-5 rounded-full border-2 border-brand-accent border-t-transparent animate-spin" />
-              </div>
-            ) : !session ? (
-              <>
-                <button
-                  onClick={onUserClick}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl
-                    bg-brand-accent text-brand-black font-sans font-semibold text-sm tracking-wide
-                    hover:bg-verde transition-all duration-300 cursor-pointer
-                    shadow-[0_4px_20px_rgba(47,163,107,0.28)]
-                    hover:shadow-[0_6px_30px_rgba(47,163,107,0.4)]
-                    active:scale-[0.97]"
-                >
-                  <LogIn className="w-4 h-4" />
-                  Iniciar Sesión
-                </button>
-                <button
-                  onClick={onUserClick}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl
-                    bg-transparent text-on-surface font-sans font-medium text-sm tracking-wide
-                    border border-outline-soft/40 hover:border-brand-accent/50
-                    hover:text-brand-accent hover:bg-brand-accent/5 cursor-pointer
-                    transition-all duration-300 active:scale-[0.97]"
-                >
-                  <UserPlus className="w-4 h-4" />
-                  Registro
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={onUserClick}
-                className="flex items-center justify-center gap-2 w-full max-w-xs py-3 rounded-xl
-                  bg-surface-high/50 text-brand-accent font-sans font-medium text-sm tracking-wide
-                  border border-outline-soft/20 hover:border-brand-accent/50 hover:bg-brand-accent/10
-                  transition-all duration-300 cursor-pointer"
-              >
-                Mi perfil
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            )}
-          </motion.div>
         </motion.div>
-      </div>
+      </section>
 
       {/* ════════════════════════════════════════════
-          DIVIDER LINE
+          DIVIDER
       ════════════════════════════════════════════ */}
       <motion.div
         initial={{ scaleX: 0, opacity: 0 }}
-        animate={{ scaleX: 1, opacity: 1 }}
-        transition={{ duration: 0.9, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
-        className="h-px mx-8 origin-left"
+        whileInView={{ scaleX: 1, opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+        className="h-px mx-8 origin-left relative z-10"
         style={{
           background: 'linear-gradient(90deg, transparent, rgba(47,163,107,0.3) 30%, rgba(149,90,35,0.3) 70%, transparent)',
         }}
       />
 
       {/* ════════════════════════════════════════════
-          CARDS ZONE — bottom ~42%
+          NUESTRA HISTORIA
       ════════════════════════════════════════════ */}
-      <div className="flex-[0_0_42%] flex flex-col justify-center px-5 py-4 relative z-10">
+      <section className="relative z-10 px-6 md:px-12 py-16 md:py-20 max-w-5xl mx-auto">
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-80px' }}
+          variants={sectionTitle}
+        >
+          <p className="text-[9px] uppercase tracking-[0.4em] text-brand-accent/70 font-sans mb-4 text-center">
+            Nuestra Historia
+          </p>
+          <h2 className="font-serif text-3xl md:text-4xl text-on-surface font-medium tracking-tight mb-8 text-center">
+            Un legado de cuatro generaciones
+          </h2>
+          <div className="w-12 h-px bg-brand-accent/40 mx-auto mb-10" />
 
-        {/* Label de sección */}
+          {/* ── Historia: imagen + texto ── */}
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-14">
+            {/* Imagen del abuelo */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className="shrink-0"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/sigifredo.png"
+                alt="Sigifredo González, fundador de El Depósito"
+                className="w-full max-w-[320px] md:max-w-[350px] rounded-2xl shadow-2xl
+                  border border-outline-soft/10"
+              />
+            </motion.div>
+
+            {/* Texto de la historia */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+              className="space-y-5"
+            >
+              <p className="text-on-surface-soft/80 text-sm md:text-base leading-relaxed font-sans">
+                Todo comenzó en <strong>1942</strong> en{' '}
+                <strong>Viterbo, Caldas</strong>, cuando{' '}
+                <strong className="text-brand-accent">Sigifredo González</strong> y su padre,{' '}
+                <strong className="text-brand-accent">Félix González</strong>, fundaron un depósito de café
+                motivados por su pasión por este cultivo y su compromiso con los caficultores de la región.
+              </p>
+              <p className="text-on-surface-soft/60 text-sm md:text-base leading-relaxed font-sans">
+                Más de ocho décadas después,{' '}
+                <strong className="text-brand-accent">Javier González</strong> y{' '}
+                <strong className="text-brand-accent">Santiago González</strong> continúan ese legado
+                familiar a través del café especial, seleccionando cafés excepcionales y acercando a las
+                personas una experiencia basada en la calidad, la trazabilidad y el respeto por el origen.
+              </p>
+              <p className="text-on-surface-soft/60 text-sm md:text-base leading-relaxed font-sans italic">
+                "Cada taza honra nuestra historia y celebra el trabajo de quienes hacen posible el café."
+              </p>
+            </motion.div>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* ════════════════════════════════════════════
+          EXPERTOS EN CAFÉ ESPECIAL
+      ════════════════════════════════════════════ */}
+      <section className="relative z-10 px-6 md:px-12 pb-16 md:pb-20 max-w-3xl mx-auto">
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-80px' }}
+          variants={sectionTitle}
+          className="text-center"
+        >
+          <div className="w-12 h-px bg-brand-accent/40 mx-auto mb-10" />
+          <h2 className="font-serif text-2xl md:text-3xl text-on-surface font-medium tracking-tight mb-6">
+            Expertos en café especial
+          </h2>
+          <p className="text-on-surface-soft/60 text-sm md:text-base leading-relaxed font-sans max-w-2xl mx-auto">
+            Nuestra experiencia de generaciones en la industria cafetera, combinada con una profunda pasión
+            por el café especial, nos ha permitido desarrollar un conocimiento experto en selección, tostión
+            y preparación. Creemos que cada café tiene una historia única que merece ser descubierta, por eso
+            dominamos los métodos de filtrado que mejor resaltan sus aromas, sabores y matices, transformando
+            cada taza en una experiencia auténtica que conecta el origen del café con quienes lo disfrutan.
+          </p>
+        </motion.div>
+      </section>
+
+      {/* ════════════════════════════════════════════
+          DIVIDER
+      ════════════════════════════════════════════ */}
+      <motion.div
+        initial={{ scaleX: 0, opacity: 0 }}
+        whileInView={{ scaleX: 1, opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+        className="h-px mx-8 origin-left relative z-10"
+        style={{
+          background: 'linear-gradient(90deg, transparent, rgba(47,163,107,0.3) 30%, rgba(149,90,35,0.3) 70%, transparent)',
+        }}
+      />
+
+      {/* ════════════════════════════════════════════
+          ACCESS CARDS
+      ════════════════════════════════════════════ */}
+      <section className="relative z-10 px-5 py-12 md:py-16">
         <motion.p
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7, duration: 0.6 }}
-          className="text-[9px] uppercase tracking-[0.4em] text-on-surface-soft/30 font-sans mb-3 text-center"
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="text-[9px] uppercase tracking-[0.4em] text-on-surface-soft/30 font-sans mb-5 text-center"
         >
           Explorar
         </motion.p>
 
-        {/* Cards grid: 3 columnas en desktop, apiladas en mobile */}
         <motion.div
           variants={cardContainer}
           initial="hidden"
-          animate="show"
+          whileInView="show"
+          viewport={{ once: true, margin: '-40px' }}
           className="grid grid-cols-3 gap-3 md:gap-4 max-w-xl mx-auto w-full"
         >
           {ACCESS_CARDS.map(({ id, icon: Icon, title, description, accent }) => (
@@ -312,7 +370,7 @@ export default function HomeView({ onMapClick, onUserClick, onCatalogClick }: Ho
               >
                 <Icon
                   className="w-5 h-5 md:w-6 md:h-6 transition-colors duration-300"
-                  style={{ color: id === 'catalog' ? '#955a23' : '#2fa36b' }}
+                  style={{ color: id === 'reservations' ? '#955a23' : '#2fa36b' }}
                 />
               </div>
 
@@ -321,7 +379,7 @@ export default function HomeView({ onMapClick, onUserClick, onCatalogClick }: Ho
                 {title}
               </span>
 
-              {/* Description — hidden on very small screens */}
+              {/* Description */}
               <span className="hidden md:block font-sans text-[10px] text-on-surface-soft/45 leading-relaxed">
                 {description}
               </span>
@@ -335,7 +393,12 @@ export default function HomeView({ onMapClick, onUserClick, onCatalogClick }: Ho
             </motion.button>
           ))}
         </motion.div>
-      </div>
+      </section>
+
+      {/* ════════════════════════════════════════════
+          FOOTER SPACER (para safe-area en mobile)
+      ════════════════════════════════════════════ */}
+      <div className="h-12 md:h-6 relative z-10" />
     </div>
   );
 }
