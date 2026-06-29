@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@next/swc-linux-x64-gnu": "^16.2.9",
     "@supabase/supabase-js": "^2.103.0",
     "framer-motion": "^12.35.2",
     "lucide-react": "^0.577.0",
