@@ -9,7 +9,11 @@ import { getPanelVariants, staggerContainerVariants } from '@/lib/animations';
 import CoffeeCard from './CoffeeCard';
 
 export default function SidePanel() {
-  const { selectedDept, clearSelection, coffees, isLoading, fetchCoffees } = useCoffeeStore();
+  const selectedDept = useCoffeeStore(s => s.selectedDept);
+  const clearSelection = useCoffeeStore(s => s.clearSelection);
+  const coffees = useCoffeeStore(s => s.coffees);
+  const isLoading = useCoffeeStore(s => s.isLoading);
+  const fetchCoffees = useCoffeeStore(s => s.fetchCoffees);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -65,17 +69,26 @@ export default function SidePanel() {
           initial="initial"
           animate="animate"
           exit="exit"
+          /* ── Swipe-to-dismiss en mobile ── */
+          drag={typeof window !== 'undefined' && window.innerWidth < 1024 ? 'y' : false}
+          dragSnapToOrigin
+          dragElastic={0.2}
+          onDragEnd={(_, info) => {
+            if (info.offset.y > 100) { clearSelection(); }
+          }}
           className="fixed inset-x-0 bottom-[68px] top-[57px] lg:inset-y-0 lg:left-auto lg:right-0 lg:w-[480px]
             flex flex-col z-40 rounded-t-3xl lg:rounded-none overflow-hidden
-            shadow-[0_-8px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(90,90,90,0.15)]"
+            shadow-[0_-8px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(90,90,90,0.15)]
+            lg:cursor-default touch-pan-y"
           style={{
             background: 'rgba(19, 19, 19, 0.92)',
             backdropFilter: 'blur(24px)',
             WebkitBackdropFilter: 'blur(24px)',
+            touchAction: 'pan-y',
           }}
         >
-          {/* ── Mobile drag pill ── */}
-          <div className="flex justify-center pt-3 pb-1 md:hidden">
+          {/* ── Mobile drag pill indicator ── */}
+          <div className="flex justify-center pt-3 pb-1 md:hidden pointer-events-none">
             <div className="w-10 h-1 rounded-full bg-outline-soft/50" />
           </div>
 

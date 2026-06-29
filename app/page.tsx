@@ -1,17 +1,39 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Home, CalendarClock, User } from 'lucide-react';
-import Link from 'next/link';
+import { Home, CalendarClock, User, Loader2 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCoffeeStore } from '@/store/coffeeStore';
 import { useUserStore } from '@/store/userStore';
-import MapaColombia from '@/components/MapaColombia';
 import SidePanel from '@/components/SidePanel';
 import HomeView from '@/components/views/HomeView';
-import ReservasView from '@/components/views/ReservasView';
-import UserView from '@/components/views/UserView';
 import ColombiaIcon from '@/components/ColombiaIcon';
+
+/* ── Lazy loading de vistas pesadas ── */
+const MapaColombia = dynamic(() => import('@/components/MapaColombia'), {
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center">
+      <Loader2 className="w-6 h-6 animate-spin text-brand-accent" />
+    </div>
+  ),
+});
+
+const ReservasView = dynamic(() => import('@/components/views/ReservasView'), {
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center">
+      <Loader2 className="w-6 h-6 animate-spin text-brand-accent" />
+    </div>
+  ),
+});
+
+const UserView = dynamic(() => import('@/components/views/UserView'), {
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center">
+      <Loader2 className="w-6 h-6 animate-spin text-brand-accent" />
+    </div>
+  ),
+});
 
 /* ─────────────────────────────────────────
    Nav items
@@ -30,10 +52,12 @@ const SIDEBAR_COLLAPSED = 68;
 const SIDEBAR_EXPANDED  = 210;
 
 export default function HomePage() {
-  const { loadActiveDepts, selectedDept, clearSelection } = useCoffeeStore();
+  const selectedDept = useCoffeeStore(s => s.selectedDept);
+  const loadActiveDepts = useCoffeeStore(s => s.loadActiveDepts);
+  const clearSelection = useCoffeeStore(s => s.clearSelection);
   const [activeTab, setActiveTab] = useState<string>('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { initAuth } = useUserStore();
+  const initAuth = useUserStore(s => s.initAuth);
 
   useEffect(() => { initAuth(); }, [initAuth]);
 

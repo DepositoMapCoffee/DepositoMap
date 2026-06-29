@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import Image from 'next/image';
 import { motion, useAnimation, type Variants } from 'framer-motion';
 import { CalendarClock, Heart, ArrowRight } from 'lucide-react';
 import ColombiaIcon from '@/components/ColombiaIcon';
@@ -231,7 +232,7 @@ export default function HomeView({ onMapClick, onUserClick, onReservationsClick 
 
           {/* ── Historia: imagen + texto ── */}
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-14">
-            {/* Imagen del abuelo */}
+            {/* Imagen del abuelo — optimizada con next/image */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -239,11 +240,13 @@ export default function HomeView({ onMapClick, onUserClick, onReservationsClick 
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
               className="shrink-0"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src="/sigifredo.png"
                 alt="Sigifredo González, fundador de El Depósito"
-                className="w-full max-w-[320px] md:max-w-[350px] rounded-2xl shadow-2xl
+                width={840}
+                height={1140}
+                sizes="(max-width: 768px) 320px, 350px"
+                className="w-full max-w-[320px] md:max-w-[350px] h-auto rounded-2xl shadow-2xl
                   border border-outline-soft/10"
               />
             </motion.div>

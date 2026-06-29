@@ -8,7 +8,11 @@ import { supabase } from '@/lib/supabase';
 import { useUserStore } from '@/store/userStore';
 
 export default function UserView() {
-  const { session, isAdmin, isLoadingSession, favoriteIds, favoriteCoffees } = useUserStore();
+  const session = useUserStore(s => s.session);
+  const isAdmin = useUserStore(s => s.isAdmin);
+  const isLoadingSession = useUserStore(s => s.isLoadingSession);
+  const favoriteIds = useUserStore(s => s.favoriteIds);
+  const favoriteCoffees = useUserStore(s => s.favoriteCoffees);
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
   
   // Auth state

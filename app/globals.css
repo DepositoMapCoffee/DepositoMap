@@ -144,10 +144,13 @@
 /* ─────────────────────────────────────────────────────────
    Scroll suave con inercia en iOS
    Necesario en cualquier contenedor con overflow-y: scroll
+   overscroll-behavior: contain evita el scroll de rebote
+   que compite con la navegación del browser
 ───────────────────────────────────────────────────────── */
 .scroll-touch {
   -webkit-overflow-scrolling: touch;
   overflow-y: scroll;
+  overscroll-behavior: contain;
 }
 
 /* ─────────────────────────────────────────────────────────

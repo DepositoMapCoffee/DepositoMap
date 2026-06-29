@@ -87,69 +87,46 @@ async function checkAvailability(fecha: string): Promise<AvailabilityInfo[]> {
   const isToday = esHoy(fecha);
   const beforeNoon = esAntesDeMedioDia();
 
-  const results = await Promise.all(
-    TIME_SLOTS.map(async ({ id: horario, label }) => {
-      // ── Logica same-day ──
-      if (isToday && !beforeNoon) {
-        // Despues de las 12:00 → no hay horarios para hoy
-        return {
-          horario,
-          label,
-          ocupados: CUPO_MAXIMO_POR_HORARIO,
-          disponibles: 0,
-          maximo: CUPO_MAXIMO_POR_HORARIO,
-          motivo: 'Ya no hay horarios disponibles para hoy',
-        };
-      }
-      if (isToday && beforeNoon && horario === '10-11') {
-        // Antes de las 12:00 → el slot 10-11 ya paso
-        return {
-          horario,
-          label,
-          ocupados: CUPO_MAXIMO_POR_HORARIO,
-          disponibles: 0,
-          maximo: CUPO_MAXIMO_POR_HORARIO,
-          motivo: 'Horario de la mañana ya pasado',
-        };
-      }
+  // ── Single query en vez de 3 ──
+  const { data, error } = await supabase
+    .from('reservations')
+    .select('horario, cupos')
+    .eq('fecha', fecha)
+    .in('horario', TIME_SLOTS.map(s => s.id))
+    .in('estado', ['pendiente', 'confirmada']);
 
-      // ── Consulta normal a DB ──
-      const { data, error } = await supabase
-        .from('reservations')
-        .select('cupos')
-        .eq('fecha', fecha)
-        .eq('horario', horario)
-        .in('estado', ['pendiente', 'confirmada']);
+  // Agrupar cupos ocupados por horario
+  const ocupadosPorHorario: Record<string, number> = {};
+  if (!error && data) {
+    data.forEach(row => {
+      ocupadosPorHorario[row.horario] = (ocupadosPorHorario[row.horario] ?? 0) + (row.cupos ?? 1);
+    });
+  }
 
-      if (error) {
-        console.error('Error checking availability:', error);
-        return {
-          horario,
-          label,
-          ocupados: 0,
-          disponibles: 0,
-          maximo: CUPO_MAXIMO_POR_HORARIO,
-        };
-      }
+  return TIME_SLOTS.map(({ id: horario, label }) => {
+    // ── Logica same-day ──
+    if (isToday && !beforeNoon) {
+      return { horario, label, ocupados: CUPO_MAXIMO_POR_HORARIO, disponibles: 0, maximo: CUPO_MAXIMO_POR_HORARIO, motivo: 'Ya no hay horarios disponibles para hoy' };
+    }
+    if (isToday && beforeNoon && horario === '10-11') {
+      return { horario, label, ocupados: CUPO_MAXIMO_POR_HORARIO, disponibles: 0, maximo: CUPO_MAXIMO_POR_HORARIO, motivo: 'Horario de la mañana ya pasado' };
+    }
 
-      const ocupados = data?.reduce((sum, r) => sum + (r.cupos ?? 1), 0) ?? 0;
-      return {
-        horario,
-        label,
-        ocupados,
-        disponibles: Math.max(0, CUPO_MAXIMO_POR_HORARIO - ocupados),
-        maximo: CUPO_MAXIMO_POR_HORARIO,
-      };
-    })
-  );
-  return results;
+    if (error) {
+      console.error('Error checking availability:', error);
+      return { horario, label, ocupados: 0, disponibles: 0, maximo: CUPO_MAXIMO_POR_HORARIO };
+    }
+
+    const ocupados = ocupadosPorHorario[horario] ?? 0;
+    return { horario, label, ocupados, disponibles: Math.max(0, CUPO_MAXIMO_POR_HORARIO - ocupados), maximo: CUPO_MAXIMO_POR_HORARIO };
+  });
 }
 
 /* ─────────────────────────────────────────
    Componente principal
 ────────────────────────────────────────── */
 export default function ReservasView() {
-  const { addToast } = useToastStore();
+  const addToast = useToastStore(s => s.addToast);
 
   /* ── Wizard state ── */
   const [step, setStep] = useState(1);
@@ -512,6 +489,8 @@ export default function ReservasView() {
                     <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-outline/60 pointer-events-none" />
                     <input
                       type="text"
+                      inputMode="text"
+                      autoComplete="name"
                       placeholder="Nombre completo *"
                       value={formData.nombre}
                       onChange={e => setFormData(p => ({ ...p, nombre: e.target.value }))}
@@ -526,6 +505,8 @@ export default function ReservasView() {
                     <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-outline/60 pointer-events-none" />
                     <input
                       type="email"
+                      inputMode="email"
+                      autoComplete="email"
                       placeholder="Correo electrónico *"
                       value={formData.email}
                       onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
@@ -540,6 +521,8 @@ export default function ReservasView() {
                     <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-outline/60 pointer-events-none" />
                     <input
                       type="tel"
+                      inputMode="numeric"
+                      autoComplete="tel"
                       placeholder="Teléfono *"
                       value={formData.telefono}
                       onChange={e => setFormData(p => ({ ...p, telefono: e.target.value }))}
@@ -661,10 +644,11 @@ export default function ReservasView() {
                             type="button"
                             onClick={() => setFormData(p => ({ ...p, cupos: Math.max(1, p.cupos - 1) }))}
                             disabled={formData.cupos <= 1}
-                            className="w-10 h-10 rounded-xl flex items-center justify-center
+                            className="w-11 h-11 rounded-xl flex items-center justify-center
                               bg-surface-low/80 ring-1 ring-outline-soft/20 text-on-surface
                               hover:ring-brand-accent/30 transition-all
                               disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                            aria-label="Reducir personas"
                           >
                             <span className="text-lg font-sans font-semibold -mt-0.5">−</span>
                           </button>
@@ -681,10 +665,11 @@ export default function ReservasView() {
                             type="button"
                             onClick={() => setFormData(p => ({ ...p, cupos: Math.min(cuposMax, p.cupos + 1) }))}
                             disabled={formData.cupos >= cuposMax || cuposMax <= 0}
-                            className="w-10 h-10 rounded-xl flex items-center justify-center
+                            className="w-11 h-11 rounded-xl flex items-center justify-center
                               bg-surface-low/80 ring-1 ring-outline-soft/20 text-on-surface
                               hover:ring-brand-accent/30 transition-all
                               disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                            aria-label="Aumentar personas"
                           >
                             <span className="text-lg font-sans font-semibold">+</span>
                           </button>

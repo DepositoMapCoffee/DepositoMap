@@ -5,7 +5,8 @@ import { useToastStore } from '@/store/toastStore';
 import { AlertCircle, CheckCircle2, Info, X } from 'lucide-react';
 
 export default function ToastContainer() {
-  const { toasts, removeToast } = useToastStore();
+  const toasts = useToastStore(s => s.toasts);
+  const removeToast = useToastStore(s => s.removeToast);
 
   return (
     <div className="fixed bottom-20 lg:bottom-8 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 w-full max-w-sm px-4 pointer-events-none">

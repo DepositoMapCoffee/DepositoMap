@@ -33,7 +33,7 @@ const INITIAL_FORM_STATE: CoffeeFormData = {
 
 export default function AdminPage() {
   const router = useRouter();
-  const { loadActiveDepts } = useCoffeeStore();
+  const loadActiveDepts = useCoffeeStore(s => s.loadActiveDepts);
   
   const [session, setSession] = useState<any>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);

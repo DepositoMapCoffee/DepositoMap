@@ -55,6 +55,7 @@ export const getPanelVariants = (): Variants => {
       y: 0,
       opacity: 1,
       filter: 'blur(0px)',
+      willChange: 'transform, opacity',
       transition: {
         ...springStandard,
         filter: { duration: 0.3, ease: EASE_SMOOTH },
@@ -66,6 +67,7 @@ export const getPanelVariants = (): Variants => {
       y: isMobile ? '100%' : 0,
       opacity: 0,
       filter: 'blur(4px)',
+      willChange: 'transform, opacity',
       transition: { duration: 0.25, ease: EASE_EXIT },
     },
   };
@@ -102,6 +104,7 @@ export const cardVariants: Variants = {
     y: 0,
     scale: 1,
     filter: 'blur(0px)',
+    willChange: 'transform, opacity',
     transition: {
       type: 'spring',
       stiffness: 200,
@@ -155,6 +158,7 @@ export const getPathAnimation = (
         : hasData && isHovered
         ? 'drop-shadow(0 0 3px rgba(47,163,107,0.15))'
         : 'none',
+      willChange: 'transform, fill',
       transition: {
         duration: 0.3,
         ease: EASE_SMOOTH,
@@ -163,6 +167,7 @@ export const getPathAnimation = (
     },
     whileHover: {
       scale: hasData ? 1.015 : 1.005,
+      willChange: 'transform',
       transition: { duration: 0.15, ease: EASE_ELEGANT },
     },
   };

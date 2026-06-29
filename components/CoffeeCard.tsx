@@ -31,8 +31,10 @@ function TastingChip({ note }: { note: string }) {
 }
 
 export default function CoffeeCard({ coffee }: CoffeeCardProps) {
-  const { session, favoriteIds, toggleFavorite } = useUserStore();
-  const { addToast } = useToastStore();
+  const session = useUserStore(s => s.session);
+  const favoriteIds = useUserStore(s => s.favoriteIds);
+  const toggleFavorite = useUserStore(s => s.toggleFavorite);
+  const addToast = useToastStore(s => s.addToast);
   const cat = categoryConfig[coffee.categoria] ?? categoryConfig['Regional'];
 
   const isFavorited = favoriteIds.includes(coffee.id);

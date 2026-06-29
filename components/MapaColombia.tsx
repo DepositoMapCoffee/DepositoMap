@@ -19,8 +19,66 @@ function getHashColor(str: string): string {
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
+/* ──────────────────────────────────────────────
+   Sub-componente memoizado para cada path del mapa
+   Solo re-renderiza cuando cambian sus props
+   ────────────────────────────────────────────── */
+interface DeptPathProps {
+  dept: typeof departamentos[0];
+  isSelected: boolean;
+  isHovered: boolean;
+  hasCoffee: boolean;
+  color: string;
+  isCoffee: boolean;
+  onHover: (id: string | null, center: { x: number; y: number } | null) => void;
+  onClick: (id: string, hasCoffee: boolean) => void;
+}
+
+const DeptPath = React.memo(function DeptPath({
+  dept, isSelected, isHovered, hasCoffee, color, isCoffee,
+  onHover, onClick,
+}: DeptPathProps) {
+  const anim = getPathAnimation(isSelected, isHovered, hasCoffee, color, isCoffee);
+  const cursorClass = hasCoffee ? 'cursor-pointer' : 'cursor-default';
+
+  return (
+    <React.Fragment>
+      <motion.path
+        d={dept.path}
+        initial={anim.initial}
+        animate={anim.animate}
+        whileHover={anim.whileHover}
+        onMouseEnter={(e: any) => {
+          try {
+            const bbox = (e.target as SVGPathElement).getBBox();
+            onHover(dept.id, { x: bbox.x + bbox.width / 2, y: bbox.y + bbox.height / 2 });
+          } catch (_) { onHover(dept.id, null); }
+        }}
+        onMouseLeave={() => { onHover(null, null); }}
+        onClick={(e) => { e.stopPropagation(); onClick(dept.id, hasCoffee); }}
+        className={`${cursorClass} outline-none select-none`}
+        style={{ transformOrigin: 'center' }}
+      />
+      {/* Overlay de textura para regiones cafeteras sin datos */}
+      {isCoffee && !isSelected && !isHovered && !hasCoffee && (
+        <motion.path
+          d={dept.path}
+          fill="url(#hatched-pattern)"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="pointer-events-none"
+          style={{ transformOrigin: 'center' }}
+        />
+      )}
+    </React.Fragment>
+  );
+});
+
 export default function MapaColombia() {
-  const { selectedDept, selectDept, activeDepts, clearSelection } = useCoffeeStore();
+  const selectedDept = useCoffeeStore(s => s.selectedDept);
+  const selectDept = useCoffeeStore(s => s.selectDept);
+  const activeDepts = useCoffeeStore(s => s.activeDepts);
+  const clearSelection = useCoffeeStore(s => s.clearSelection);
   const [hoveredDept, setHoveredDept] = React.useState<string | null>(null);
   const svgRef = React.useRef<SVGSVGElement>(null);
   const [viewBox, setViewBox] = React.useState<string>("260 270 600 760");
@@ -30,16 +88,16 @@ export default function MapaColombia() {
   /** 
    * Lista de departamentos que son considerados regiones cafeteras.
    */
-  const REGIONES_CAFETERAS = [
+  const REGIONES_CAFETERAS = React.useMemo(() => [
     'Antioquia', 'Caldas', 'Risaralda', 'Quindío', 'Tolima', 'Huila', 'Cauca',
     'Nariño', 'Valle Del Cauca', 'Santander', 'Norte De Santander', 'Boyacá',
     'Cundinamarca', 'Magdalena', 'Cesar', 'La Guajira', 'Caquetá', 'Putumayo',
     'Meta', 'Casanare', 'Arauca', 'Guaviare'
-  ];
+  ], []);
 
-  const isCoffeeRegion = (nombre: string) => {
+  const isCoffeeRegion = React.useCallback((nombre: string) => {
     return REGIONES_CAFETERAS.some(r => r.toLowerCase() === nombre.toLowerCase());
-  };
+  }, [REGIONES_CAFETERAS]);
 
   /* Auto-calcula el viewBox exacto respondiendo al tamaño de pantalla */
   React.useEffect(() => {
@@ -87,11 +145,93 @@ export default function MapaColombia() {
     return colors;
   }, []);
 
-  const handleDeptClick = (deptId: string, hasData: boolean) => {
-    if (hasData) {
-      selectedDept === deptId ? clearSelection() : selectDept(deptId);
+  /* ── Touch gestures para móvil (pan + pinch-zoom) ── */
+  const touchState = React.useRef<{
+    startX: number; startY: number;
+    startDist?: number;
+    vbAtStart: number[];
+    moved: boolean;
+  } | null>(null);
+
+  const handleTouchStart = React.useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      touchState.current = {
+        startX: e.touches[0].clientX,
+        startY: e.touches[0].clientY,
+        vbAtStart: viewBox.split(' ').map(Number),
+        moved: false,
+      };
+    } else if (e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      touchState.current = {
+        startX: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+        startY: (e.touches[0].clientY + e.touches[1].clientY) / 2,
+        startDist: Math.sqrt(dx * dx + dy * dy),
+        vbAtStart: viewBox.split(' ').map(Number),
+        moved: false,
+      };
     }
-  };
+  }, [viewBox]);
+
+  const handleTouchMove = React.useCallback((e: React.TouchEvent) => {
+    const ts = touchState.current;
+    if (!ts) return;
+
+    if (e.touches.length === 1 && !('startDist' in ts)) {
+      const dx = e.touches[0].clientX - ts.startX;
+      const dy = e.touches[0].clientY - ts.startY;
+
+      // Umbral de 10px para distinguir tap de arrastre
+      if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+        ts.moved = true;
+      }
+      if (!ts.moved) return;
+
+      const svg = svgRef.current;
+      if (!svg) return;
+      const scaleX = ts.vbAtStart[2] / svg.clientWidth;
+      const scaleY = ts.vbAtStart[3] / svg.clientHeight;
+      setViewBox(`${ts.vbAtStart[0] - dx * scaleX} ${ts.vbAtStart[1] - dy * scaleY} ${ts.vbAtStart[2]} ${ts.vbAtStart[3]}`);
+    } else if (e.touches.length === 2 && ts.startDist) {
+      ts.moved = true;
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const scale = ts.startDist / Math.max(dist, 1);
+
+      const newW = Math.max(200, Math.min(5000, ts.vbAtStart[2] * scale));
+      const newH = Math.max(200, Math.min(5000, ts.vbAtStart[3] * scale));
+      const cx = ts.vbAtStart[0] + ts.vbAtStart[2] / 2;
+      const cy = ts.vbAtStart[1] + ts.vbAtStart[3] / 2;
+
+      setViewBox(`${cx - newW / 2} ${cy - newH / 2} ${newW} ${newH}`);
+      // Actualizar startDist para zoom continuo
+      ts.startDist = dist;
+      ts.vbAtStart = viewBox.split(' ').map(Number);
+    }
+  }, [viewBox]);
+
+  const handleTouchEnd = React.useCallback(() => {
+    touchState.current = null;
+  }, []);
+
+  /* Handlers estables con useCallback para no romper memo de DeptPath */
+  const handleDeptHover = React.useCallback((id: string | null, center: { x: number; y: number } | null) => {
+    setHoveredDept(id);
+    setHoveredCenter(center);
+  }, []);
+
+  const handleDeptClick = React.useCallback((deptId: string, hasCoffee: boolean) => {
+    if (hasCoffee) {
+      const currentSelected = selectedDept;
+      if (currentSelected === deptId) {
+        clearSelection();
+      } else {
+        selectDept(deptId);
+      }
+    }
+  }, [selectedDept, selectDept, clearSelection]);
 
   /* Cuál departamento mostrar en el overlay */
   // En móviles al tocar (emula hover) o al estar seleccionado
@@ -195,7 +335,12 @@ export default function MapaColombia() {
   };
 
   return (
-    <div className="w-full h-full relative flex items-center justify-center overflow-hidden">
+    <div
+      className="w-full h-full relative flex items-center justify-center overflow-hidden"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
 
       {/* ── Vignette radial — spotlight sobre el mapa ── */}
       <div
@@ -223,6 +368,7 @@ export default function MapaColombia() {
         preserveAspectRatio="xMidYMid meet"
         onClick={() => clearSelection()}
         onMouseLeave={() => { setHoveredDept(null); setHoveredCenter(null); }}
+        style={{ touchAction: 'none' }}
       >
         <defs>
           <pattern id="hatched-pattern" patternUnits="userSpaceOnUse" width="3" height="3" patternTransform="rotate(45)">
@@ -231,47 +377,19 @@ export default function MapaColombia() {
         </defs>
 
         <g strokeLinecap="round" strokeLinejoin="round">
-          {departamentos.map((dept) => {
-            const isSelected = selectedDept === dept.id;
-            const isHovered = hoveredDept === dept.id;
-            const dHasData = activeDepts.includes(dept.id);
-            const color = deptColors[dept.id];
-            const isCoffee = isCoffeeRegion(dept.nombre);
-            const anim = getPathAnimation(isSelected, isHovered, dHasData, color, isCoffee);
-
-            return (
-              <React.Fragment key={dept.id}>
-                <motion.path
-                  d={dept.path}
-                  initial={anim.initial}
-                  animate={anim.animate}
-                  whileHover={anim.whileHover}
-                  onMouseEnter={(e: any) => {
-                    setHoveredDept(dept.id);
-                    try {
-                      const bbox = e.target.getBBox();
-                      setHoveredCenter({ x: bbox.x + bbox.width / 2, y: bbox.y + bbox.height / 2 });
-                    } catch (_) { }
-                  }}
-                  onMouseLeave={() => { setHoveredDept(null); setHoveredCenter(null); }}
-                  onClick={(e) => { e.stopPropagation(); handleDeptClick(dept.id, dHasData); }}
-                  className={`cursor-${dHasData ? 'pointer' : 'default'} outline-none select-none`}
-                  style={{ transformOrigin: 'center' }}
-                />
-                {/* Overlay de textura para regiones cafeteras */}
-                {isCoffee && !isSelected && !isHovered && !dHasData && (
-                  <motion.path
-                    d={dept.path}
-                    fill="url(#hatched-pattern)"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="pointer-events-none"
-                    style={{ transformOrigin: 'center' }}
-                  />
-                )}
-              </React.Fragment>
-            );
-          })}
+          {departamentos.map((dept) => (
+            <DeptPath
+              key={dept.id}
+              dept={dept}
+              isSelected={selectedDept === dept.id}
+              isHovered={hoveredDept === dept.id}
+              hasCoffee={activeDepts.includes(dept.id)}
+              color={deptColors[dept.id]}
+              isCoffee={isCoffeeRegion(dept.nombre)}
+              onHover={handleDeptHover}
+              onClick={handleDeptClick}
+            />
+          ))}
         </g>
 
         {/* Tooltip Infográfico gigante para Escritorio */}

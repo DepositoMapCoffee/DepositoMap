@@ -52,7 +52,7 @@ function formatFechaHora(iso: string): string {
    Componente
 ────────────────────────────────────────── */
 export default function AdminReservasView() {
-  const { addToast } = useToastStore();
+  const addToast = useToastStore(s => s.addToast);
 
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true); // true solo en carga inicial
