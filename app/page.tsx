@@ -190,85 +190,72 @@ export default function HomePage() {
       </motion.nav>
 
       {/* ══════════════════════════════════════════
-          TOP HEADER — mobile / tablet (< lg)
-          Shows current section name + isotipo
+          MOBILE WRAPPER — flex column natural flow
+          Header → Content → BottomNav sin fixed ni padding manual
       ══════════════════════════════════════════ */}
-      <header className="lg:hidden fixed top-0 inset-x-0 z-30
-        flex justify-between items-center
-        px-5 py-3.5 bg-brand-black/90 border-b border-outline-soft/10"
-        style={{
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',   /* Safari */
-        }}>
+      <div className="flex flex-col flex-1 min-h-0 lg:min-h-full">
 
-        {/* Isotipo pequeño */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/Isotipo.svg" alt="" aria-hidden="true" className="w-7 h-7 opacity-80" />
+        {/* ── TOP HEADER — mobile / tablet (< lg) ── */}
+        <header className="lg:hidden shrink-0
+          flex justify-between items-center
+          px-5 py-3.5 bg-brand-black/90 border-b border-outline-soft/10"
+          style={{
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+          }}>
+          <img src="/Isotipo.svg" alt="" aria-hidden="true" className="w-7 h-7 opacity-80" />
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={activeTab}
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 6 }}
+              transition={{ duration: 0.2 }}
+              className="font-serif text-[15px] font-medium text-brand-accent tracking-wide absolute left-1/2 -translate-x-1/2"
+            >
+              {NAV_ITEMS.find(n => n.id === activeTab)?.label ?? 'El Depósito'}
+            </motion.span>
+          </AnimatePresence>
+          <div className="w-7" aria-hidden="true" />
+        </header>
 
-        {/* Nombre de la sección activa */}
-        <AnimatePresence mode="wait">
-          <motion.span
-            key={activeTab}
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 6 }}
-            transition={{ duration: 0.2 }}
-            className="font-serif text-[15px] font-medium text-brand-accent tracking-wide absolute left-1/2 -translate-x-1/2"
-          >
-            {NAV_ITEMS.find(n => n.id === activeTab)?.label ?? 'El Depósito'}
-          </motion.span>
-        </AnimatePresence>
+        {/* ── MAIN CONTENT — ocupa el espacio restante ── */}
+        <div className={`
+          flex-1 min-h-0 overflow-hidden relative
+          transition-[margin] duration-500 ease-in-out
+          lg:ml-[68px]
+          ${selectedDept && activeTab === 'map' ? 'lg:mr-[480px]' : ''}
+        `}>
+          {activeTab === 'home'        && <HomeView onMapClick={() => handleNav('map')} onUserClick={() => handleNav('user')} onReservationsClick={() => handleNav('reservations')} />}
+          {activeTab === 'map'         && <MapaColombia />}
+          {activeTab === 'reservations' && <ReservasView />}
+          {activeTab === 'user'        && <UserView />}
+        </div>
 
-        {/* Spacer para centrar el título */}
-        <div className="w-7" aria-hidden="true" />
-      </header>
+        {/* ── Blur overlay when side panel open (mobile) ── */}
+        {selectedDept && activeTab === 'map' && (
+          <div
+            className="fixed inset-0 bg-brand-black/55 backdrop-blur-[2px] z-30 lg:hidden"
+            onClick={clearSelection}
+            aria-hidden="true"
+          />
+        )}
 
-      {/* ══════════════════════════════════════════
-          MAIN CONTENT AREA
-          Margin left fixed at collapsed width — sidebar overlays
-      ══════════════════════════════════════════ */}
-      <div className={`
-        flex-1 h-screen relative
-        pt-[57px] pb-[68px] lg:pt-0 lg:pb-0
-        transition-[margin] duration-500 ease-in-out
-        lg:ml-[68px]
-        ${selectedDept && activeTab === 'map' ? 'lg:mr-[480px]' : ''}
-      `}>
-        {activeTab === 'home'        && <HomeView onMapClick={() => handleNav('map')} onUserClick={() => handleNav('user')} onReservationsClick={() => handleNav('reservations')} />}
-        {activeTab === 'map'         && <MapaColombia />}
-        {activeTab === 'reservations' && <ReservasView />}
-        {activeTab === 'user'        && <UserView />}
-      </div>
+        {/* ── Map side panel ── */}
+        {activeTab === 'map' && <SidePanel />}
 
-      {/* ── Blur overlay when side panel open (mobile) ── */}
-      {selectedDept && activeTab === 'map' && (
-        <div
-          className="fixed inset-0 bg-brand-black/55 backdrop-blur-[2px] z-30 lg:hidden"
-          onClick={clearSelection}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* ── Map side panel ── */}
-      {activeTab === 'map' && <SidePanel />}
-
-      {/* ══════════════════════════════════════════
-          BOTTOM NAV — mobile / tablet (< lg)
-          Pill indicator deslizante + haptic feel
-      ══════════════════════════════════════════ */}
-      <nav
-        className="lg:hidden fixed bottom-0 inset-x-0 z-40
-          flex items-center justify-around
-          px-1 pt-1 border-t border-outline-soft/20
-          min-h-[60px] bg-surface-low/95"
-        style={{
-          /* safe-area-inset-bottom: espacio extra en iPhone con notch/Dynamic Island.
-             Requiere viewport-fit=cover en el meta tag (ya añadido en layout.tsx). */
-          paddingBottom: 'max(8px, env(safe-area-inset-bottom))',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',   /* Safari */
-        }}
-      >
+        {/* ── BOTTOM NAV — mobile / tablet (< lg) ── */}
+        <nav
+          className="lg:hidden shrink-0
+            flex items-center justify-around
+            px-1 pt-1 border-t border-outline-soft/20
+            min-h-[60px] bg-surface-low/95"
+          style={{
+            paddingBottom: 'max(8px, env(safe-area-inset-bottom))',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+          }}
+        >
 
         {NAV_ITEMS.map(({ id, icon: Icon, label }) => {
           const isActive = activeTab === id;
@@ -320,6 +307,7 @@ export default function HomePage() {
           );
         })}
       </nav>
+      </div>{/* ── Fin mobile wrapper ── */}
     </main>
   );
 }

@@ -141,7 +141,12 @@ export const getPathAnimation = (
   const selected = '#E8E0D4';
 
   return {
-    initial: { fill: inactive },
+    initial: {
+      fill: inactive,
+      stroke: isCoffee ? 'rgba(47,163,107,0.45)' : 'rgba(47,163,107,0.35)',
+      strokeWidth: 0.6,
+      scale: 1,
+    },
     animate: {
       fill: isSelected 
         ? selected 

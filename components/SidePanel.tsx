@@ -76,19 +76,21 @@ export default function SidePanel() {
           onDragEnd={(_, info) => {
             if (info.offset.y > 100) { clearSelection(); }
           }}
-          className="fixed inset-x-0 bottom-[68px] top-[57px] lg:inset-y-0 lg:left-auto lg:right-0 lg:w-[480px]
-            flex flex-col z-40 rounded-t-3xl lg:rounded-none overflow-hidden
-            shadow-[0_-8px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(90,90,90,0.15)]
+          /* ── Mobile: full-screen; Desktop: side panel ── */
+          className="fixed inset-0 lg:inset-y-0 lg:left-auto lg:right-0 lg:w-[480px]
+            flex flex-col z-40 overflow-hidden
+            shadow-[0_0_60px_rgba(0,0,0,0.8),0_0_0_1px_rgba(90,90,90,0.15)]
             lg:cursor-default touch-pan-y"
           style={{
             background: 'rgba(19, 19, 19, 0.92)',
             backdropFilter: 'blur(24px)',
             WebkitBackdropFilter: 'blur(24px)',
             touchAction: 'pan-y',
+            paddingTop: 'env(safe-area-inset-top, 0px)',
           }}
         >
           {/* ── Mobile drag pill indicator ── */}
-          <div className="flex justify-center pt-3 pb-1 md:hidden pointer-events-none">
+          <div className="flex justify-center pt-3 pb-1 lg:hidden pointer-events-none">
             <div className="w-10 h-1 rounded-full bg-outline-soft/50" />
           </div>
 
