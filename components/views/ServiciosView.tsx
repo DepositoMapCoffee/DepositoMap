@@ -99,12 +99,18 @@ const cardReveal = {
 export default function ServiciosView({ onReservationsClick }: ServiciosViewProps) {
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const [showScrollHint, setShowScrollHint] = React.useState(true);
+  const isScrolling = React.useRef(false);
 
-  const handleScroll = () => {
-    if (scrollRef.current) {
-      setShowScrollHint(scrollRef.current.scrollTop < 60);
-    }
-  };
+  const handleScroll = React.useCallback(() => {
+    if (isScrolling.current || !scrollRef.current) return;
+    isScrolling.current = true;
+    requestAnimationFrame(() => {
+      if (scrollRef.current) {
+        setShowScrollHint(scrollRef.current.scrollTop < 60);
+      }
+      isScrolling.current = false;
+    });
+  }, []);
 
   return (
     <div className="w-full h-full flex flex-col overflow-hidden bg-brand-black">
