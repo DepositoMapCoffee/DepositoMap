@@ -42,3 +42,6 @@ next-env.d.ts
 
 # source material (colleague's portfolio)
 /portafoliocafés/
+
+# internal documentation (not needed for execution)
+/docs/
