@@ -98,26 +98,12 @@ const cardReveal = {
 ────────────────────────────────────────── */
 export default function ServiciosView({ onReservationsClick }: ServiciosViewProps) {
   const scrollRef = React.useRef<HTMLDivElement>(null);
-  const [showScrollHint, setShowScrollHint] = React.useState(true);
-  const isScrolling = React.useRef(false);
-
-  const handleScroll = React.useCallback(() => {
-    if (isScrolling.current || !scrollRef.current) return;
-    isScrolling.current = true;
-    requestAnimationFrame(() => {
-      if (scrollRef.current) {
-        setShowScrollHint(scrollRef.current.scrollTop < 60);
-      }
-      isScrolling.current = false;
-    });
-  }, []);
 
   return (
     <div className="w-full h-full flex flex-col overflow-hidden bg-brand-black">
       {/* ── Scroll container ── */}
       <div
         ref={scrollRef}
-        onScroll={handleScroll}
         className="flex-1 overflow-y-auto overflow-x-hidden scroll-touch"
       >
 
@@ -133,6 +119,7 @@ export default function ServiciosView({ onReservationsClick }: ServiciosViewProp
           <div className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-black/80 via-brand-black/60 to-brand-black/90" />
 
           <motion.div
+            layout={false}
             initial="hidden"
             animate="show"
             variants={staggerContainer}
@@ -174,13 +161,8 @@ export default function ServiciosView({ onReservationsClick }: ServiciosViewProp
             </motion.div>
           </motion.div>
 
-          {/* ── Scroll indicator ── */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: showScrollHint ? 1 : 0 }}
-            transition={{ duration: 0.4 }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none"
-          >
+          {/* ── Scroll indicator siempre visible ── */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none">
             <span className="text-[8px] uppercase tracking-[0.35em] text-on-surface-soft/30 font-sans">
               Descubre más
             </span>
@@ -190,16 +172,17 @@ export default function ServiciosView({ onReservationsClick }: ServiciosViewProp
             >
               <ChevronDown className="w-4 h-4 text-on-surface-soft/30" />
             </motion.div>
-          </motion.div>
+          </div>
         </section>
 
         {/* ══════════════════════════════════════════
             DIVIDER
         ══════════════════════════════════════════ */}
         <motion.div
+          layout={false}
           initial={{ scaleX: 0, opacity: 0 }}
           whileInView={{ scaleX: 1, opacity: 1 }}
-          viewport={{ once: true }}
+          viewport={{ root: scrollRef, once: true }}
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
           className="h-px mx-8 origin-left"
           style={{
@@ -213,9 +196,10 @@ export default function ServiciosView({ onReservationsClick }: ServiciosViewProp
         ══════════════════════════════════════════ */}
         <section className="px-6 md:px-12 py-16 md:py-24 max-w-6xl mx-auto">
           <motion.div
+            layout={false}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true, margin: '-80px' }}
+            viewport={{ root: scrollRef, once: true, margin: '-80px' }}
             variants={staggerContainer}
           >
             {/* Header */}
@@ -238,6 +222,7 @@ export default function ServiciosView({ onReservationsClick }: ServiciosViewProp
               {PAQUETES.map((pkg) => (
                 <motion.div
                   key={pkg.id}
+                  layout={false}
                   variants={cardReveal}
                   className="group rounded-2xl overflow-hidden
                     border border-outline-soft/20 bg-surface-low/40
@@ -309,9 +294,10 @@ export default function ServiciosView({ onReservationsClick }: ServiciosViewProp
             DIVIDER
         ══════════════════════════════════════════ */}
         <motion.div
+          layout={false}
           initial={{ scaleX: 0, opacity: 0 }}
           whileInView={{ scaleX: 1, opacity: 1 }}
-          viewport={{ once: true }}
+          viewport={{ root: scrollRef, once: true }}
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
           className="h-px mx-8 origin-left"
           style={{
@@ -325,9 +311,10 @@ export default function ServiciosView({ onReservationsClick }: ServiciosViewProp
         ══════════════════════════════════════════ */}
         <section className="px-6 md:px-12 py-16 md:py-24 max-w-5xl mx-auto">
           <motion.div
+            layout={false}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true, margin: '-80px' }}
+            viewport={{ root: scrollRef, once: true, margin: '-80px' }}
             variants={staggerContainer}
           >
             {/* Header */}
@@ -350,6 +337,7 @@ export default function ServiciosView({ onReservationsClick }: ServiciosViewProp
               {EQUIPO.map((persona) => (
                 <motion.div
                   key={persona.nombre}
+                  layout={false}
                   variants={cardReveal}
                   className="flex flex-col items-center text-center"
                 >
@@ -391,9 +379,10 @@ export default function ServiciosView({ onReservationsClick }: ServiciosViewProp
         ══════════════════════════════════════════ */}
         <section className="px-6 pb-20 max-w-2xl mx-auto text-center">
           <motion.div
+            layout={false}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ root: scrollRef, once: true }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="w-12 h-px bg-brand-accent/40 mx-auto mb-8" />
