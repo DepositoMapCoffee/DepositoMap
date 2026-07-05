@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Home, CalendarClock, User, Loader2 } from 'lucide-react';
+import { Home, CalendarClock, User, Loader2, Sparkles } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCoffeeStore } from '@/store/coffeeStore';
@@ -35,14 +35,23 @@ const UserView = dynamic(() => import('@/components/views/UserView'), {
   ),
 });
 
+const ServiciosView = dynamic(() => import('@/components/views/ServiciosView'), {
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center">
+      <Loader2 className="w-6 h-6 animate-spin text-brand-accent" />
+    </div>
+  ),
+});
+
 /* ─────────────────────────────────────────
    Nav items
 ───────────────────────────────────────── */
 const NAV_ITEMS = [
-  { id: 'home',        icon: Home,          label: 'Inicio',   description: 'Pantalla principal' },
-  { id: 'map',         icon: ColombiaIcon,  label: 'Mapa',     description: 'Mapa cafetero' },
-  { id: 'reservations', icon: CalendarClock, label: 'Reservas', description: 'Coffee Testing' },
-  { id: 'user',        icon: User,          label: 'Usuario',  description: 'Perfil y favoritos' },
+  { id: 'home',        icon: Home,          label: 'Inicio',        description: 'Pantalla principal' },
+  { id: 'map',         icon: ColombiaIcon,  label: 'Mapa',          description: 'Mapa cafetero' },
+  { id: 'servicios',   icon: Sparkles,       label: 'Coffee Tasting', description: 'Nuestros servicios' },
+  { id: 'reservations', icon: CalendarClock, label: 'Reservas',      description: 'Coffee Testing' },
+  { id: 'user',        icon: User,          label: 'Usuario',       description: 'Perfil y favoritos' },
 ] as const;
 
 /* ─────────────────────────────────────────
@@ -228,6 +237,7 @@ export default function HomePage() {
         `}>
           {activeTab === 'home'        && <HomeView onMapClick={() => handleNav('map')} onUserClick={() => handleNav('user')} onReservationsClick={() => handleNav('reservations')} />}
           {activeTab === 'map'         && <MapaColombia />}
+          {activeTab === 'servicios'   && <ServiciosView onReservationsClick={() => handleNav('reservations')} />}
           {activeTab === 'reservations' && <ReservasView />}
           {activeTab === 'user'        && <UserView />}
         </div>

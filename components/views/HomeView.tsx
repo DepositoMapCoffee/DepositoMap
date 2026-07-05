@@ -133,7 +133,19 @@ export default function HomeView({ onMapClick, onUserClick, onReservationsClick 
       {/* ════════════════════════════════════════════
           HERO ZONE
       ════════════════════════════════════════════ */}
-      <section className="min-h-[60dvh] flex flex-col items-center justify-center relative z-10 px-6 py-16">
+      <section className="min-h-[70dvh] flex flex-col items-center justify-center relative z-10 px-6 py-16 overflow-hidden">
+        {/* ── Hero background image ── */}
+        <div className="absolute inset-0 -z-10">
+          <Image
+            src="/hero-bg.webp"
+            alt=""
+            fill
+            className="object-cover"
+            priority
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-brand-black/70 via-brand-black/30 to-brand-black/80" />
+        </div>
 
         <motion.div
           variants={heroContainer}
@@ -190,10 +202,32 @@ export default function HomeView({ onMapClick, onUserClick, onReservationsClick 
           {/* ── Tagline ── */}
           <motion.p
             variants={fadeUp}
-            className="text-[10px] uppercase tracking-[0.45em] text-on-surface-soft/40 font-sans mb-10 text-center"
+            className="text-[10px] uppercase tracking-[0.45em] text-on-surface-soft/40 font-sans mb-6 text-center"
           >
             Specialty Coffee · Colombia
           </motion.p>
+
+          {/* ── Texto conector bilingüe ── */}
+          <motion.div
+            variants={fadeUp}
+            className="max-w-xl text-center space-y-4 mb-4"
+          >
+            <p className="text-on-surface-soft/60 text-sm md:text-base leading-relaxed font-sans italic">
+              "Coffee isn&apos;t just what we know. It&apos;s who we are.
+              For four generations, we&apos;ve searched for Colombia&apos;s most
+              extraordinary specialty coffees. Today, we combine that legacy
+              with a personalized discovery experience that helps you find
+              the coffee you&apos;ll truly love."
+            </p>
+            <div className="w-8 h-px bg-brand-accent/30 mx-auto" />
+            <p className="text-on-surface-soft/50 text-xs md:text-sm leading-relaxed font-sans">
+              &ldquo;El café no es solo de lo que más sabemos. Es parte de
+              quienes somos. Durante cuatro generaciones hemos dedicado
+              nuestra vida a descubrir los más cafés extraordinarios. Hoy
+              combinamos ese legado con una experiencia personalizada para
+              ayudarte a encontrar el café que fue diseñado para ti.&rdquo;
+            </p>
+          </motion.div>
 
         </motion.div>
       </section>
@@ -260,22 +294,65 @@ export default function HomeView({ onMapClick, onUserClick, onReservationsClick 
               className="space-y-5"
             >
               <p className="text-on-surface-soft/80 text-sm md:text-base leading-relaxed font-sans">
-                Todo comenzó en <strong>1942</strong> en{' '}
-                <strong>Viterbo, Caldas</strong>, cuando{' '}
-                <strong className="text-brand-accent">Sigifredo González</strong> y su padre,{' '}
-                <strong className="text-brand-accent">Félix González</strong>, fundaron un depósito de café
-                motivados por su pasión por este cultivo y su compromiso con los caficultores de la región.
+                <strong className="text-brand-accent">El Depósito</strong> ha cambiado con los años.
+                Nuestro propósito, nunca.
               </p>
               <p className="text-on-surface-soft/60 text-sm md:text-base leading-relaxed font-sans">
-                Más de ocho décadas después,{' '}
-                <strong className="text-brand-accent">Javier González</strong> y{' '}
-                <strong className="text-brand-accent">Santiago González</strong> continúan ese legado
-                familiar a través del café especial, seleccionando cafés excepcionales y acercando a las
-                personas una experiencia basada en la calidad, la trazabilidad y el respeto por el origen.
+                En la década de 1940, en{' '}
+                <strong>Viterbo, Caldas</strong>, un pequeño pueblo en el centro
+                de Colombia,{' '}
+                <strong className="text-brand-accent">Félix González</strong> fundó
+                el <strong>Depósito de Café &ldquo;Félix González e Hijos&rdquo;</strong>.
+              </p>
+              <p className="text-on-surface-soft/60 text-sm md:text-base leading-relaxed font-sans">
+                No era una cafetería. No era una tostadora. Era el lugar al que
+                pequeños productores llegaban con sus cosechas, confiando en que la
+                familia González, conocedora del café de calidad, sabría reconocer
+                sus mejores granos para conectarlos con el mundo.
               </p>
               <p className="text-on-surface-soft/60 text-sm md:text-base leading-relaxed font-sans italic">
-                "Cada taza honra nuestra historia y celebra el trabajo de quienes hacen posible el café."
+                Ese fue el comienzo de un legado.
               </p>
+              <p className="text-on-surface-soft/60 text-sm md:text-base leading-relaxed font-sans">
+                Con el paso de los años,{' '}
+                <strong className="text-brand-accent">Sigifredo González</strong>{' '}
+                creció mientras El Depósito prosperaba. A sus 13 años comenzó a
+                hacer parte del negocio familiar, aprendiendo algo que ningún libro
+                podía enseñar: <strong>reconocer un café extraordinario</strong>.
+              </p>
+              <p className="text-on-surface-soft/60 text-sm md:text-base leading-relaxed font-sans">
+                Ese conocimiento se convirtió en la mayor herencia de la familia.
+                Durante cuatro generaciones, el café ha sido mucho más que un
+                producto: ha sido una forma de vida.
+              </p>
+              <p className="text-on-surface-soft/60 text-sm md:text-base leading-relaxed font-sans">
+                Casi 80 años después,{' '}
+                <strong className="text-brand-accent">El Depósito</strong> ha
+                evolucionado, pero su propósito permanece intacto. El lugar que
+                antes conectaba grandes cafés con el mercado, hoy conecta cafés
+                especiales excepcionales con las personas que realmente los van a
+                apreciar.
+              </p>
+              <p className="text-on-surface-soft/60 text-sm md:text-base leading-relaxed font-sans">
+                Por eso dedicamos nuestro día a día a seleccionar algunos de los
+                mejores cafés de especialidad de Colombia y a ayudar a cada persona
+                a descubrir cuál se adapta mejor a su paladar. Porque creemos
+                firmemente que la elección de un buen café no debería dejarse al azar.
+              </p>
+              <p className="text-on-surface-soft/60 text-sm md:text-base leading-relaxed font-sans">
+                En <strong>2023</strong>,{' '}
+                <strong className="text-brand-accent">Javier González</strong> y{' '}
+                <strong className="text-brand-accent">Santiago González</strong>{' '}
+                abrieron nuevamente las puertas de{' '}
+                <strong>El Depósito 1928</strong>: no como una cafetería tradicional,
+                sino como una nueva forma de vivir, descubrir y enamorarse del café.
+              </p>
+              <div className="pt-4 border-t border-outline-soft/10">
+                <p className="text-brand-accent/80 text-sm md:text-base leading-relaxed font-serif italic text-center">
+                  &ldquo;Cuatro generaciones. Un mismo propósito: conectar cafés
+                  extraordinarios con las personas que realmente los van a valorar.&rdquo;
+                </p>
+              </div>
             </motion.div>
           </div>
         </motion.div>
