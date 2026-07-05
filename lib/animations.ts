@@ -35,43 +35,40 @@ const springStandard: Transition = {
 
 // ─── Panel lateral (SidePanel) ────────────────────────────────────
 
-/**
+/** 
  * Genera las variantes de animación del panel lateral.
- * - Móvil (<768px): entra desde abajo
- * - Desktop (≥768px): entra desde la derecha
+ * Recibe isMobile explícitamente para evitar typeof window en SSR.
+ * - Móvil: entra desde abajo (y)
+ * - Desktop: entra desde la derecha (x)
  */
-export const getPanelVariants = (): Variants => {
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-
-  return {
-    initial: {
-      x: isMobile ? 0 : '100%',
-      y: isMobile ? '100%' : 0,
-      opacity: 0,
-      filter: 'blur(4px)',
+export const getPanelVariants = (isMobile: boolean): Variants => ({
+  initial: {
+    x: isMobile ? 0 : '100%',
+    y: isMobile ? '100%' : 0,
+    opacity: 0,
+    filter: 'blur(4px)',
+  },
+  animate: {
+    x: 0,
+    y: 0,
+    opacity: 1,
+    filter: 'blur(0px)',
+    willChange: 'transform, opacity',
+    transition: {
+      ...springStandard,
+      filter: { duration: 0.3, ease: EASE_SMOOTH },
+      opacity: { duration: 0.3, ease: EASE_SMOOTH },
     },
-    animate: {
-      x: 0,
-      y: 0,
-      opacity: 1,
-      filter: 'blur(0px)',
-      willChange: 'transform, opacity',
-      transition: {
-        ...springStandard,
-        filter: { duration: 0.3, ease: EASE_SMOOTH },
-        opacity: { duration: 0.3, ease: EASE_SMOOTH },
-      },
-    },
-    exit: {
-      x: isMobile ? 0 : '100%',
-      y: isMobile ? '100%' : 0,
-      opacity: 0,
-      filter: 'blur(4px)',
-      willChange: 'transform, opacity',
-      transition: { duration: 0.25, ease: EASE_EXIT },
-    },
-  };
-};
+  },
+  exit: {
+    x: isMobile ? 0 : '100%',
+    y: isMobile ? '100%' : 0,
+    opacity: 0,
+    filter: 'blur(4px)',
+    willChange: 'transform, opacity',
+    transition: { duration: 0.25, ease: EASE_EXIT },
+  },
+});
 
 // ─── Contenedor en stagger (listas de cards) ──────────────────────
 

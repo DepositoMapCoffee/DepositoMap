@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2, Search, Filter } from 'lucide-react';
 import { useCoffeeStore } from '@/store/coffeeStore';
@@ -14,6 +14,14 @@ export default function SidePanel() {
   const coffees = useCoffeeStore(s => s.coffees);
   const isLoading = useCoffeeStore(s => s.isLoading);
   const fetchCoffees = useCoffeeStore(s => s.fetchCoffees);
+
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 1024);
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -65,12 +73,12 @@ export default function SidePanel() {
     <AnimatePresence>
       {selectedDept && (
         <motion.div
-          variants={getPanelVariants()}
+          variants={getPanelVariants(isMobile)}
           initial="initial"
           animate="animate"
           exit="exit"
           /* ── Swipe-to-dismiss en mobile ── */
-          drag={typeof window !== 'undefined' && window.innerWidth < 1024 ? 'y' : false}
+          drag={isMobile ? 'y' : false}
           dragSnapToOrigin
           dragElastic={0.2}
           onDragEnd={(_, info) => {
