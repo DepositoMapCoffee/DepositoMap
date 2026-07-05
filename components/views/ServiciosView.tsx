@@ -1,16 +1,17 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ChevronDown, Clock3, Coffee, Globe, ArrowRight,
   Quote, Sparkles,
 } from 'lucide-react';
+import type { ReservationPackageId } from '@/types';
 
 /* ─────────────────────────────────────────
    Tipos
 ────────────────────────────────────────── */
 interface ServiciosViewProps {
-  onReservationsClick?: () => void;
+  onSelectPackage?: (packageId: ReservationPackageId) => void;
 }
 
 /* ─────────────────────────────────────────
@@ -37,10 +38,10 @@ const PAQUETES = [
     descripcion:
       'La experiencia más profunda. Perfecta para quienes ya conocen el café especial y quieren ir más allá: origen, procesos de producción, panorama de mercado y una cata de cinco cafés que incluye fermentados con beneficios experimentales y premiados internacionalmente.',
   },
-];
-
-/* ─────────────────────────────────────────
-   Constantes — equipo
+] as const;
+ 
+ /* ─────────────────────────────────────────
+    Constantes — equipo
 ────────────────────────────────────────── */
 const EQUIPO = [
   {
@@ -67,7 +68,7 @@ const EQUIPO = [
    Componente principal — sin Framer Motion
    Animaciones CSS puras para evitar freeze
 ────────────────────────────────────────── */
-export default function ServiciosView({ onReservationsClick }: ServiciosViewProps) {
+export default function ServiciosView({ onSelectPackage }: ServiciosViewProps) {
   const [heroVisible, setHeroVisible] = useState(false);
 
   useEffect(() => {
@@ -124,7 +125,7 @@ export default function ServiciosView({ onReservationsClick }: ServiciosViewProp
               className={`flex flex-col sm:flex-row gap-3 transition-all duration-700 delay-500 ease-out ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-7'}`}
             >
               <button
-                onClick={onReservationsClick}
+                onClick={() => onSelectPackage?.('testing_1')}
                 className="flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm font-sans font-semibold
                   bg-brand-accent text-brand-black hover:bg-verde transition-all duration-300
                   cursor-pointer active:scale-[0.97] shadow-[0_4px_20px_rgba(47,163,107,0.28)]"
@@ -224,7 +225,7 @@ export default function ServiciosView({ onReservationsClick }: ServiciosViewProp
 
                   {/* CTA */}
                   <button
-                    onClick={onReservationsClick}
+                    onClick={() => onSelectPackage?.(pkg.id)}
                     className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-sm font-sans font-semibold
                       bg-brand-accent/10 text-brand-accent ring-1 ring-brand-accent/25
                       hover:bg-brand-accent hover:text-brand-black
@@ -315,7 +316,7 @@ export default function ServiciosView({ onReservationsClick }: ServiciosViewProp
             de conocimiento hacen la diferencia.
           </p>
           <button
-            onClick={onReservationsClick}
+            onClick={() => onSelectPackage?.('testing_1')}
             className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm font-sans font-semibold
               bg-brand-accent text-brand-black hover:bg-verde transition-all duration-300
               cursor-pointer active:scale-[0.97] shadow-[0_4px_20px_rgba(47,163,107,0.28)]"
