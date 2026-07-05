@@ -260,20 +260,152 @@ Componente completamente nuevo con wizard de 3 pasos:
 
 ---
 
-## 7. Archivos Relevantes
+---
+
+## 7. Rediseño de Interfaz — Julio 2026
+
+A partir del feedback de Santiago González (documento `docs/COMENTARIOS PAGINA EL DEPÓSITO 2.docx`), se implementaron los siguientes cambios:
+
+### 7.1 Hero — Fondo de paisaje cafetero
+
+**Archivo:** `components/views/HomeView.tsx`
+
+- Agregada imagen de fondo `/hero-bg.webp` (1920×1080, paisaje cafetero) con `next/image fill`
+- Overlay oscuro con gradiente (`from-brand-black/70` → `to-brand-black/80`) para contraste del texto
+- Sección hero aumentada de `min-h-[60dvh]` a `min-h-[70dvh]`
+- Agregado `overflow-hidden` para contener la imagen
+
+### 7.2 Texto conector bilingüe
+
+**Archivo:** `components/views/HomeView.tsx`
+
+- Nueva sección debajo del tagline "Specialty Coffee · Colombia"
+- Texto en inglés: "Coffee isn't just what we know..."
+- Texto en español: "El café no es solo de lo que más sabemos..."
+- Separador visual (línea horizontal delgada) entre ambos idiomas
+- Animación `fadeUp` consistente con el resto del hero
+
+### 7.3 "Nuestra Historia" — Copia definitiva
+
+**Archivo:** `components/views/HomeView.tsx`
+
+Reemplazado el texto anterior (3 párrafos) por la historia completa de 10 párrafos del documento:
+
+| Antes | Después |
+|-------|---------|
+| "Todo comenzó en 1942..." | Texto completo: fundación por Félix González, crecimiento con Sigifredo, reapertura 2023 por Javier y Santiago |
+| Mención breve a 4 generaciones | Narrativa detallada: el depósito como conexión entre productores y el mundo |
+| Cita genérica | Cita final: "Cuatro generaciones. Un mismo propósito..." |
+
+Se mantiene la foto de Sigifredo González con `next/image`.
+
+### 7.4 Vista de Servicios Coffee Tasting (NUEVA)
+
+**Archivo:** `components/views/ServiciosView.tsx` (nuevo — 290 líneas)
+
+Componente completo con 3 secciones en scroll:
+
+**Sección 1 — Hero de servicios:**
+- Fondo con imagen `/Tasting1.webp` y overlay oscuro
+- Título "Coffee Tasting", badge "Experiencias", texto persuasivo
+- Botón "Reservar ahora" que navega al tab de reservas
+- Indicador de scroll animado (chevron + "Descubre más")
+
+**Sección 2 — Los dos servicios:**
+- Grid de 2 columnas (stack en mobile)
+- Cada card: imagen (Tasting1.webp / Tasting2.webp) con badge de precio, contenido con descripción, duración, cafes, idiomas
+- Botón "Reservar este" con hover effect
+
+**Sección 3 — Nuestro equipo:**
+- Grid de 3 columnas (stack en mobile)
+- Cada persona: imagen placeholder SVG, frase entre comillas, nombre, cargo
+- Placeholders: `team-oscar.svg`, `team-alberto.svg`, `team-santiago.svg`
+
+**CTA final:** Botón "Reservar ahora" al final de la vista.
+
+### 7.5 Navegación — Nuevo tab "Coffee Tasting"
+
+**Archivo:** `app/page.tsx`
+
+- Agregado `NAV_ITEMS` entry: `{ id: 'servicios', icon: Sparkles, label: 'Coffee Tasting', description: 'Nuestros servicios' }`
+- Import lazy de `ServiciosView` con `next/dynamic` y spinner de carga
+- Render condicional: `{activeTab === 'servicios' && <ServiciosView ... />}`
+- Bottom nav y sidebar actualizados automáticamente (iteran sobre `NAV_ITEMS`)
+
+### 7.6 Placeholders del equipo (NUEVOS)
+
+**Archivos:** `public/team-oscar.svg`, `public/team-alberto.svg`, `public/team-santiago.svg`
+
+- Formato SVG, ratio 4:5 (400×500)
+- Fondo oscuro (#1A1A1A), círculo con iniciales en dorado/verde, nombre y cargo
+- Cuando lleguen las fotos reales, reemplazar el archivo SVG por `.webp` + `.jpeg` y cambiar el `src` en `ServiciosView.tsx`
+
+---
+
+## 8. Especificación de Imágenes
+
+**Archivo:** `docs/especificacion-imagenes.md` (nuevo)
+
+Documento entregable al equipo visual con especificaciones detalladas:
+
+| Imagen | Ratio | Resolución | Formato |
+|--------|-------|------------|---------|
+| `hero-bg` | 16:9 | 1920×1080 | WebP + JPEG |
+| `service-tasting` (Tasting1) | 3:2 | 1200×800 | WebP + JPEG |
+| `service-completo` (Tasting2) | 3:2 | 1200×800 | WebP + JPEG |
+| `team-javier` | 4:5 | 800×1000 | WebP + JPEG |
+| `team-santiago` | 4:5 | 800×1000 | WebP + JPEG |
+| `team-[nombre]` | 4:5 | 800×1000 | WebP + JPEG |
+
+### Estado actual de assets visuales
+
+| Archivo | Estado | Observación |
+|---------|--------|-------------|
+| `hero-bg.webp` / `.jpeg` | ✅ Entregado | 1920×1080 |
+| `Tasting1.webp` / `.jpeg` | ✅ Entregado | 1920×1080 (sobrecumple la spec) |
+| `Tasting2.webp` / `.jpeg` | ✅ Entregado | 1920×1080 (sobrecumple la spec) |
+| `team-oscar.*` | 🔶 Placeholder SVG | Pendiente foto real |
+| `team-alberto.*` | 🔶 Placeholder SVG | Pendiente foto real |
+| `team-santiago.*` | 🔶 Placeholder SVG | Pendiente foto real |
+| `sigifredo.png` | ✅ Existente | Se mantiene en "Nuestra Historia" |
+
+---
+
+## 9. Archivos Relevantes (actualizado)
 
 | Archivo | Propósito |
 |---------|-----------|
 | `supabase/migrations/20250626_create_reservations.sql` | Migración DDL + RLS |
 | `types/index.ts` | Tipos TypeScript del proyecto |
 | `components/CoffeeCard.tsx` | Tarjeta de café sin navegación |
-| `components/views/HomeView.tsx` | Home con sección Historia y card Reservas |
+| `components/views/HomeView.tsx` | Home con hero-bg, texto bilingüe, historia definitiva y card Reservas |
+| `components/views/ServiciosView.tsx` | **NUEVO** — Vista de servicios Coffee Tasting (3 secciones) |
 | `components/views/ReservasView.tsx` | Wizard de agendamiento |
 | `components/views/CatalogView.tsx` | Eliminado |
-| `app/page.tsx` | Página principal con navegación actualizada |
+| `app/page.tsx` | Página principal con navegación actualizada (incluye tab Servicios) |
 | `public/sigifredo.png` | Foto de Sigifredo González (fundador) |
+| `public/hero-bg.webp` / `.jpeg` | **NUEVO** — Fondo de paisaje cafetero para el hero |
+| `public/Tasting1.webp` / `.jpeg` | **NUEVO** — Imagen del servicio Coffee Tasting |
+| `public/Tasting2.webp` / `.jpeg` | **NUEVO** — Imagen del servicio Completo |
+| `public/team-oscar.svg` | **NUEVO** — Placeholder equipo (Oscar Mercado) |
+| `public/team-alberto.svg` | **NUEVO** — Placeholder equipo (Alberto Mendoza) |
+| `public/team-santiago.svg` | **NUEVO** — Placeholder equipo (Santiago González) |
+| `docs/especificacion-imagenes.md` | **NUEVO** — Especificación técnica de imágenes para el equipo visual |
+| `docs/COMENTARIOS PAGINA EL DEPÓSITO 2.docx` | **NUEVO** — Feedback de Santiago con copias y mockups |
 | `portafoliocafés/index.html` | Portafolio original del colega (referencia) |
 | `components/views/AdminReservasView.tsx` | Vista admin de reservas con tabla, filtros y acciones |
 | `app/admin/page.tsx` | Panel admin con tabs Catálogo / Reservas |
 | `next.config.ts` | Configuración de Next.js |
 | `tsconfig.json` | Configuración de TypeScript |
+
+---
+
+## 10. Próximos Pasos
+
+| Prioridad | Tarea | Estado |
+|-----------|-------|--------|
+| 🔴 Alta | Reemplazar placeholders SVG por fotos reales del equipo | Pendiente |
+| 🟡 Media | Verificar comportamiento cross-browser (Brave, Safari iOS) | Pendiente |
+| 🟡 Media | Ajustar textos del equipo cuando Santiago los defina | Pendiente |
+| 🟢 Baja | Implementar métodos de pago (Mercado Pago) | Pospuesto |
+| 🟢 Baja | Modalidad privada de reserva | Pospuesto |
