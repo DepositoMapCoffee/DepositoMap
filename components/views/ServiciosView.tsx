@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import {
   ChevronDown, Clock3, Coffee, Globe, MapPin, Users, ArrowRight,
@@ -52,16 +51,16 @@ const EQUIPO = [
     frase: 'Cada café cuenta una historia. Mi trabajo es ayudarte a descubrirla.',
   },
   {
-    nombre: 'Alberto Mendoza',
-    iniciales: 'AM',
-    placeholder: '/team-alberto.svg',
-    frase: 'La calidad no es casualidad. Es el resultado de generaciones de conocimiento.',
-  },
-  {
     nombre: 'Santiago González',
     iniciales: 'SG',
     placeholder: '/team-santiago.svg',
     frase: 'Honramos el pasado, vivimos el presente y construimos el futuro del café colombiano.',
+  },
+  {
+    nombre: 'Alberto Mendoza',
+    iniciales: 'AM',
+    placeholder: '/team-alberto.svg',
+    frase: 'La calidad no es casualidad. Es el resultado de generaciones de conocimiento.',
   },
 ];
 
@@ -121,17 +120,11 @@ export default function ServiciosView({ onReservationsClick }: ServiciosViewProp
         ══════════════════════════════════════════ */}
         <section className="relative min-h-[70dvh] flex flex-col items-center justify-center px-6 py-20 overflow-hidden">
           {/* Background image */}
-          <div className="absolute inset-0 -z-10">
-            <Image
-              src="/Tasting1.webp"
-              alt=""
-              fill
-              className="object-cover"
-              priority
-              sizes="100vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-brand-black/80 via-brand-black/60 to-brand-black/90" />
-          </div>
+          <div
+            className="absolute inset-0 -z-10 bg-cover bg-center"
+            style={{ backgroundImage: 'url(/Tasting1.webp)' }}
+          />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-black/80 via-brand-black/60 to-brand-black/90" />
 
           <motion.div
             initial="hidden"
@@ -245,14 +238,10 @@ export default function ServiciosView({ onReservationsClick }: ServiciosViewProp
                     hover:border-brand-accent/30 transition-all duration-500"
                 >
                   {/* Imagen */}
-                  <div className="relative h-52 md:h-60 overflow-hidden">
-                    <Image
-                      src={pkg.imagen}
-                      alt={pkg.nombre}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
+                  <div
+                    className="h-52 md:h-60 overflow-hidden bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                    style={{ backgroundImage: `url(${pkg.imagen})` }}
+                  >
                     <div className="absolute inset-0 bg-gradient-to-t from-surface-low/90 via-transparent to-transparent" />
                     {/* Badge precio */}
                     <div className="absolute top-4 right-4 px-4 py-2 rounded-xl
@@ -358,16 +347,15 @@ export default function ServiciosView({ onReservationsClick }: ServiciosViewProp
                   variants={cardReveal}
                   className="flex flex-col items-center text-center"
                 >
-                  {/* Foto / placeholder */}
-                  <div className="relative w-44 h-55 md:w-48 md:h-60 mb-5 rounded-2xl overflow-hidden
-                    ring-1 ring-outline-soft/10 bg-surface-low/60"
+                  {/* Foto / placeholder (SVG, no necesita next/image) */}
+                  <div className="w-44 h-55 md:w-48 md:h-60 mb-5 rounded-2xl overflow-hidden
+                    ring-1 ring-outline-soft/10 bg-surface-low/60 flex items-center justify-center"
                   >
-                    <Image
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
                       src={persona.placeholder}
                       alt={persona.nombre}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 176px, 192px"
+                      className="w-full h-full object-cover"
                     />
                   </div>
 

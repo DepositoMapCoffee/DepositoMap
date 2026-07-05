@@ -135,17 +135,11 @@ export default function HomeView({ onMapClick, onUserClick, onReservationsClick 
       ════════════════════════════════════════════ */}
       <section className="min-h-[70dvh] flex flex-col items-center justify-center relative z-10 px-6 py-16 overflow-hidden">
         {/* ── Hero background image ── */}
-        <div className="absolute inset-0 -z-10">
-          <Image
-            src="/hero-bg.webp"
-            alt=""
-            fill
-            className="object-cover"
-            priority
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-brand-black/70 via-brand-black/30 to-brand-black/80" />
-        </div>
+        <div
+          className="absolute inset-0 -z-10 bg-cover bg-center"
+          style={{ backgroundImage: 'url(/hero-bg.webp)' }}
+        />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-black/70 via-brand-black/30 to-brand-black/80" />
 
         <motion.div
           variants={heroContainer}
