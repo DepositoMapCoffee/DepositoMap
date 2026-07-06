@@ -783,6 +783,24 @@ export default function ReservaSidePanel({
                           : `Máximo ${cuposMax} cupo${cuposMax !== 1 ? 's' : ''} disponible${cuposMax !== 1 ? 's' : ''} en este horario`
                         }
                       </p>
+
+                      {/* ── Aviso grupos grandes ── */}
+                      {formData.cupos >= 3 && (
+                        <div className="mt-4 px-3.5 py-3 rounded-xl bg-brand-accent/5 ring-1 ring-brand-accent/15">
+                          <p className="text-[11px] text-on-surface-soft/60 leading-relaxed font-sans text-center">
+                            ¿Son más de 4 personas? Escríbenos a{' '}
+                            <a
+                              href="https://wa.me/573232915975"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-brand-accent underline hover:text-brand-accent/80 transition-colors font-medium"
+                            >
+                              WhatsApp
+                            </a>
+                            {' '}para consultar disponibilidad en horarios especiales o grupos grandes.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   );
                 })()}
