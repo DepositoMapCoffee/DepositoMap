@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
         // ── HTML: siempre verificar si hay versión nueva ──
         source: '/:path((?!_next/static|favicon\\.ico|icon\\.svg).*)',
         headers: [
-          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+          { key: 'Cache-Control', value: 'no-cache, no-store' },
           ...SECURITY_HEADERS,
         ],
       },
