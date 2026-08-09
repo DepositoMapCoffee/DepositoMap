@@ -3,7 +3,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { LogOut, Plus, Search, Trash2, Edit2, Loader2, Map as MapIcon, Eye, EyeOff, ArrowLeft, CalendarClock, Coffee as CoffeeIcon, Bell } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import { Coffee, CoffeeFormData, CoffeeCategory, CoffeeProcess } from '@/types';
 import { departamentos } from '@/data/mapaData';
 import { useCoffeeStore } from '@/store/coffeeStore';
@@ -39,7 +40,7 @@ export default function AdminPage() {
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [adminTab, setAdminTab] = useState<'catalog' | 'reservations'>('catalog');
   const [unseenCount, setUnseenCount] = useState(0);
-  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const channelRef = useRef<RealtimeChannel | null>(null);
   
   const [coffees, setCoffees] = useState<Coffee[]>([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -58,14 +59,14 @@ export default function AdminPage() {
 
   // 1. Check Auth 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    getSupabase().auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       
       if (!session) {
         setLoadingAuth(false);
         router.push('/admin/login');
       } else if (session?.user?.email) {
-        const { data } = await supabase.from('admins').select('*').eq('email', session.user.email);
+        const { data } = await getSupabase().from('admins').select('*').eq('email', session.user.email);
         if (!data || data.length === 0) {
           router.push('/');
         } else {
@@ -76,12 +77,12 @@ export default function AdminPage() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = getSupabase().auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
       if (!session) {
         router.push('/admin/login');
       } else if (session?.user?.email) {
-        const { data } = await supabase.from('admins').select('*').eq('email', session.user.email);
+        const { data } = await getSupabase().from('admins').select('*').eq('email', session.user.email);
         if (!data || data.length === 0) {
           router.push('/');
         }
@@ -94,7 +95,7 @@ export default function AdminPage() {
   // 2. Load Coffees
   const fetchCoffees = async () => {
     setLoadingData(true);
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('cafes')
       .select('*')
       .order('created_at', { ascending: false });
@@ -118,7 +119,7 @@ export default function AdminPage() {
     if (!session) return;
 
     // Obtener conteo inicial de pendientes como referencia
-    const channel = supabase
+    const channel = getSupabase()
       .channel('admin-reservations')
       .on('postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'reservations' },
@@ -141,13 +142,13 @@ export default function AdminPage() {
     channelRef.current = channel;
 
     return () => {
-      supabase.removeChannel(channel);
+      getSupabase().removeChannel(channel);
     };
   }, [session, adminTab]);
 
   // Logout
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await getSupabase().auth.signOut();
     router.push('/');
   };
 
@@ -195,7 +196,7 @@ export default function AdminPage() {
 
     setPendingDeleteId(null);
     try {
-      const { error } = await supabase.from('cafes').delete().eq('id', id);
+      const { error } = await getSupabase().from('cafes').delete().eq('id', id);
       if (error) throw error;
       await fetchCoffees();
       loadActiveDepts(); // Actualizamos el mapa
@@ -221,14 +222,14 @@ export default function AdminPage() {
     try {
       if (editingId) {
         // Edit
-        const { error } = await supabase
+        const { error } = await getSupabase()
           .from('cafes')
           .update(formData)
           .eq('id', editingId);
         if (error) throw error;
       } else {
         // Insert
-        const { error } = await supabase
+        const { error } = await getSupabase()
           .from('cafes')
           .insert([formData]);
         if (error) throw error;

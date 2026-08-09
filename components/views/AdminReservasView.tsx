@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { Search, Loader2, Check, X, Clock, User, Mail, Phone, CalendarDays, Users, MapPin, Coffee, Filter } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import { useToastStore } from '@/store/toastStore';
 import type { Reservation, ReservationStatus, ReservationPackageId } from '@/types';
 
@@ -70,7 +70,7 @@ export default function AdminReservasView() {
       setLoading(true);
     }
 
-    let query = supabase
+    let query = getSupabase()
       .from('reservations')
       .select('*')
       .order('created_at', { ascending: false });
@@ -98,7 +98,7 @@ export default function AdminReservasView() {
   /* ── Cambiar estado ── */
   const handleStatusChange = async (id: string, newStatus: ReservationStatus) => {
     setUpdatingId(id);
-    const { error } = await supabase
+    const { error } = await getSupabase()
       .from('reservations')
       .update({ estado: newStatus })
       .eq('id', id);

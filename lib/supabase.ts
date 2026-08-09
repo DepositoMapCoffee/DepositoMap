@@ -63,23 +63,18 @@ function initSupabase(): SupabaseClient {
 }
 
 /**
- * Cliente de Supabase listo para usar en cualquier componente o utilidad.
+ * Devuelve el cliente de Supabase listo para usar en cualquier componente
+ * o utilidad.
  *
- * La inicialización es perezosa: solo valida las variables de entorno
- * y crea la instancia cuando se accede por primera vez.
+ * La inicialización es perezosa: solo valida las variables de entorno y
+ * crea la instancia en el primer uso. Reemplaza al antiguo Proxy `supabase`
+ * (frágil: casts y binding manual por acceso) por un acceso explícito con
+ * tipos reales de SupabaseClient, conservando el lazy-init para el build.
  *
  * @example
- * import { supabase } from '@/lib/supabase';
- * const { data } = await supabase.from('cafes').select('*');
+ * import { getSupabase } from '@/lib/supabase';
+ * const { data } = await getSupabase().from('cafes').select('*');
  */
-export const supabase: SupabaseClient = new Proxy({} as SupabaseClient, {
-  get(_, prop: string | symbol) {
-    const client = initSupabase();
-    const value = (client as any)[prop];
-    // Si es un método, lo bindeamos a la instancia real del cliente
-    if (typeof value === 'function') {
-      return value.bind(client);
-    }
-    return value;
-  },
-});
+export function getSupabase(): SupabaseClient {
+  return initSupabase();
+}

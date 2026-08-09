@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check, ChevronRight, ChevronLeft, Loader2, Clock, User, Mail, Phone, CalendarDays, Coffee, Users, MapPin, Globe, Clock3, ArrowLeft } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import { useToastStore } from '@/store/toastStore';
 import { getPanelVariants } from '@/lib/animations';
 import { PAQUETES } from '@/data/paquetes';
@@ -71,7 +71,7 @@ async function checkAvailability(fecha: string): Promise<AvailabilityInfo[]> {
 
   // RPC SECURITY DEFINER: expone solo conteos agregados por horario,
   // accesible para usuarios anónimos (RLS bloquea el SELECT directo).
-  const { data, error } = await supabase.rpc('consultar_disponibilidad', { p_fecha: fecha });
+  const { data, error } = await getSupabase().rpc('consultar_disponibilidad', { p_fecha: fecha });
 
   const ocupadosPorHorario: Record<string, number> = {};
   if (!error && data) {
@@ -233,7 +233,7 @@ export default function ReservaSidePanel({
 
       // RPC atómica: valida cupos y reserva en una sola transacción
       // (pg_advisory_xact_lock por fecha+horario → sin sobreventa).
-      const { data: rpcResult, error: rpcError } = await supabase.rpc('reservar_cupo', {
+      const { data: rpcResult, error: rpcError } = await getSupabase().rpc('reservar_cupo', {
         p_nombre: formData.nombre.trim(),
         p_email: formData.email.trim().toLowerCase(),
         p_telefono: formData.telefono.trim(),

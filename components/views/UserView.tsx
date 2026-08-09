@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, LogOut, Bookmark, Edit3, Settings, Loader2, Lock, ArrowRight, UserPlus, LogIn, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import { useUserStore } from '@/store/userStore';
 
 export default function UserView() {
@@ -30,7 +30,7 @@ export default function UserView() {
     setAuthMessage(null);
 
     if (isLogin) {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error } = await getSupabase().auth.signInWithPassword({
         email,
         password,
       });
@@ -39,7 +39,7 @@ export default function UserView() {
         setAuthMessage({ type: 'error', text: 'Correo o contraseña incorrectos.' });
       }
     } else {
-      const { error } = await supabase.auth.signUp({
+      const { error } = await getSupabase().auth.signUp({
         email,
         password,
       });
@@ -57,7 +57,7 @@ export default function UserView() {
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    await getSupabase().auth.signOut();
   };
 
   if (isLoadingSession) {

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import type { Coffee } from '@/types';
 
 interface UserStore {
@@ -36,17 +36,17 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
   initAuth: () => {
     // Revisar sesión inicial
-    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
+    getSupabase().auth.getSession().then(async ({ data: { session }, error }) => {
       // Sesión no recuperable (ej: refresh token inválido/huérfano):
       // limpiar estado y storage local para no quedar en loading infinito.
       if (error || !session?.user?.email) {
         if (error) console.warn('[UserStore] Sesión no recuperable:', error.message);
-        await supabase.auth.signOut({ scope: 'local' });
+        await getSupabase().auth.signOut({ scope: 'local' });
         set({ session: null, isAdmin: false, isLoadingSession: false, favoriteIds: [], favoriteCoffees: [] });
         return;
       }
 
-      const { data } = await supabase.from('admins').select('*').eq('email', session.user.email);
+      const { data } = await getSupabase().from('admins').select('*').eq('email', session.user.email);
       set({ session, isAdmin: (data?.length ?? 0) > 0, isLoadingSession: false });
       // Cargar favoritos
       get().loadFavorites(session.user.id);
@@ -57,9 +57,9 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
     // Escuchar cambios (una sola suscripción activa a la vez)
     authSubscription?.unsubscribe();
-    authSubscription = supabase.auth.onAuthStateChange(async (_event, session) => {
+    authSubscription = getSupabase().auth.onAuthStateChange(async (_event, session) => {
       if (session?.user?.email) {
-        const { data } = await supabase.from('admins').select('*').eq('email', session.user.email);
+        const { data } = await getSupabase().from('admins').select('*').eq('email', session.user.email);
         set({ session, isAdmin: (data?.length ?? 0) > 0 });
         get().loadFavorites(session.user.id);
       } else {
@@ -72,7 +72,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     set({ isLoadingFavorites: true });
     
     // Obtenemos los IDs y los detalles de los cafés haciendo un join implícito con Supabase
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('user_favorites')
       .select(`
         coffee_id,
@@ -107,7 +107,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       // Optimistic update
       set({ favoriteIds: favoriteIds.filter(id => id !== coffeeId) });
       
-      const { error } = await supabase
+      const { error } = await getSupabase()
         .from('user_favorites')
         .delete()
         .eq('user_id', userId)
@@ -123,7 +123,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       // Optimistic update
       set({ favoriteIds: [...favoriteIds, coffeeId] });
       
-      const { error } = await supabase
+      const { error } = await getSupabase()
         .from('user_favorites')
         .insert({ user_id: userId, coffee_id: coffeeId });
         

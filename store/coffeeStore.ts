@@ -15,7 +15,7 @@
  */
 
 import { create } from 'zustand';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import type { Coffee } from '@/types';
 
 // ─── Tipos del store ──────────────────────────────────────────────
@@ -87,7 +87,7 @@ export const useCoffeeStore = create<CoffeeStore>((set, get) => ({
     set({ isLoading: true });
 
     // Se pide PAGE_SIZE+1 registros para detectar si existe una página siguiente
-    let query = supabase
+    let query = getSupabase()
       .from('cafes')
       .select('*')
       .eq('departamento_id', deptId)
@@ -131,7 +131,7 @@ export const useCoffeeStore = create<CoffeeStore>((set, get) => ({
     const seq = ++fetchSeq;
     set({ isLoading: true });
 
-    let query = supabase
+    let query = getSupabase()
       .from('cafes')
       .select('*')
       .eq('departamento_id', selectedDept)
@@ -173,7 +173,7 @@ export const useCoffeeStore = create<CoffeeStore>((set, get) => ({
 
   // ─── Cargar departamentos activos ───────────────────────────────
   loadActiveDepts: async () => {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('cafes')
       .select('departamento_id')
       .eq('visible', true);
