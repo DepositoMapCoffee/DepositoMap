@@ -93,17 +93,14 @@ async function checkAvailability(fecha: string): Promise<AvailabilityInfo[]> {
   const isToday = esHoy(fecha);
   const beforeNoon = esAntesDeMedioDia();
 
-  const { data, error } = await supabase
-    .from('reservations')
-    .select('horario, cupos')
-    .eq('fecha', fecha)
-    .in('horario', TIME_SLOTS.map(s => s.id))
-    .in('estado', ['pendiente', 'confirmada']);
+  // RPC SECURITY DEFINER: expone solo conteos agregados por horario,
+  // accesible para usuarios anónimos (RLS bloquea el SELECT directo).
+  const { data, error } = await supabase.rpc('consultar_disponibilidad', { p_fecha: fecha });
 
   const ocupadosPorHorario: Record<string, number> = {};
   if (!error && data) {
-    data.forEach(row => {
-      ocupadosPorHorario[row.horario] = (ocupadosPorHorario[row.horario] ?? 0) + (row.cupos ?? 1);
+    (data as { horario: string; ocupados: number }[]).forEach(row => {
+      ocupadosPorHorario[row.horario] = row.ocupados;
     });
   }
 
@@ -258,20 +255,24 @@ export default function ReservaSidePanel({
         return;
       }
 
-      const { error } = await supabase.from('reservations').insert({
-        nombre: formData.nombre.trim(),
-        email: formData.email.trim().toLowerCase(),
-        telefono: formData.telefono.trim(),
-        fecha: formData.fecha,
-        horario: formData.horario,
-        paquete: paquete,
-        cupos: formData.cupos,
-        estado: 'pendiente',
+      // RPC atómica: valida cupos y reserva en una sola transacción
+      // (pg_advisory_xact_lock por fecha+horario → sin sobreventa).
+      const { data: rpcResult, error: rpcError } = await supabase.rpc('reservar_cupo', {
+        p_nombre: formData.nombre.trim(),
+        p_email: formData.email.trim().toLowerCase(),
+        p_telefono: formData.telefono.trim(),
+        p_fecha: formData.fecha,
+        p_horario: formData.horario,
+        p_paquete: paquete,
+        p_cupos: formData.cupos,
       });
 
-      if (error) {
-        console.error('Error al crear reserva:', error);
-        addToast('Error al crear la reserva. Intenta de nuevo.', 'error');
+      if (rpcError || !rpcResult?.ok) {
+        console.error('Error al crear reserva:', rpcError ?? rpcResult);
+        addToast((rpcResult as { error?: string } | null)?.error ?? 'Error al crear la reserva. Intenta de nuevo.', 'error');
+        if (rpcResult && !rpcResult.ok && /cupo/i.test(JSON.stringify(rpcResult.error))) {
+          setStep(2);
+        }
         return;
       }
 
