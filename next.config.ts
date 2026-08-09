@@ -1,11 +1,42 @@
 import type { NextConfig } from "next";
 
-const SECURITY_HEADERS = [
-  { key: 'X-Frame-Options', value: 'DENY' },
-  { key: 'X-Content-Type-Options', value: 'nosniff' },
-  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-  { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
-];
+/**
+ * Headers de seguridad incluyendo Content-Security-Policy.
+ *
+ * Notas del CSP:
+ * - style-src 'unsafe-inline': framer-motion inyecta estilos inline.
+ * - script-src 'unsafe-inline' (prod): Next.js embebe el payload RSC en un
+ *   <script> inline dentro del HTML estático.
+ * - 'unsafe-eval' solo en development: lo requiere el HMR de Turbopack.
+ * - connect-src: API REST (https) y Realtime (websocket wss) de Supabase.
+ * - img-src data: (SVG de ruido inline en HomeView) y blob: (next/image).
+ */
+function buildSecurityHeaders(): { key: string; value: string }[] {
+  const isDev = process.env.NODE_ENV === 'development';
+
+  const csp = [
+    "default-src 'self'",
+    isDev
+      ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+      : "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self' data:",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+  ].join('; ');
+
+  return [
+    { key: 'Content-Security-Policy', value: csp },
+    { key: 'X-Frame-Options', value: 'DENY' },
+    { key: 'X-Content-Type-Options', value: 'nosniff' },
+    { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+    { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
+  ];
+}
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['192.168.0.183'],
@@ -16,7 +47,7 @@ const nextConfig: NextConfig = {
         source: '/:path((?!_next/static|favicon\\.ico|icon\\.svg).*)',
         headers: [
           { key: 'Cache-Control', value: 'no-cache, no-store' },
-          ...SECURITY_HEADERS,
+          ...buildSecurityHeaders(),
         ],
       },
       {
