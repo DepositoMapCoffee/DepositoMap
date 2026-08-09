@@ -29,15 +29,23 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
   initAuth: () => {
     // Revisar sesión inicial
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user?.email) {
-        const { data } = await supabase.from('admins').select('*').eq('email', session.user.email);
-        set({ session, isAdmin: (data?.length ?? 0) > 0, isLoadingSession: false });
-        // Cargar favoritos
-        get().loadFavorites(session.user.id);
-      } else {
+    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
+      // Sesión no recuperable (ej: refresh token inválido/huérfano):
+      // limpiar estado y storage local para no quedar en loading infinito.
+      if (error || !session?.user?.email) {
+        if (error) console.warn('[UserStore] Sesión no recuperable:', error.message);
+        await supabase.auth.signOut({ scope: 'local' });
         set({ session: null, isAdmin: false, isLoadingSession: false, favoriteIds: [], favoriteCoffees: [] });
+        return;
       }
+
+      const { data } = await supabase.from('admins').select('*').eq('email', session.user.email);
+      set({ session, isAdmin: (data?.length ?? 0) > 0, isLoadingSession: false });
+      // Cargar favoritos
+      get().loadFavorites(session.user.id);
+    }).catch(() => {
+      // Red de seguridad: nunca dejar isLoadingSession en true
+      set({ session: null, isAdmin: false, isLoadingSession: false, favoriteIds: [], favoriteCoffees: [] });
     });
 
     // Escuchar cambios
