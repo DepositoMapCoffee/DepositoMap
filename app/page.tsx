@@ -52,6 +52,8 @@ const NAV_ITEMS = [
 ───────────────────────────────────────── */
 const SIDEBAR_COLLAPSED = 68;
 const SIDEBAR_EXPANDED  = 210;
+/** Clave de persistencia de la pestaña activa (localStorage puede fallar). */
+const ACTIVE_TAB_KEY = 'deposito_active_tab';
 
 export default function HomePage() {
   const selectedDept = useCoffeeStore(s => s.selectedDept);
@@ -65,9 +67,15 @@ export default function HomePage() {
 
   useEffect(() => { initAuth(); }, [initAuth]);
 
+  // localStorage puede lanzar SecurityError si el navegador lo bloquea
+  // (modo incógnito, sandbox, políticas de privacidad). Nunca debe tumbar la app.
   useEffect(() => {
-    const saved = localStorage.getItem('deposito_active_tab');
-    if (saved) setActiveTab(saved);
+    try {
+      const saved = localStorage.getItem(ACTIVE_TAB_KEY);
+      if (saved) setActiveTab(saved);
+    } catch {
+      /* almacenamiento no disponible: se ignora */
+    }
   }, []);
 
   useEffect(() => { loadActiveDepts(); }, [loadActiveDepts]);
@@ -84,7 +92,11 @@ export default function HomePage() {
 
   const handleNav = (id: string) => {
     setActiveTab(id);
-    localStorage.setItem('deposito_active_tab', id);
+    try {
+      localStorage.setItem(ACTIVE_TAB_KEY, id);
+    } catch {
+      /* almacenamiento no disponible: se ignora */
+    }
     if (id !== 'map') clearSelection();
   };
 
