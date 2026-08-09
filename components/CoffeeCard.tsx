@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Mountain, Coffee as CoffeeIcon, ArrowRight, Heart, Package, Percent } from 'lucide-react';
+import { MapPin, Mountain, Coffee as CoffeeIcon, Heart, Package, Percent } from 'lucide-react';
 import { Coffee } from '@/types';
 import { cardVariants } from '@/lib/animations';
 import { useUserStore } from '@/store/userStore';
@@ -70,7 +70,7 @@ export default function CoffeeCard({ coffee }: CoffeeCardProps) {
   return (
     <motion.div
       variants={cardVariants}
-      className="relative rounded-xl p-5 cursor-pointer overflow-hidden group
+      className="relative rounded-xl p-5 overflow-hidden group
         transition-all duration-350
         hover:shadow-[0_4px_30px_rgba(212,175,55,0.08)]"
       style={{
@@ -146,16 +146,6 @@ export default function CoffeeCard({ coffee }: CoffeeCardProps) {
           ))}
         </div>
       )}
-
-      {/* ── Footer ── */}
-      <div className="flex justify-end relative z-10">
-        <div className="w-6 h-6 rounded-full flex items-center justify-center
-          bg-surface-highest/60 group-hover:bg-brand-accent
-          ring-1 ring-outline-soft/30 group-hover:ring-brand-accent
-          transition-all duration-300">
-          <ArrowRight className="w-3 h-3 text-outline/70 group-hover:text-surface-lowest transition-colors" />
-        </div>
-      </div>
     </motion.div>
   );
 }

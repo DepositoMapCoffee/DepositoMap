@@ -238,14 +238,14 @@ export default function UserView() {
                         <p className="text-sm text-center text-on-surface-soft/50 py-4 font-sans">Aún no tienes cafés favoritos guardados.</p>
                       ) : (
                         favoriteCoffees.map(coffee => (
-                          <Link key={coffee.id} href={`/lote/${coffee.id}`} className="flex flex-col p-4 rounded-xl bg-surface-highest/40 border border-outline-soft/10 hover:bg-surface-highest hover:border-brand-accent/30 transition-all group">
+                          <div key={coffee.id} className="flex flex-col p-4 rounded-xl bg-surface-highest/40 border border-outline-soft/10 hover:bg-surface-highest hover:border-brand-accent/30 transition-all group">
                             <span className="font-serif text-brand-white text-lg group-hover:text-brand-accent transition-colors">{coffee.nombre}</span>
                             <div className="flex items-center gap-2 mt-1">
                               {coffee.finca && <span className="text-xs font-sans text-brand-accent">{coffee.finca}</span>}
                               {coffee.finca && coffee.proceso && <span className="text-xs text-on-surface-soft/30">•</span>}
                               {coffee.proceso && <span className="text-xs font-sans text-on-surface-soft/70">{coffee.proceso}</span>}
                             </div>
-                          </Link>
+                          </div>
                         ))
                       )}
                     </div>
