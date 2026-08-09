@@ -41,7 +41,7 @@ function buildSecurityHeaders(): { key: string; value: string }[] {
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['192.168.0.183'],
   async headers() {
-    return [
+    const htmlHeaders = [
       {
         // ── HTML: siempre verificar si hay versión nueva ──
         source: '/:path((?!_next/static|favicon\\.ico|icon\\.svg).*)',
@@ -50,14 +50,23 @@ const nextConfig: NextConfig = {
           ...buildSecurityHeaders(),
         ],
       },
-      {
+    ];
+
+    // Cache-Control `immutable` en /_next/static SOLO en producción:
+    // en dev los chunks de Turbopack cambian en cada HMR y un header
+    // inmutable rompe su revalidación (error "module factory is not available"
+    // por chunks obsoletos servidos desde la caché del navegador).
+    if (process.env.NODE_ENV === 'production') {
+      htmlHeaders.push({
         // ── JS/CSS estáticos: contenido con hash → caché infinita ──
         source: '/_next/static/:path*',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
-      },
-    ];
+      });
+    }
+
+    return htmlHeaders;
   },
 };
 
