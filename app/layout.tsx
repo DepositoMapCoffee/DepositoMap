@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Noto_Serif } from 'next/font/google';
 import './globals.css';
+import { MotionConfig } from 'framer-motion';
 import ToastContainer from '@/components/ui/ToastContainer';
 
 const inter = Inter({
@@ -49,8 +50,11 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="antialiased font-sans bg-brand-black text-brand-white">
-        {children}
-        <ToastContainer />
+        {/* reducedMotion="user": respeta prefers-reduced-motion del sistema */}
+        <MotionConfig reducedMotion="user">
+          {children}
+          <ToastContainer />
+        </MotionConfig>
       </body>
     </html>
   );

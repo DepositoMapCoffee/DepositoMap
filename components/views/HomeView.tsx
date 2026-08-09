@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import Image from 'next/image';
-import { motion, useAnimation, type Variants } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { CalendarClock, Heart, ArrowRight } from 'lucide-react';
 import ColombiaIcon from '@/components/ColombiaIcon';
 
@@ -80,23 +80,6 @@ const ACCESS_CARDS = [
    Component
 ───────────────────────────────────────── */
 export default function HomeView({ onMapClick, onUserClick, onReservationsClick }: HomeViewProps) {
-  const isotipoControls = useAnimation();
-
-  /* Isotipo: entrada dramática → pulso infinito */
-  useEffect(() => {
-    isotipoControls.start({
-      opacity: 1,
-      scale: 1,
-      rotate: 0,
-      transition: { duration: 1.1, ease: [0.22, 1, 0.36, 1] },
-    }).then(() => {
-      isotipoControls.start({
-        scale: [1, 1.04, 1],
-        transition: { duration: 3.2, repeat: Infinity, ease: 'easeInOut' },
-      });
-    });
-  }, [isotipoControls]);
-
   const handleCard = (id: string) => {
     if (id === 'map')          onMapClick();
     if (id === 'user')         onUserClick();
@@ -107,37 +90,26 @@ export default function HomeView({ onMapClick, onUserClick, onReservationsClick 
     <div className="w-full h-full overflow-y-auto overflow-x-hidden scroll-touch relative">
 
       {/* ════════════════════════════════════════════
-          AMBIENT BACKGROUNDS
-      ════════════════════════════════════════════ */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse 70% 55% at 50% 10%, rgba(47,163,107,0.08) 0%, transparent 65%)',
-        }}
-      />
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse 60% 40% at 50% 95%, rgba(149,90,35,0.07) 0%, transparent 65%)',
-        }}
-      />
-      <div
-        className="fixed inset-0 pointer-events-none opacity-[0.025]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-        }}
-      />
-
-      {/* ════════════════════════════════════════════
           HERO ZONE
       ════════════════════════════════════════════ */}
       <section className="min-h-[70dvh] flex flex-col items-center justify-center relative z-10 px-6 py-16 overflow-hidden">
-        {/* ── Hero background image ── */}
+        {/* ── Glow ambiental superior (antes fixed; ahora scrollea con el hero) ── */}
         <div
-          className="absolute inset-0 -z-10 bg-cover bg-center"
-          style={{ backgroundImage: 'url(/hero-bg.webp)' }}
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(ellipse 70% 55% at 50% 10%, rgba(47,163,107,0.08) 0%, transparent 65%)',
+          }}
+        />
+        {/* ── Hero background image (next/image: lazy + formato optimizado) ── */}
+        <Image
+          src="/hero-bg.webp"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="absolute inset-0 -z-10 object-cover"
         />
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-black/70 via-brand-black/30 to-brand-black/80" />
 
@@ -150,13 +122,14 @@ export default function HomeView({ onMapClick, onUserClick, onReservationsClick 
           {/* ── Isotipo ── */}
           <motion.div
             initial={{ opacity: 0, scale: 0.4, rotate: -15 }}
-            animate={isotipoControls}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
             className="mb-7 relative"
           >
-            <motion.div
-              animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.12, 1] }}
-              transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute inset-0 rounded-full"
+            {/* Halo estático (sin animación infinita) */}
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 rounded-full pointer-events-none"
               style={{
                 background: 'radial-gradient(circle, rgba(47,163,107,0.22) 0%, transparent 70%)',
                 transform: 'scale(2.4)',
@@ -395,6 +368,15 @@ export default function HomeView({ onMapClick, onUserClick, onReservationsClick 
           ACCESS CARDS
       ════════════════════════════════════════════ */}
       <section className="relative z-10 px-5 py-12 md:py-16">
+        {/* ── Glow ambiental inferior (antes fixed; ahora scrollea con el contenido) ── */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(ellipse 60% 40% at 50% 95%, rgba(149,90,35,0.07) 0%, transparent 65%)',
+          }}
+        />
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -422,8 +404,9 @@ export default function HomeView({ onMapClick, onUserClick, onReservationsClick 
               whileTap={{ scale: 0.97 }}
               className="group flex flex-col items-center text-center p-4 md:p-5 rounded-2xl cursor-pointer
                 border border-outline-soft/20 hover:border-brand-accent/30
-                transition-colors duration-300 relative overflow-hidden"
-              style={{ background: 'rgba(17,17,17,0.7)', backdropFilter: 'blur(12px)' }}
+                transition-colors duration-300 relative overflow-hidden
+                backdrop-blur-sm md:backdrop-blur-md"
+              style={{ background: 'rgba(17,17,17,0.7)' }}
             >
               {/* Glow on hover */}
               <div
