@@ -23,6 +23,14 @@ import type { Coffee } from '@/types';
 /** Tamaño de página para el catálogo (se pide PAGE_SIZE+1 para detectar si hay más) */
 const PAGE_SIZE = 12;
 
+/**
+ * Token de secuencia para descartar respuestas obsoletas.
+ * Cada fetch/loadMore incrementa el token; cuando llega una respuesta cuyo
+ * token ya no es el más reciente, se descarta (evita que una búsqueda antigua
+ * o un loadMore en vuelo sobrescriban resultados más nuevos — race condition).
+ */
+let fetchSeq = 0;
+
 interface CoffeeStore {
   /** ID del departamento actualmente seleccionado (null = ninguno) */
   selectedDept: string | null;
@@ -75,6 +83,7 @@ export const useCoffeeStore = create<CoffeeStore>((set, get) => ({
 
   // ─── Cargar o filtrar cafés (Server-side) ────────────────────────
   fetchCoffees: async (deptId: string, search?: string, category?: string) => {
+    const seq = ++fetchSeq;
     set({ isLoading: true });
 
     // Se pide PAGE_SIZE+1 registros para detectar si existe una página siguiente
@@ -97,6 +106,9 @@ export const useCoffeeStore = create<CoffeeStore>((set, get) => ({
 
     const { data, error } = await query.order('created_at', { ascending: false });
 
+    // Respuesta obsoleta: otra búsqueda/carga más reciente ya tomó el control
+    if (seq !== fetchSeq) return;
+
     if (error) {
       console.error('[CoffeeStore] Error filtrando cafés:', error.message);
       set({ isLoading: false });
@@ -116,6 +128,7 @@ export const useCoffeeStore = create<CoffeeStore>((set, get) => ({
     const { selectedDept, coffees } = get();
     if (!selectedDept) return;
 
+    const seq = ++fetchSeq;
     set({ isLoading: true });
 
     let query = supabase
@@ -134,6 +147,10 @@ export const useCoffeeStore = create<CoffeeStore>((set, get) => ({
     }
 
     const { data, error } = await query.order('created_at', { ascending: false });
+
+    // Si entre la petición y la respuesta cambió la búsqueda o el departamento,
+    // descartar esta página (los datos que se iban a concatenar ya no aplican).
+    if (seq !== fetchSeq) return;
 
     if (error) {
       console.error('[CoffeeStore] Error cargando más cafés:', error.message);
