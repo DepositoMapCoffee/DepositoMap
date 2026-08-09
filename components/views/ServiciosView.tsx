@@ -6,6 +6,7 @@ import {
   Quote, Sparkles,
 } from 'lucide-react';
 import type { ReservationPackageId } from '@/types';
+import { PAQUETES, PAQUETES_MARKETING } from '@/data/paquetes';
 
 /* ─────────────────────────────────────────
    Tipos
@@ -15,33 +16,7 @@ interface ServiciosViewProps {
 }
 
 /* ─────────────────────────────────────────
-   Constantes — paquetes
-────────────────────────────────────────── */
-const PAQUETES = [
-  {
-    id: 'testing_1',
-    nombre: 'Coffee Tasting El Depósito',
-    precio: '$45.000',
-    duracion: '30 min',
-    cafes: '3 cafés de especialidad',
-    imagen: '/Tasting1.webp',
-    descripcion:
-      'Una experiencia esencial para quienes quieren descubrir el café de especialidad. Aprende sobre generalidades del café, las características de la caficultura colombiana y la preparación de cafés filtrados mientras degustas tres cafés excepcionales.',
-  },
-  {
-    id: 'testing_2',
-    nombre: 'Coffee Tasting El Depósito Completo',
-    precio: '$120.000',
-    duracion: '60 min',
-    cafes: '5 cafés de especialidad',
-    imagen: '/Tasting2.webp',
-    descripcion:
-      'La experiencia más profunda. Perfecta para quienes ya conocen el café especial y quieren ir más allá: origen, procesos de producción, panorama de mercado y una cata de cinco cafés que incluye fermentados con beneficios experimentales y premiados internacionalmente.',
-  },
-] as const;
- 
- /* ─────────────────────────────────────────
-    Constantes — equipo
+   Constantes — equipo
 ────────────────────────────────────────── */
 const EQUIPO = [
   {
@@ -171,7 +146,9 @@ export default function ServiciosView({ onSelectPackage }: ServiciosViewProps) {
 
           {/* Cards */}
           <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-            {PAQUETES.map((pkg) => (
+            {PAQUETES.map((pkg) => {
+              const mkt = PAQUETES_MARKETING[pkg.id];
+              return (
               <div
                 key={pkg.id}
                 className="group rounded-2xl overflow-hidden
@@ -182,7 +159,7 @@ export default function ServiciosView({ onSelectPackage }: ServiciosViewProps) {
                 <div className="relative h-52 md:h-60 overflow-hidden">
                   <div
                     className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                    style={{ backgroundImage: `url(${pkg.imagen})` }}
+                    style={{ backgroundImage: `url(${mkt.imagen})` }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-surface-low/90 via-transparent to-transparent" />
                   {/* Badge precio */}
@@ -190,7 +167,7 @@ export default function ServiciosView({ onSelectPackage }: ServiciosViewProps) {
                     bg-brand-accent/15 backdrop-blur-md ring-1 ring-brand-accent/25"
                   >
                     <span className="font-sans font-bold text-sm text-brand-accent">
-                      {pkg.precio}
+                      {'$' + pkg.precio.toLocaleString('es-CO')}
                     </span>
                     <span className="text-[9px] text-brand-accent/60 ml-1 font-sans">
                       / persona
@@ -204,18 +181,18 @@ export default function ServiciosView({ onSelectPackage }: ServiciosViewProps) {
                     {pkg.nombre}
                   </h3>
                   <p className="text-on-surface-soft/60 text-sm leading-relaxed font-sans">
-                    {pkg.descripcion}
+                    {mkt.descripcionLarga}
                   </p>
 
                   {/* Detalles */}
                   <div className="flex flex-wrap gap-3 text-[11px] text-on-surface-soft/50 font-sans">
                     <span className="flex items-center gap-1.5">
                       <Clock3 className="w-3.5 h-3.5" />
-                      {pkg.duracion}
+                      {pkg.duracion} min
                     </span>
                     <span className="flex items-center gap-1.5">
                       <Coffee className="w-3.5 h-3.5" />
-                      {pkg.cafes}
+                      {mkt.cafesCorto}
                     </span>
                     <span className="flex items-center gap-1.5">
                       <Globe className="w-3.5 h-3.5" />
@@ -236,7 +213,8 @@ export default function ServiciosView({ onSelectPackage }: ServiciosViewProps) {
                   </button>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 

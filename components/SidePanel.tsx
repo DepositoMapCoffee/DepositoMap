@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2, Search, Filter } from 'lucide-react';
 import { useCoffeeStore } from '@/store/coffeeStore';
-import { departamentos } from '@/data/mapaData';
+import { departamentos, isCoffeeRegion } from '@/data/mapaData';
 import { getPanelVariants, staggerContainerVariants } from '@/lib/animations';
 import CoffeeCard from './CoffeeCard';
 
@@ -27,17 +27,6 @@ export default function SidePanel() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
-
-  const REGIONES_CAFETERAS = [
-    'Antioquia', 'Caldas', 'Risaralda', 'Quindío', 'Tolima', 'Huila', 'Cauca',
-    'Nariño', 'Valle Del Cauca', 'Santander', 'Norte De Santander', 'Boyacá',
-    'Cundinamarca', 'Magdalena', 'Cesar', 'La Guajira', 'Caquetá', 'Putumayo',
-    'Meta', 'Casanare', 'Arauca', 'Guaviare'
-  ];
-
-  const isCoffeeRegion = (nombre: string) => {
-    return REGIONES_CAFETERAS.some(r => r.toLowerCase() === nombre.toLowerCase());
-  };
 
   const deptData = useMemo(() =>
     departamentos.find(d => d.id === selectedDept),

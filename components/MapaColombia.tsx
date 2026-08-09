@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin } from 'lucide-react';
 import { useCoffeeStore } from '@/store/coffeeStore';
 import { getPathAnimation } from '@/lib/animations';
-import { departamentos } from '@/data/mapaData';
+import { departamentos, isCoffeeRegion } from '@/data/mapaData';
 
 /** Colores únicos por departamento — espectro completo 0–360° */
 function getHashColor(str: string): string {
@@ -84,20 +84,6 @@ export default function MapaColombia() {
   const [viewBox, setViewBox] = React.useState<string>("260 270 600 760");
 
   const [hoveredCenter, setHoveredCenter] = React.useState<{ x: number, y: number } | null>(null);
-
-  /** 
-   * Lista de departamentos que son considerados regiones cafeteras.
-   */
-  const REGIONES_CAFETERAS = React.useMemo(() => [
-    'Antioquia', 'Caldas', 'Risaralda', 'Quindío', 'Tolima', 'Huila', 'Cauca',
-    'Nariño', 'Valle Del Cauca', 'Santander', 'Norte De Santander', 'Boyacá',
-    'Cundinamarca', 'Magdalena', 'Cesar', 'La Guajira', 'Caquetá', 'Putumayo',
-    'Meta', 'Casanare', 'Arauca', 'Guaviare'
-  ], []);
-
-  const isCoffeeRegion = React.useCallback((nombre: string) => {
-    return REGIONES_CAFETERAS.some(r => r.toLowerCase() === nombre.toLowerCase());
-  }, [REGIONES_CAFETERAS]);
 
   /* Auto-calcula el viewBox exacto respondiendo al tamaño de pantalla */
   React.useEffect(() => {

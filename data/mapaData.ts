@@ -1,5 +1,21 @@
 import { Departamento } from '../types';
 
+/**
+ * Regiones de Colombia consideradas cafeteras.
+ * Fuente única: compartida entre SidePanel y MapaColombia (antes duplicada).
+ */
+export const REGIONES_CAFETERAS = [
+  'Antioquia', 'Caldas', 'Risaralda', 'Quindío', 'Tolima', 'Huila', 'Cauca',
+  'Nariño', 'Valle Del Cauca', 'Santander', 'Norte De Santander', 'Boyacá',
+  'Cundinamarca', 'Magdalena', 'Cesar', 'La Guajira', 'Caquetá', 'Putumayo',
+  'Meta', 'Casanare', 'Arauca', 'Guaviare'
+] as const;
+
+/** Comprueba si un departamento pertenece al eje cafetero (case-insensitive). */
+export function isCoffeeRegion(nombre: string): boolean {
+  return REGIONES_CAFETERAS.some(r => r.toLowerCase() === nombre.toLowerCase());
+}
+
 export const departamentos: Departamento[] = [
   {
     id: "CO-NAR",

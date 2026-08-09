@@ -6,6 +6,7 @@ import { X, Check, ChevronRight, ChevronLeft, Loader2, Clock, User, Mail, Phone,
 import { supabase } from '@/lib/supabase';
 import { useToastStore } from '@/store/toastStore';
 import { getPanelVariants } from '@/lib/animations';
+import { PAQUETES } from '@/data/paquetes';
 import type { ReservationPackageId, TimeSlot, ReservationFormData, AvailabilityInfo } from '@/types';
 
 /* ─────────────────────────────────────────
@@ -21,31 +22,6 @@ interface ReservaSidePanelProps {
    Constantes
 ────────────────────────────────────────── */
 const CUPO_MAXIMO_POR_HORARIO = 4;
-
-const PAQUETES = [
-  {
-    id: 'testing_1' as ReservationPackageId,
-    nombre: 'Coffee Tasting El Depósito',
-    precio: 45000,
-    duracion: 30,
-    tematica: 'Generalidades del café, Características de la caficultura colombiana, Explicación de preparación cafés filtrados.',
-    cafes: '3 cafés (Tradicionales y fermentados con beneficios experimentales, incluyendo cafés premiados a nivel internacional).',
-    idiomas: 'Español - Inglés - Portugués',
-    ubicacion: 'El Depósito tienda de café (Calle Curato # 38 - 48 local 3, Barrio San Diego)',
-    descripcion: 'Experiencia esencial de café de especialidad.',
-  },
-  {
-    id: 'testing_2' as ReservationPackageId,
-    nombre: 'Coffee Tasting El Depósito Completo',
-    precio: 120000,
-    duracion: 60,
-    tematica: 'Generalidades del café, Caficultura colombiana, Explicación preparaciones café filtrado, Origen del café, Panorama de mercado, Profundización en procesos de producción.',
-    cafes: '5 cafés (tradicionales y fermentados con beneficios experimentales, incluyendo cafés premiados a nivel internacional).',
-    idiomas: 'Español - Inglés - Portugués',
-    ubicacion: 'El Depósito tienda de café (Calle Curato # 38 - 48 local 3, Barrio San Diego)',
-    descripcion: 'Experiencia completa y profunda de café de especialidad.',
-  },
-] as const;
 
 const TIME_SLOTS: { id: TimeSlot; label: string }[] = [
   { id: '10-11', label: '10:00 — 11:00 h' },
