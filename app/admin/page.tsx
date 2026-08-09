@@ -51,6 +51,10 @@ export default function AdminPage() {
   const [formData, setFormData] = useState<CoffeeFormData>(INITIAL_FORM_STATE);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  // Confirmación de eliminación en dos pasos (reemplaza window.confirm)
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+
+  const addToast = useToastStore(s => s.addToast);
 
   // 1. Check Auth 
   useEffect(() => {
@@ -179,15 +183,26 @@ export default function AdminPage() {
   const isChocolate = formData.tipo_producto === 'chocolate';
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('¿Seguro que deseas eliminar este producto?')) return;
-    
+    // Confirmación en dos pasos: primer clic arma la confirmación, segundo la ejecuta
+    if (pendingDeleteId !== id) {
+      setPendingDeleteId(id);
+      addToast('Haz clic de nuevo en el botón rojo para confirmar la eliminación.', 'info');
+      setTimeout(() => {
+        setPendingDeleteId(prev => (prev === id ? null : prev));
+      }, 3000);
+      return;
+    }
+
+    setPendingDeleteId(null);
     try {
       const { error } = await supabase.from('cafes').delete().eq('id', id);
       if (error) throw error;
       await fetchCoffees();
       loadActiveDepts(); // Actualizamos el mapa
+      addToast('Producto eliminado correctamente.', 'success');
     } catch (err: any) {
-      alert(`Error al eliminar: ${err.message}`);
+      console.error('Error al eliminar:', err);
+      addToast(`Error al eliminar: ${err.message}`, 'error');
     }
   };
 
@@ -222,6 +237,7 @@ export default function AdminPage() {
       setIsModalOpen(false);
       await fetchCoffees();
       loadActiveDepts(); // Actualizar store para el mapa
+      addToast(editingId ? 'Producto actualizado correctamente.' : 'Producto creado correctamente.', 'success');
     } catch (err: any) {
       setFormError(err.message);
     } finally {
@@ -418,8 +434,12 @@ export default function AdminPage() {
                                 </button>
                                 <button
                                   onClick={() => handleDelete(coffee.id)}
-                                  className="p-2 text-red-400 hover:bg-red-950/50 rounded-lg transition-colors cursor-pointer"
-                                  title="Eliminar"
+                                  className={`p-2 rounded-lg transition-colors cursor-pointer ${
+                                    pendingDeleteId === coffee.id
+                                      ? 'bg-red-500 text-white shadow-lg shadow-red-500/30'
+                                      : 'text-red-400 hover:bg-red-950/50'
+                                  }`}
+                                  title={pendingDeleteId === coffee.id ? 'Confirmar eliminación' : 'Eliminar'}
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
