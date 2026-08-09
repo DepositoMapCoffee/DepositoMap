@@ -240,7 +240,7 @@ export default function HomePage() {
           lg:ml-[68px]
           ${selectedDept && activeTab === 'map' ? 'lg:mr-[480px]' : ''}
         `}>
-          {activeTab === 'home'        && <HomeView onMapClick={() => handleNav('map')} onUserClick={() => handleNav('user')} />}
+          {activeTab === 'home'        && <HomeView onMapClick={() => handleNav('map')} onUserClick={() => handleNav('user')} onReservationsClick={() => handleSelectPackage('testing_1')} />}
           {activeTab === 'map'         && <MapaColombia />}
           {activeTab === 'servicios'   && <ServiciosView onSelectPackage={handleSelectPackage} />}
           {activeTab === 'user'        && <UserView />}
