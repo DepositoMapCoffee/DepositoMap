@@ -13,7 +13,9 @@ export default function SidePanel() {
   const clearSelection = useCoffeeStore(s => s.clearSelection);
   const coffees = useCoffeeStore(s => s.coffees);
   const isLoading = useCoffeeStore(s => s.isLoading);
+  const hasMore = useCoffeeStore(s => s.hasMore);
   const fetchCoffees = useCoffeeStore(s => s.fetchCoffees);
+  const loadMore = useCoffeeStore(s => s.loadMore);
 
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -244,6 +246,23 @@ export default function SidePanel() {
                             <CoffeeCard key={coffee.id} coffee={coffee} />
                           ))}
                         </div>
+                      </div>
+                    )}
+
+                    {/* ── Cargar más (paginación) ── */}
+                    {hasMore && !isLoading && (
+                      <div className="flex justify-center pt-4">
+                        <button
+                          type="button"
+                          onClick={() => loadMore(searchTerm, categoryFilter)}
+                          className="px-6 py-2.5 rounded-xl text-xs uppercase tracking-[0.2em] font-sans font-semibold
+                            bg-surface-highest/60 hover:bg-surface-bright
+                            border border-outline-soft/25 hover:border-brand-accent/40
+                            text-on-surface-soft hover:text-brand-accent
+                            transition-all duration-300 cursor-pointer active:scale-95"
+                        >
+                          Cargar más cafés
+                        </button>
                       </div>
                     )}
                   </motion.div>

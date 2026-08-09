@@ -20,6 +20,9 @@ import type { Coffee } from '@/types';
 
 // ─── Tipos del store ──────────────────────────────────────────────
 
+/** Tamaño de página para el catálogo (se pide PAGE_SIZE+1 para detectar si hay más) */
+const PAGE_SIZE = 12;
+
 interface CoffeeStore {
   /** ID del departamento actualmente seleccionado (null = ninguno) */
   selectedDept: string | null;
@@ -33,6 +36,9 @@ interface CoffeeStore {
   /** true mientras se cargan cafés de un departamento */
   isLoading: boolean;
 
+  /** true si quedan más cafés por cargar (paginación) */
+  hasMore: boolean;
+
   // ─── Acciones ──────────────────────────────────────────────────
 
   /** Selecciona un departamento e inicia la carga inicial */
@@ -40,6 +46,9 @@ interface CoffeeStore {
 
   /** Carga o filtra los cafés con parámetros de búsqueda y categoría (Server-side) */
   fetchCoffees: (deptId: string, search?: string, category?: string) => Promise<void>;
+
+  /** Carga la siguiente página de cafés con los mismos filtros activos */
+  loadMore: (search?: string, category?: string) => Promise<void>;
 
   /** Deselecciona el departamento actual y limpia el panel */
   clearSelection: () => void;
@@ -56,6 +65,7 @@ export const useCoffeeStore = create<CoffeeStore>((set, get) => ({
   coffees: [],
   activeDepts: [],
   isLoading: false,
+  hasMore: false,
 
   // ─── Seleccionar departamento ────────────────────────────────────
   selectDept: async (id: string) => {
@@ -67,11 +77,13 @@ export const useCoffeeStore = create<CoffeeStore>((set, get) => ({
   fetchCoffees: async (deptId: string, search?: string, category?: string) => {
     set({ isLoading: true });
 
+    // Se pide PAGE_SIZE+1 registros para detectar si existe una página siguiente
     let query = supabase
       .from('cafes')
       .select('*')
       .eq('departamento_id', deptId)
-      .eq('visible', true);
+      .eq('visible', true)
+      .range(0, PAGE_SIZE);
 
     // Aplicar filtros en el servidor (Supabase)
     if (search) {
@@ -91,12 +103,55 @@ export const useCoffeeStore = create<CoffeeStore>((set, get) => ({
       return;
     }
 
-    set({ coffees: data as Coffee[], isLoading: false });
+    const rows = (data ?? []) as Coffee[];
+    set({
+      coffees: rows.slice(0, PAGE_SIZE),
+      hasMore: rows.length > PAGE_SIZE,
+      isLoading: false,
+    });
+  },
+
+  // ─── Cargar siguiente página (paginación) ───────────────────────
+  loadMore: async (search?: string, category?: string) => {
+    const { selectedDept, coffees } = get();
+    if (!selectedDept) return;
+
+    set({ isLoading: true });
+
+    let query = supabase
+      .from('cafes')
+      .select('*')
+      .eq('departamento_id', selectedDept)
+      .eq('visible', true)
+      .range(coffees.length, coffees.length + PAGE_SIZE);
+
+    if (search) {
+      query = query.or(`nombre.ilike.%${search}%,finca.ilike.%${search}%`);
+    }
+
+    if (category && category !== 'all') {
+      query = query.eq('categoria', category);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('[CoffeeStore] Error cargando más cafés:', error.message);
+      set({ isLoading: false });
+      return;
+    }
+
+    const rows = (data ?? []) as Coffee[];
+    set({
+      coffees: [...coffees, ...rows.slice(0, PAGE_SIZE)],
+      hasMore: rows.length > PAGE_SIZE,
+      isLoading: false,
+    });
   },
 
   // ─── Limpiar selección ──────────────────────────────────────────
   clearSelection: () => {
-    set({ selectedDept: null, coffees: [], isLoading: false });
+    set({ selectedDept: null, coffees: [], isLoading: false, hasMore: false });
   },
 
   // ─── Cargar departamentos activos ───────────────────────────────
