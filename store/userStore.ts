@@ -18,6 +18,13 @@ interface UserStore {
   toggleFavorite: (coffeeId: string) => Promise<{ success: boolean; requiresAuth?: boolean }>;
 }
 
+/**
+ * Suscripción activa a onAuthStateChange.
+ * Se guarda en el módulo para poder hacer unsubscribe: en desarrollo (HMR)
+ * el módulo puede re-ejecutarse y, sin esto, se acumularían listeners duplicados.
+ */
+let authSubscription: { unsubscribe: () => void } | null = null;
+
 export const useUserStore = create<UserStore>((set, get) => ({
   session: null,
   isAdmin: false,
@@ -48,8 +55,9 @@ export const useUserStore = create<UserStore>((set, get) => ({
       set({ session: null, isAdmin: false, isLoadingSession: false, favoriteIds: [], favoriteCoffees: [] });
     });
 
-    // Escuchar cambios
-    supabase.auth.onAuthStateChange(async (_event, session) => {
+    // Escuchar cambios (una sola suscripción activa a la vez)
+    authSubscription?.unsubscribe();
+    authSubscription = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user?.email) {
         const { data } = await supabase.from('admins').select('*').eq('email', session.user.email);
         set({ session, isAdmin: (data?.length ?? 0) > 0 });
@@ -57,7 +65,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
       } else {
         set({ session: null, isAdmin: false, favoriteIds: [], favoriteCoffees: [] });
       }
-    });
+    }).data.subscription;
   },
 
   loadFavorites: async (userId: string) => {
