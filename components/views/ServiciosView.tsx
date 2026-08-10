@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import {
   ChevronDown, Clock3, Coffee, Globe, ArrowRight,
   Quote, Sparkles,
@@ -60,10 +61,14 @@ export default function ServiciosView({ onSelectPackage }: ServiciosViewProps) {
             SECCIÓN 1 — HERO DE SERVICIOS
         ══════════════════════════════════════════ */}
         <section className="relative min-h-[70dvh] flex flex-col items-center justify-center px-6 py-20 overflow-hidden">
-          {/* Background image */}
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: 'url(/Tasting1.webp)' }}
+          {/* Background image — next/image: lazy + formato optimizado */}
+          <Image
+            src="/Tasting1.webp"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="absolute inset-0 object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-brand-black/80 via-brand-black/60 to-brand-black/90" />
 
@@ -155,11 +160,14 @@ export default function ServiciosView({ onSelectPackage }: ServiciosViewProps) {
                   border border-outline-soft/20 bg-surface-low/40
                   hover:border-brand-accent/30 transition-all duration-500"
               >
-                {/* Imagen */}
+                {/* Imagen — next/image: lazy + formato optimizado */}
                 <div className="relative h-52 md:h-60 overflow-hidden">
-                  <div
-                    className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-                    style={{ backgroundImage: `url(${mkt.imagen})` }}
+                  <Image
+                    src={mkt.imagen}
+                    alt={pkg.nombre}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="absolute inset-0 object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-surface-low/90 via-transparent to-transparent" />
                   {/* Badge precio */}

@@ -302,8 +302,8 @@ export default function ReservaSidePanel({
         lg:cursor-default touch-pan-y"
       style={{
         background: 'rgba(19, 19, 19, 0.92)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
         touchAction: 'pan-y',
         paddingTop: 'env(safe-area-inset-top, 0px)',
       }}
