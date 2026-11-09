@@ -1,7 +1,26 @@
 # PENDIENTES — El Depósito (DepositoMap)
 
-> Última actualización: 2026-08-09
-> Estado: `main` sincronizado con `origin/main` (17 commits, working tree limpio).
+> Última actualización: 2026-11-09
+> Estado: reestructuración modular en curso en la rama `v2`. `main` sigue siendo el sitio en producción.
+
+---
+
+## 🧱 Reestructuración v2 (rama `v2`)
+
+Arquitectura: una sola app Next.js organizada en **módulos independientes** (piezas Lego),
+server actions en lugar de API, Supabase + Vercel ahora y VPS + Docker después.
+Reglas y anatomía de un módulo: `src/modules/README.md`.
+
+| Fase | Contenido | Estado |
+|---|---|---|
+| 1 | Base: `src/` modular, design system (`src/shared/ui`), env con Zod, Drizzle, adaptador de auth, bus de eventos, lint de fronteras, Vitest, Dockerfile + compose | ✅ Hecha (sin commitear) |
+| 2 | Motor de reservas Coffee Tasting: experiencias, horarios, bloqueos, flujo `/reservar`, agenda admin, reservas manuales con canal | ⏳ Siguiente |
+| 3 | Notificaciones por correo (confirmación, recordatorio, cancelación) | Pendiente |
+| 4 | Catálogo + mapa migrados desde `src/legacy` con SSR | Pendiente |
+| 5 | Cambio del sitio a v2; luego VPS, WhatsApp, chatbot | Pendiente |
+
+**Necesario antes de la fase 2:** `.env.local` está vacío. Completar según `.env.example`
+(incluye `DATABASE_URL` del *Transaction pooler* de Supabase).
 
 ---
 
@@ -32,6 +51,7 @@
 | 3 | Login admin + **panel de Reservas** (usa Realtime/websocket) | `/admin` | `connect-src` cubre `wss://*.supabase.co`; verificar que las notificaciones de nuevas reservas funcionan |
 | 4 | Login/registro de usuario y favoritos | Vista Usuario | `connect-src` y `img-src` |
 | 5 | Reserva de Coffee Testing (RPCs) | `ReservaSidePanel` | Consulta y reserva de cupos |
+| 6 | **Aplicar migración `20261109_reservas_sin_insert_directo.sql`** | Supabase → SQL Editor | Cierra el INSERT directo a `reservations` (política `WITH CHECK (true)` que permitía saltarse `reservar_cupo`). Después: probar una reserva desde la web y que el admin siga viendo/actualizando reservas |
 
 > Si algo falla por CSP: ajustar directivas en `next.config.ts` (`buildSecurityHeaders`) y volver a probar.
 
