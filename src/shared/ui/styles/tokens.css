@@ -1,0 +1,92 @@
+/* ═══════════════════════════════════════════════════════════════════
+   El Depósito — Design tokens (fuente única de estilo)
+   ───────────────────────────────────────────────────────────────────
+   Paleta oficial: Preto (canvas), Verde (acento), Marrom (cálido),
+   Branco (texto). Cambiar un color aquí lo cambia en TODA la app.
+
+   Capas:
+     1. Primitivos de marca  → --color-verde, --color-marrom, …
+     2. Semánticos           → --color-primary, --color-danger, …
+        (los componentes nuevos SOLO usan semánticos)
+     3. Aliases legacy       → --color-brand-* (se eliminan cuando
+        termine la migración de src/legacy)
+   ═══════════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* ── Tipografías (variables inyectadas por next/font) ── */
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-newsreader);
+
+  /* ── 1. Primitivos de marca ───────────────────────────────────── */
+
+  /* Canvas oscuro (Preto) */
+  --color-surface-lowest:    #050505;
+  --color-surface-dim:       #0A0A0A;
+  --color-surface-low:       #111111;
+  --color-surface:           #0A0A0A;
+  --color-surface-container: #161616;
+  --color-surface-high:      #1E1E1E;
+  --color-surface-highest:   #2A2A2A;
+  --color-surface-bright:    #333333;
+
+  /* Verde — acento principal */
+  --color-verde:             #2fa36b;
+  --color-verde-bright:      #3dbd7f;
+  --color-verde-dim:         #267a52;
+  --color-verde-soft:        rgba(47, 163, 107, 0.15);
+
+  /* Marrom Apagado — acento cálido / secundario */
+  --color-marrom:            #955a23;
+  --color-marrom-bright:     #b06d2e;
+  --color-marrom-dim:        #6e421a;
+  --color-marrom-soft:       rgba(149, 90, 35, 0.15);
+
+  /* Texto (Branco) */
+  --color-on-surface:        #F5F5F5;
+  --color-on-surface-soft:   #C8C0B4;
+  --color-on-surface-muted:  #8a847b;
+
+  /* Contornos */
+  --color-outline:           #5a5a5a;
+  --color-outline-soft:      #2e2e2e;
+
+  /* ── 2. Semánticos (usar estos en código nuevo) ───────────────── */
+  --color-primary:           var(--color-verde);
+  --color-primary-hover:     var(--color-verde-bright);
+  --color-primary-soft:      var(--color-verde-soft);
+  --color-on-primary:        #04140c;
+
+  --color-accent:            var(--color-marrom);
+  --color-accent-hover:      var(--color-marrom-bright);
+  --color-accent-soft:       var(--color-marrom-soft);
+
+  --color-success:           #2fa36b;
+  --color-warning:           #d9a441;
+  --color-danger:            #d9534f;
+  --color-danger-soft:       rgba(217, 83, 79, 0.14);
+
+  --color-focus:             var(--color-verde-bright);
+
+  /* ── Radios, sombras, movimiento ── */
+  --radius-sm:   0.5rem;
+  --radius-md:   0.75rem;
+  --radius-lg:   1rem;
+  --radius-xl:   1.5rem;
+
+  --shadow-card:  0 1px 0 0 rgba(255, 255, 255, 0.03) inset, 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+  --shadow-glow:  0 0 0 1px rgba(47, 163, 107, 0.35), 0 8px 28px -8px rgba(47, 163, 107, 0.35);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ── 3. Aliases legacy (no usar en código nuevo) ──────────────── */
+  --color-brand-black:       #0A0A0A;
+  --color-brand-white:       #F5F5F5;
+  --color-brand-cream:       #C8C0B4;
+  --color-brand-gray:        #111111;
+  --color-brand-gray-light:  #1E1E1E;
+  --color-brand-accent:      #2fa36b;
+  --color-brand-gold:        #955a23;
+  --color-gold-primary:      #955a23;
+  --color-gold-container:    #6e421a;
+  --color-gold-dim:          #955a23;
+}
