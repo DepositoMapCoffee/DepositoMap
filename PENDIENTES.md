@@ -14,13 +14,19 @@ Reglas y anatomía de un módulo: `src/modules/README.md`.
 | Fase | Contenido | Estado |
 |---|---|---|
 | 1 | Base: `src/` modular, design system (`src/shared/ui`), env con Zod, Drizzle, adaptador de auth, bus de eventos, lint de fronteras, Vitest, Dockerfile + compose | ✅ Hecha (sin commitear) |
-| 2 | Motor de reservas Coffee Tasting: experiencias, horarios, bloqueos, flujo `/reservar`, agenda admin, reservas manuales con canal | ⏳ Siguiente |
+| 2a | Motor de reservas (público): tablas `tasting_*` + migraciones Drizzle, dominio con 30 tests (disponibilidad, festivos CO, cancelación), reserva atómica, `/reservar` y `/reserva/[codigo]` | ✅ Hecha (sin commitear, sin probar contra BD) |
+| 2b | Panel admin de reservas: agenda, cambiar estados, reservas manuales con canal, editar experiencias/horarios/bloqueos/ajustes | ⏳ Siguiente |
 | 3 | Notificaciones por correo (confirmación, recordatorio, cancelación) | Pendiente |
 | 4 | Catálogo + mapa migrados desde `src/legacy` con SSR | Pendiente |
 | 5 | Cambio del sitio a v2; luego VPS, WhatsApp, chatbot | Pendiente |
 
-**Necesario antes de la fase 2:** `.env.local` está vacío. Completar según `.env.example`
-(incluye `DATABASE_URL` del *Transaction pooler* de Supabase).
+**Para probar la fase 2a:**
+1. Agregar `DATABASE_URL` a `.env.local` y a Vercel (Supabase → Connect → *Transaction pooler*).
+2. Aplicar migraciones: `npm run db:migrate` (crea solo tablas nuevas `tasting_*`, no toca `reservations`).
+3. Probar `/reservar` completo: reservar, ver `/reserva/<codigo>?t=…`, cancelar.
+
+Notas: la regla de "mismo día" ahora es 2 h de anticipación mínima (antes: nada después de mediodía);
+se ajusta en `tasting_ajustes`. Correos de confirmación: fase 3.
 
 ---
 
