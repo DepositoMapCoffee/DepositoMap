@@ -4,7 +4,7 @@
  * Portabilidad: funciona igual contra Supabase (hoy) y contra el Postgres
  * del VPS (mañana); solo cambia DATABASE_URL.
  *
- * - `prepare: false`: requerido por el pooler de Supabase en modo
+ * - `prepare: false` y `max_pipeline: 1`: requeridos por el pooler de Supabase en modo
  *   transacción (puerto 6543) y por PgBouncer; inocuo en conexión directa.
  * - Se cachea en globalThis para no abrir conexiones nuevas en cada HMR.
  *
@@ -24,7 +24,12 @@ export function db(): DB {
   if (!globalForDb.__deposito_db) {
     const client = postgres(serverEnv().DATABASE_URL, {
       prepare: false,
-      max: process.env.NODE_ENV === 'production' ? 10 : 3,
+      // Una consulta a la vez por conexión: el pooler de Supabase (Supavisor,
+      // modo transacción) se cuelga con consultas encoladas (pipelining) en la
+      // misma conexión. Comprobado: 5 consultas con max=3 → timeout; con 1 → OK.
+      max_pipeline: 1,
+      max: process.env.NODE_ENV === 'production' ? 10 : 5,
+      connect_timeout: 10,
     });
     globalForDb.__deposito_db = drizzle(client);
   }
