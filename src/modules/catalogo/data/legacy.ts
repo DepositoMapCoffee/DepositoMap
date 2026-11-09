@@ -1,5 +1,8 @@
 /**
  * Tablas propiedad del módulo `catalogo`.
+ * Tablas EXISTENTES (creadas con las migraciones SQL de /supabase).
+ * NO las gestiona drizzle-kit (este archivo no está en drizzle.config.ts);
+ * se declaran solo para poder consultarlas con tipos.
  * Refleja el esquema ACTUAL en Supabase (migraciones en /supabase).
  */
 import { pgTable, uuid, text, boolean, timestamp, primaryKey } from 'drizzle-orm/pg-core';
