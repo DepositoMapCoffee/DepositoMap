@@ -11,3 +11,5 @@ export { Badge, type BadgeTone } from './components/Badge';
 export { Spinner } from './components/Spinner';
 export { Container } from './components/Container';
 export { TextField, TextAreaField, SelectField } from './components/Field';
+export { EncabezadoSitio } from './layout/EncabezadoSitio';
+export { PieSitio } from './layout/PieSitio';

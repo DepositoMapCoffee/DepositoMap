@@ -78,6 +78,19 @@
 
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 
+  /* Entrada suave de secciones (utilidad: animate-entrar). Solo CSS, sin JS. */
+  --animate-entrar: entrar 0.5s var(--ease-out-soft) both;
+  --animate-aparecer: aparecer 0.35s ease-out both;
+
+  @keyframes entrar {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes aparecer {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
   /* ── 3. Aliases legacy (no usar en código nuevo) ──────────────── */
   --color-brand-black:       #0A0A0A;
   --color-brand-white:       #F5F5F5;

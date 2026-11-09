@@ -3,7 +3,9 @@
  * Otros módulos (notificaciones, chatbot…) se suscriben sin que este
  * módulo sepa de ellos.
  */
-export type CanalReserva = 'web' | 'whatsapp' | 'telefono' | 'presencial' | 'bot';
+import type { Canal } from './domain/tipos';
+
+export type CanalReserva = Canal;
 
 declare module '@/shared/events' {
   interface EventMap {
