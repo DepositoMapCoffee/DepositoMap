@@ -32,7 +32,7 @@ datos iniciales, correo opcional y `recordatorio_enviado_en`). Para nuevas migra
    - [ ] La política promete conservar reservas 24 meses: falta la limpieza automática de reservas antiguas.
    - [ ] Solicitudes de supresión: hoy se atienden a mano (no hay botón de eliminar datos en el panel).
    - [ ] El registro de usuarios (legacy) pide aceptar la política pero no guarda la prueba (se resuelve en la fase 4).
-3. [ ] Variables en Vercel: `DATABASE_URL` (sin corchetes), `RESERVAS_SECRETO` (mismo valor que `.env.local`), `CRON_SECRET`, `NEXT_PUBLIC_SITE_URL` (URL real; hoy localhost).
+3. [x] Variables en Vercel (cargadas el 2026-11-10; avisos y respuestas a interactivemapdeposito@gmail.com): `DATABASE_URL` (sin corchetes), `RESERVAS_SECRETO` (mismo valor que `.env.local`), `CRON_SECRET`, `NEXT_PUBLIC_SITE_URL` (URL real; hoy localhost).
 4. [ ] Deploy de vista previa de `v2` en Vercel y probar: CSP, sesión del panel, cron, fuentes.
 5. [ ] Probar en el panel: reserva manual, cierres, editar horarios/reglas/experiencias, asistió/no asistió.
 6. [ ] Correos: comprar dominio → Resend (gratis: ~3.000/mes, 100/día) → `EMAIL_PROVEEDOR=resend`, `RESEND_API_KEY`, `EMAIL_REMITENTE`, `EMAIL_AVISOS_NEGOCIO`. (Decidir si se publica sin correos.)
