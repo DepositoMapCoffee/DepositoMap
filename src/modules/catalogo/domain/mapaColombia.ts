@@ -1,8 +1,19 @@
-import { Departamento } from '../types';
+/**
+ * Geometría del mapa de Colombia (viewBox 0 0 1000 1000) y descripción
+ * de cada departamento. Movido desde el sitio anterior (src/legacy).
+ */
+export interface Departamento {
+  /** Código ISO 3166-2 (p. ej. 'CO-ANT'). */
+  id: string;
+  nombre: string;
+  descripcion?: string;
+  /** Contorno SVG del departamento. */
+  path: string;
+  color?: string;
+}
 
 /**
  * Regiones de Colombia consideradas cafeteras.
- * Fuente única: compartida entre SidePanel y MapaColombia (antes duplicada).
  */
 export const REGIONES_CAFETERAS = [
   'Antioquia', 'Caldas', 'Risaralda', 'Quindío', 'Tolima', 'Huila', 'Cauca',

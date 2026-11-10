@@ -21,14 +21,12 @@
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.103.0",
     "drizzle-orm": "^0.45.4",
-    "framer-motion": "^12.35.2",
     "lucide-react": "^0.577.0",
     "next": "^16.1.6",
     "postgres": "^4.1.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "zod": "^4.6.7",
-    "zustand": "^5.0.11"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

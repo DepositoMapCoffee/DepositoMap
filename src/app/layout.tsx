@@ -1,12 +1,11 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
-import { MotionConfig } from 'framer-motion';
-import ToastContainer from '@/legacy/components/ui/ToastContainer';
 import { fontVariables } from '@/shared/ui/fonts';
 
 export const metadata: Metadata = {
-  title: 'El Depósito | Specialty Coffee',
-  description: 'Mapa interactivo de los mejores cafés de especialidad de Colombia.',
+  title: 'El Depósito | Café de especialidad en Cartagena',
+  description:
+    'Cuatro generaciones conectando cafés extraordinarios de Colombia con quienes los valoran. Coffee Tasting en el Barrio San Diego y mapa de orígenes.',
 };
 
 /**
@@ -29,12 +28,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" dir="ltr" className={fontVariables}>
-      <body className="antialiased font-sans bg-brand-black text-brand-white">
-        {/* reducedMotion="user": respeta prefers-reduced-motion del sistema */}
-        <MotionConfig reducedMotion="user">
-          {children}
-          <ToastContainer />
-        </MotionConfig>
+      <body className="antialiased font-sans bg-surface text-on-surface">
+        {children}
       </body>
     </html>
   );

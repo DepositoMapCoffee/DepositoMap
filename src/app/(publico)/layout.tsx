@@ -1,8 +1,7 @@
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { EncabezadoSitio, PieSitio } from '@/shared/ui';
+import { PieSitio } from '@/shared/ui';
+import { EncabezadoPrincipal } from '@/modules/sitio';
 
-/** Marco de las páginas públicas nuevas (v2): reservas, política de datos… */
+/** Marco de las páginas públicas internas: reservas, mapa, cuenta, política… */
 export default function LayoutPublico({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-dvh flex flex-col bg-surface text-on-surface relative">
@@ -15,14 +14,8 @@ export default function LayoutPublico({ children }: { children: React.ReactNode 
             'radial-gradient(60% 50% at 15% 0%, rgba(149,90,35,0.18) 0%, transparent 70%), radial-gradient(45% 40% at 90% 10%, rgba(47,163,107,0.10) 0%, transparent 70%)',
         }}
       />
-      <EncabezadoSitio
-        accion={
-          <Link href="/" className="inline-flex items-center gap-1.5 text-sm text-on-surface-muted hover:text-on-surface transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Volver al sitio
-          </Link>
-        }
-      />
-      <main className="relative flex-1">{children}</main>
+      <EncabezadoPrincipal />
+      <main className="relative flex-1 pt-18">{children}</main>
       <PieSitio />
     </div>
   );

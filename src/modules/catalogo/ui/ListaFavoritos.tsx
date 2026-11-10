@@ -18,7 +18,7 @@ export function ListaFavoritos({ productos }: { productos: Producto[] }) {
         <Heart className="w-8 h-8 mx-auto text-on-surface-muted" />
         <p className="text-on-surface mt-4">Todavía no tienes cafés favoritos.</p>
         <p className="text-sm text-on-surface-muted mt-1">Explora el mapa y toca el corazón de los que quieras guardar.</p>
-        <Link href="/?seccion=map" className={buttonStyles('secondary', 'md', 'mt-6')}>
+        <Link href="/mapa" className={buttonStyles('secondary', 'md', 'mt-6')}>
           <MapPin className="w-4 h-4" /> Ir al mapa
         </Link>
       </div>

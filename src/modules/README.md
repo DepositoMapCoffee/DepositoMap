@@ -28,8 +28,6 @@ modules/<nombre>/
 4. **Comunicación por eventos**: si un módulo necesita que "pase algo" en
    otro (enviar correo al crear una reserva), publica un evento
    (`@/shared/events`) en vez de llamarlo directamente.
-5. **Nada nuevo importa de `src/legacy/`**: es el código antiguo y se va
-   eliminando a medida que cada módulo lo reemplaza.
 
 ## Crear un módulo nuevo
 
@@ -48,7 +46,9 @@ y borrar la carpeta. Si `npm run typecheck` pasa, nada más dependía de él.
 
 | Módulo | Responsabilidad | Estado |
 |---|---|---|
-| `reservas` | Motor de reservas de Coffee Tasting | Fase 2 |
-| `notificaciones` | Correo (luego WhatsApp, SMS) reaccionando a eventos | Fase 3 |
-| `catalogo` | Cafés, regiones y mapa | Fase 4 (hoy en legacy) |
-| `identidad` | Sesión y administradores (adaptador de auth) | Base lista |
+| `reservas` | Motor de reservas de Coffee Tasting y panel | Hecho (fases 2–3) |
+| `notificaciones` | Correos de reservas (luego WhatsApp) reaccionando a eventos | Hecho (fase 3) |
+| `catalogo` | Cafés, chocolates, mapa de orígenes y favoritos | Hecho (fase 4) |
+| `sitio` | Páginas públicas: inicio y encabezado | Hecho (fase 4C) |
+| `legal` | Política de tratamiento de datos | Hecho |
+| `identidad` | Ingreso único, cuentas y administradores | Hecho (fase 4A) |
