@@ -19,7 +19,7 @@ Reglas y anatomía de un módulo: `src/modules/README.md`.
 | 3 | Correos: recibida, confirmada, cancelada, recordatorio del día anterior (cron), aviso al equipo. Adaptador `consola`/`resend`, enlaces firmados (`RESERVAS_SECRETO`) | ✅ Hecha y probada en consola (DEP-5MZ7S). **Envío real en espera del dominio** |
 | 4A | Ingreso único `/ingresar` (clientes y admins, crear cuenta con consentimiento), `/cuenta` con favoritos y accesos al panel; sesión del mapa por server actions | ✅ Hecha (rama `fase-4`) |
 | 4B | Panel unificado: Catálogo (cafés y chocolates) en `/panel/catalogo`; `/admin` y logins viejos retirados (redirecciones) | ✅ Hecha (rama `fase-4`) |
-| 4C | Rediseño visual del sitio público: inicio, mapa, experiencias, cuenta (empieza por maqueta de la home para aprobar) | ⏳ Siguiente |
+| 4C | Rediseño del sitio público: nueva home (`/`, aprobada en maqueta) y mapa de orígenes (`/mapa`) con el design system; encabezado común; se retira la SPA anterior (`src/legacy`), `framer-motion` y `zustand` | ✅ Hecha |
 | 5 | Cambio del sitio a v2; luego VPS, WhatsApp, chatbot | Pendiente |
 
 **Estado de la base de datos:** migraciones Drizzle 0000–0003 aplicadas en Supabase (tablas `tasting_*`,
