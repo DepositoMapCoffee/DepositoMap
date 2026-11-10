@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { EncabezadoSitio, PieSitio } from '@/shared/ui';
 
-/** Marco de las páginas del motor de reservas (v2). */
-export default function LayoutReservas({ children }: { children: React.ReactNode }) {
+/** Marco de las páginas públicas nuevas (v2): reservas, política de datos… */
+export default function LayoutPublico({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-dvh flex flex-col bg-surface text-on-surface relative">
       {/* Halo de marca: puro CSS, sin imágenes ni JS. */}
