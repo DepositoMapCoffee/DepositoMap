@@ -16,6 +16,11 @@ import {
 } from './data/admin';
 import { adminOIngresar } from '@/modules/identidad';
 
+/** Experiencias visibles (para la home y cualquier vitrina pública). */
+export async function experienciasPublicas() {
+  return listarExperienciasActivas();
+}
+
 /** Datos iniciales del flujo /reservar. */
 export async function datosParaReservar() {
   const zona = serverEnv().BUSINESS_TIMEZONE;

@@ -6,15 +6,16 @@ import {
   ChevronDown, Clock3, Coffee, Globe, ArrowRight,
   Quote, Sparkles,
 } from 'lucide-react';
-import type { ReservationPackageId } from '@/legacy/types';
-import { PAQUETES, PAQUETES_MARKETING } from '@/legacy/data/paquetes';
+import type { ExperienciaTasting } from '@/legacy/types';
 
 /* ─────────────────────────────────────────
    Tipos
 ────────────────────────────────────────── */
 interface ServiciosViewProps {
-  /** Sin paquete = ir a /reservar para que el cliente elija. */
-  onSelectPackage?: (packageId?: ReservationPackageId) => void;
+  /** Experiencias activas del motor de reservas (precios y textos del panel). */
+  experiencias: ExperienciaTasting[];
+  /** Sin experiencia = ir a /reservar para que el cliente elija. */
+  onSelectPackage?: (experienciaId?: string) => void;
 }
 
 /* ─────────────────────────────────────────
@@ -45,7 +46,7 @@ const EQUIPO = [
    Componente principal — sin Framer Motion
    Animaciones CSS puras para evitar freeze
 ────────────────────────────────────────── */
-export default function ServiciosView({ onSelectPackage }: ServiciosViewProps) {
+export default function ServiciosView({ experiencias, onSelectPackage }: ServiciosViewProps) {
   const [heroVisible, setHeroVisible] = useState(false);
 
   useEffect(() => {
@@ -144,16 +145,15 @@ export default function ServiciosView({ onSelectPackage }: ServiciosViewProps) {
               Nuestros Coffee Tastings
             </h2>
             <p className="text-on-surface-soft/50 text-sm font-sans max-w-md mx-auto">
-              Dos formatos pensados para distintos niveles de conocimiento.
+              Experiencias pensadas para distintos niveles de conocimiento.
               Ambos guiados por expertos apasionados.
             </p>
             <div className="w-12 h-px bg-brand-accent/40 mx-auto mt-6" />
           </div>
 
           {/* Cards */}
-          <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-            {PAQUETES.map((pkg) => {
-              const mkt = PAQUETES_MARKETING[pkg.id];
+          <div className={`grid gap-6 md:gap-8 ${experiencias.length > 1 ? 'md:grid-cols-2' : 'max-w-xl mx-auto'}`}>
+            {experiencias.map((pkg) => {
               return (
               <div
                 key={pkg.id}
@@ -162,14 +162,14 @@ export default function ServiciosView({ onSelectPackage }: ServiciosViewProps) {
                   hover:border-brand-accent/30 transition-all duration-500"
               >
                 {/* Imagen — next/image: lazy + formato optimizado */}
-                <div className="relative h-52 md:h-60 overflow-hidden">
-                  <Image
-                    src={mkt.imagen}
+                <div className="relative h-52 md:h-60 overflow-hidden bg-surface-low">
+                  {pkg.imagen && <Image
+                    src={pkg.imagen}
                     alt={pkg.nombre}
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
                     className="absolute inset-0 object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+                  />}
                   <div className="absolute inset-0 bg-gradient-to-t from-surface-low/90 via-transparent to-transparent" />
                   {/* Badge precio */}
                   <div className="absolute top-4 right-4 px-4 py-2 rounded-xl
@@ -190,22 +190,22 @@ export default function ServiciosView({ onSelectPackage }: ServiciosViewProps) {
                     {pkg.nombre}
                   </h3>
                   <p className="text-on-surface-soft/60 text-sm leading-relaxed font-sans">
-                    {mkt.descripcionLarga}
+                    {pkg.descripcion}
                   </p>
 
                   {/* Detalles */}
                   <div className="flex flex-wrap gap-3 text-[11px] text-on-surface-soft/50 font-sans">
                     <span className="flex items-center gap-1.5">
                       <Clock3 className="w-3.5 h-3.5" />
-                      {pkg.duracion} min
+                      {pkg.duracionMin} min
                     </span>
                     <span className="flex items-center gap-1.5">
                       <Coffee className="w-3.5 h-3.5" />
-                      {mkt.cafesCorto}
+                      {pkg.cafes.split('(')[0].trim()}
                     </span>
                     <span className="flex items-center gap-1.5">
                       <Globe className="w-3.5 h-3.5" />
-                      Español · English · Português
+                      {pkg.idiomas.join(' · ')}
                     </span>
                   </div>
 

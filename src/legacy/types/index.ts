@@ -162,3 +162,19 @@ export interface Departamento {
   /** Color opcional para el departamento en el mapa */
   color?: string;
 }
+
+/**
+ * Experiencia de Coffee Tasting tal como la entrega el motor de reservas
+ * (tabla tasting_experiencias). La home legacy la recibe ya cargada desde
+ * el servidor; editarla en el panel actualiza precios y textos aquí.
+ */
+export interface ExperienciaTasting {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  imagen: string | null;
+  cafes: string;
+  idiomas: string[];
+  precio: number;
+  duracionMin: number;
+}
