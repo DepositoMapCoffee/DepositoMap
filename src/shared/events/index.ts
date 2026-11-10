@@ -28,7 +28,11 @@ export interface EventMap {}
 export type EventName = keyof EventMap;
 type Handler<K extends EventName> = (payload: EventMap[K]) => void | Promise<void>;
 
-const handlers = new Map<EventName, Set<Handler<EventName>>>();
+// En globalThis: Next compila `instrumentation` (donde se registran los
+// suscriptores) en un paquete distinto al de las server actions; un Map de
+// módulo daría dos buses separados y los eventos no llegarían.
+const g = globalThis as unknown as { __deposito_eventos?: Map<EventName, Set<Handler<EventName>>> };
+const handlers = (g.__deposito_eventos ??= new Map());
 
 /** Suscribe un manejador. Devuelve la función para desuscribirlo. */
 export function subscribe<K extends EventName>(event: K, handler: Handler<K>): () => void {
