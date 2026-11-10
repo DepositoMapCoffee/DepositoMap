@@ -1,7 +1,7 @@
 # PENDIENTES — El Depósito (DepositoMap)
 
-> Última actualización: 2026-11-09
-> Estado: reestructuración modular en curso en la rama `v2` (fases 1, 2a y 2b). `main` sigue siendo el sitio en producción.
+> Última actualización: 2026-11-10
+> Estado: reestructuración modular en curso en la rama `v2` (fases 1, 2a, 2b y 3). `main` sigue siendo el sitio en producción.
 
 ---
 
@@ -15,16 +15,29 @@ Reglas y anatomía de un módulo: `src/modules/README.md`.
 |---|---|---|
 | 1 | Base: `src/` modular, design system (`src/shared/ui`), env con Zod, Drizzle, adaptador de auth, bus de eventos, lint de fronteras, Vitest, Dockerfile + compose | ✅ Hecha |
 | 2a | Motor de reservas (público): tablas `tasting_*` + migraciones Drizzle, dominio con 30 tests (disponibilidad, festivos CO, cancelación), reserva atómica, `/reservar` y `/reserva/[codigo]` | ✅ Hecha y probada en Supabase (reserva de prueba DEP-8KEVA creada y cancelada) |
-| 2b | Panel admin `/panel`: ingreso con sesión en cookies (`proxy.ts`), agenda semanal, cambio de estados con historial, reserva manual por canal (correo opcional), configuración de horarios, cierres, reglas y experiencias | ✅ Hecha (revisada con sesión; acciones que escriben sin probar) |
-| 3 | Notificaciones por correo (confirmación, recordatorio, cancelación) | ⏳ Siguiente |
+| 2b | Panel admin `/panel`: ingreso con sesión en cookies (`proxy.ts`), agenda semanal, cambio de estados con historial, reserva manual por canal (correo opcional), configuración de horarios, cierres, reglas y experiencias | ✅ Hecha (confirmar y cancelar probados; resto de acciones que escriben sin probar) |
+| 3 | Correos: recibida, confirmada, cancelada, recordatorio del día anterior (cron), aviso al equipo. Adaptador `consola`/`resend`, enlaces firmados (`RESERVAS_SECRETO`) | ✅ Hecha y probada en consola (DEP-5MZ7S). **Envío real en espera del dominio** |
 | 4 | Catálogo + mapa migrados desde `src/legacy` con SSR | Pendiente |
 | 5 | Cambio del sitio a v2; luego VPS, WhatsApp, chatbot | Pendiente |
 
-**Estado de la base de datos:** migraciones Drizzle 0000–0002 aplicadas en Supabase (tablas `tasting_*`,
-datos iniciales y correo opcional). Para nuevas migraciones: `npm run db:generate` y `npm run db:migrate`.
+**Estado de la base de datos:** migraciones Drizzle 0000–0003 aplicadas en Supabase (tablas `tasting_*`,
+datos iniciales, correo opcional y `recordatorio_enviado_en`). Para nuevas migraciones: `npm run db:generate` y `npm run db:migrate`.
 
-**Pendiente de probar en el panel:** confirmar / asistió / no asistió / cancelar, reserva manual, crear cierre,
-editar horarios, reglas y experiencias (escriben en producción).
+## 🚀 Checklist para salir a producción
+
+**Bloqueantes**
+1. [ ] Unificar reservas: los botones de la home legacy ("Reservas", "Coffee Tasting") deben ir a `/reservar`; retirar `ReservaSidePanel` legacy y la pestaña de reservas del `/admin` viejo (hoy escriben en la tabla `reservations` antigua).
+2. [ ] Página de política de tratamiento de datos (Ley 1581), enlazada desde la casilla de autorización. **Texto legal: lo define el negocio.**
+3. [ ] Variables en Vercel: `DATABASE_URL` (sin corchetes), `RESERVAS_SECRETO` (mismo valor que `.env.local`), `CRON_SECRET`, `NEXT_PUBLIC_SITE_URL` (URL real; hoy localhost).
+4. [ ] Deploy de vista previa de `v2` en Vercel y probar: CSP, sesión del panel, cron, fuentes.
+5. [ ] Probar en el panel: reserva manual, cierres, editar horarios/reglas/experiencias, asistió/no asistió.
+6. [ ] Correos: comprar dominio → Resend (gratis: ~3.000/mes, 100/día) → `EMAIL_PROVEEDOR=resend`, `RESEND_API_KEY`, `EMAIL_REMITENTE`, `EMAIL_AVISOS_NEGOCIO`. (Decidir si se publica sin correos.)
+
+**Recomendado**
+7. [ ] Anti-spam en `/reservar` (límite por IP o Cloudflare Turnstile).
+8. [ ] Limpiar datos de prueba: `DEP-8KEVA` y `DEP-5MZ7S` (canceladas) y decidir qué hacer con la reserva de la tabla `reservations` antigua.
+9. [ ] Revisar plan de Supabase (pausa por inactividad y copias de seguridad en el plan gratuito).
+10. [ ] Monitoreo de errores (avisos cuando falle una reserva o un correo).
 
 **Recordatorios:**
 - `DATABASE_URL` en Vercel: misma URL del *Transaction pooler*, contraseña SIN corchetes.
