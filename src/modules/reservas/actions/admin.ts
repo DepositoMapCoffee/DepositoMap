@@ -220,6 +220,7 @@ export async function guardarExperienciaAction(_previo: EstadoFormAdmin, formDat
     await actualizarExperiencia(id, cambios);
     refrescar();
     revalidatePath('/reservar');
+    revalidatePath('/'); // la home muestra precios y textos de las experiencias
     return { ok: true, mensaje: 'Experiencia guardada.' };
   });
 }

@@ -5,7 +5,14 @@
 import './events';
 
 // Consultas para páginas (Server Components)
-export { datosParaReservar, reservaParaGestion, datosAgenda, datosReservaManual, datosConfiguracion } from './consultas';
+export {
+  datosParaReservar,
+  reservaParaGestion,
+  datosAgenda,
+  datosReservaManual,
+  datosConfiguracion,
+  experienciasPublicas,
+} from './consultas';
 export { obtenerCalendario } from './actions/publicas';
 
 // UI pública
