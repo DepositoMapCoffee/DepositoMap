@@ -17,7 +17,9 @@ Reglas y anatomía de un módulo: `src/modules/README.md`.
 | 2a | Motor de reservas (público): tablas `tasting_*` + migraciones Drizzle, dominio con 30 tests (disponibilidad, festivos CO, cancelación), reserva atómica, `/reservar` y `/reserva/[codigo]` | ✅ Hecha y probada en Supabase (reserva de prueba DEP-8KEVA creada y cancelada) |
 | 2b | Panel admin `/panel`: ingreso con sesión en cookies (`proxy.ts`), agenda semanal, cambio de estados con historial, reserva manual por canal (correo opcional), configuración de horarios, cierres, reglas y experiencias | ✅ Hecha (confirmar y cancelar probados; resto de acciones que escriben sin probar) |
 | 3 | Correos: recibida, confirmada, cancelada, recordatorio del día anterior (cron), aviso al equipo. Adaptador `consola`/`resend`, enlaces firmados (`RESERVAS_SECRETO`) | ✅ Hecha y probada en consola (DEP-5MZ7S). **Envío real en espera del dominio** |
-| 4 | Catálogo + mapa migrados desde `src/legacy` con SSR | Pendiente |
+| 4A | Ingreso único `/ingresar` (clientes y admins, crear cuenta con consentimiento), `/cuenta` con favoritos y accesos al panel; sesión del mapa por server actions | ✅ Hecha (rama `fase-4`) |
+| 4B | Panel unificado: Catálogo (cafés y chocolates) en `/panel/catalogo`; `/admin` y logins viejos retirados (redirecciones) | ✅ Hecha (rama `fase-4`) |
+| 4C | Rediseño visual del sitio público: inicio, mapa, experiencias, cuenta (empieza por maqueta de la home para aprobar) | ⏳ Siguiente |
 | 5 | Cambio del sitio a v2; luego VPS, WhatsApp, chatbot | Pendiente |
 
 **Estado de la base de datos:** migraciones Drizzle 0000–0003 aplicadas en Supabase (tablas `tasting_*`,
@@ -45,7 +47,9 @@ datos iniciales, correo opcional y `recordatorio_enviado_en`). Para nuevas migra
 
 **Recordatorios:**
 - `DATABASE_URL` en Vercel: misma URL del *Transaction pooler*, contraseña SIN corchetes.
-- El panel nuevo es `/panel` (sesión en cookies). El `/admin` viejo sigue funcionando para el catálogo hasta la fase 4.
+- Ingreso único en `/ingresar`; las cuentas admin (tabla `admins`) ven el panel `/panel` (Agenda · Catálogo · Configuración). `/admin` redirige al panel.
+- Supabase envía los correos de confirmación de cuentas nuevas con su servidor propio (límite bajo de envíos por hora en el plan gratuito). Revisar en Supabase → Authentication si se exige confirmar el correo.
+- Vercel marca los "Cron Jobs" como sistema antiguo frente a "Schedules": migrar cuando convenga.
 - La conexión usa `max_pipeline: 1` (el pooler de Supabase se cuelga con pipelining).
 - Regla de "mismo día": 2 h de anticipación mínima (antes: nada después de mediodía); editable en Panel → Configuración → Reglas.
 
