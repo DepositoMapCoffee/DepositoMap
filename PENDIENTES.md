@@ -1,7 +1,7 @@
 # PENDIENTES — El Depósito (DepositoMap)
 
 > Última actualización: 2026-11-09
-> Estado: reestructuración modular en curso en la rama `v2`. `main` sigue siendo el sitio en producción.
+> Estado: reestructuración modular en curso en la rama `v2` (fases 1, 2a y 2b). `main` sigue siendo el sitio en producción.
 
 ---
 
@@ -13,20 +13,24 @@ Reglas y anatomía de un módulo: `src/modules/README.md`.
 
 | Fase | Contenido | Estado |
 |---|---|---|
-| 1 | Base: `src/` modular, design system (`src/shared/ui`), env con Zod, Drizzle, adaptador de auth, bus de eventos, lint de fronteras, Vitest, Dockerfile + compose | ✅ Hecha (sin commitear) |
-| 2a | Motor de reservas (público): tablas `tasting_*` + migraciones Drizzle, dominio con 30 tests (disponibilidad, festivos CO, cancelación), reserva atómica, `/reservar` y `/reserva/[codigo]` | ✅ Hecha (sin commitear, sin probar contra BD) |
-| 2b | Panel admin de reservas: agenda, cambiar estados, reservas manuales con canal, editar experiencias/horarios/bloqueos/ajustes | ⏳ Siguiente |
-| 3 | Notificaciones por correo (confirmación, recordatorio, cancelación) | Pendiente |
+| 1 | Base: `src/` modular, design system (`src/shared/ui`), env con Zod, Drizzle, adaptador de auth, bus de eventos, lint de fronteras, Vitest, Dockerfile + compose | ✅ Hecha |
+| 2a | Motor de reservas (público): tablas `tasting_*` + migraciones Drizzle, dominio con 30 tests (disponibilidad, festivos CO, cancelación), reserva atómica, `/reservar` y `/reserva/[codigo]` | ✅ Hecha y probada en Supabase (reserva de prueba DEP-8KEVA creada y cancelada) |
+| 2b | Panel admin `/panel`: ingreso con sesión en cookies (`proxy.ts`), agenda semanal, cambio de estados con historial, reserva manual por canal (correo opcional), configuración de horarios, cierres, reglas y experiencias | ✅ Hecha (revisada con sesión; acciones que escriben sin probar) |
+| 3 | Notificaciones por correo (confirmación, recordatorio, cancelación) | ⏳ Siguiente |
 | 4 | Catálogo + mapa migrados desde `src/legacy` con SSR | Pendiente |
 | 5 | Cambio del sitio a v2; luego VPS, WhatsApp, chatbot | Pendiente |
 
-**Para probar la fase 2a:**
-1. Agregar `DATABASE_URL` a `.env.local` y a Vercel (Supabase → Connect → *Transaction pooler*).
-2. Aplicar migraciones: `npm run db:migrate` (crea solo tablas nuevas `tasting_*`, no toca `reservations`).
-3. Probar `/reservar` completo: reservar, ver `/reserva/<codigo>?t=…`, cancelar.
+**Estado de la base de datos:** migraciones Drizzle 0000–0002 aplicadas en Supabase (tablas `tasting_*`,
+datos iniciales y correo opcional). Para nuevas migraciones: `npm run db:generate` y `npm run db:migrate`.
 
-Notas: la regla de "mismo día" ahora es 2 h de anticipación mínima (antes: nada después de mediodía);
-se ajusta en `tasting_ajustes`. Correos de confirmación: fase 3.
+**Pendiente de probar en el panel:** confirmar / asistió / no asistió / cancelar, reserva manual, crear cierre,
+editar horarios, reglas y experiencias (escriben en producción).
+
+**Recordatorios:**
+- `DATABASE_URL` en Vercel: misma URL del *Transaction pooler*, contraseña SIN corchetes.
+- El panel nuevo es `/panel` (sesión en cookies). El `/admin` viejo sigue funcionando para el catálogo hasta la fase 4.
+- La conexión usa `max_pipeline: 1` (el pooler de Supabase se cuelga con pipelining).
+- Regla de "mismo día": 2 h de anticipación mínima (antes: nada después de mediodía); editable en Panel → Configuración → Reglas.
 
 ---
 
