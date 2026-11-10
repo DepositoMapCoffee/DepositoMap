@@ -48,6 +48,14 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: ROOT,
   turbopack: { root: ROOT },
   allowedDevOrigins: ['192.168.0.183'],
+  // El panel viejo (/admin) y su login se unificaron en /panel e /ingresar.
+  async redirects() {
+    return [
+      { source: '/admin', destination: '/panel/catalogo', permanent: true },
+      { source: '/admin/login', destination: '/ingresar?siguiente=/panel/catalogo', permanent: true },
+      { source: '/admin/:ruta*', destination: '/panel/:ruta*', permanent: true },
+    ];
+  },
   async headers() {
     const htmlHeaders = [
       {

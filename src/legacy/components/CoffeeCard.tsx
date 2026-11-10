@@ -42,15 +42,16 @@ export default function CoffeeCard({ coffee }: CoffeeCardProps) {
   const handleFavoriteClick = async (e: React.MouseEvent) => {
     e.stopPropagation(); // prevent navigation
     
-    if (!session?.user) {
-      addToast('Debes iniciar sesión en "Usuario" para guardar favoritos.', 'info');
+    if (!session) {
+      addToast('Ingresa a tu cuenta para guardar favoritos.', 'info');
+      window.location.href = '/ingresar?siguiente=/cuenta';
       return;
     }
 
     const { success, requiresAuth } = await toggleFavorite(coffee.id);
     
     if (requiresAuth) {
-      addToast('Debes iniciar sesión en "Usuario" para guardar favoritos.', 'info');
+      addToast('Tu sesión expiró. Vuelve a ingresar para guardar favoritos.', 'info');
     } else if (success) {
       if (isFavorited) {
         addToast('Café eliminado de tus favoritos', 'info');

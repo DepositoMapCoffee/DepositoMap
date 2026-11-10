@@ -1,11 +1,14 @@
 import AppLegacy from '@/legacy/components/AppLegacy';
 import { experienciasPublicas } from '@/modules/reservas';
+import { estadoSesion } from '@/modules/identidad';
+import { alternarFavoritoAction, misFavoritos } from '@/modules/catalogo';
 
 /**
- * Inicio. Hoy monta el sitio anterior (SPA legacy) pasándole las
- * experiencias del motor de reservas, para que precios y paquetes sean
- * siempre los del panel. Se regenera cada minuto y al guardar una
- * experiencia en el panel (revalidatePath('/')).
+ * Inicio. Hoy monta el sitio anterior (SPA legacy) y le entrega:
+ *  - las experiencias del motor de reservas (precios del panel), y
+ *  - las server actions de sesión y favoritos (ingreso único, cookies httpOnly).
+ * La página es estática: se regenera cada minuto y al guardar una experiencia;
+ * lo personal (sesión, favoritos) se pide desde el navegador vía server actions.
  */
 export const revalidate = 60;
 
@@ -20,5 +23,10 @@ export default async function PaginaInicio() {
     precio: e.precio,
     duracionMin: e.duracionMin,
   }));
-  return <AppLegacy experiencias={experiencias} />;
+  return (
+    <AppLegacy
+      experiencias={experiencias}
+      fuentesSesion={{ estadoSesion, misFavoritos, alternarFavorito: alternarFavoritoAction }}
+    />
+  );
 }

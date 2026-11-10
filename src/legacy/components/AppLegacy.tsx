@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Home, User, Loader2, Sparkles } from 'lucide-react';
+import { Home, User, Loader2, Sparkles, LayoutDashboard } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCoffeeStore } from '@/legacy/store/coffeeStore';
-import { useUserStore } from '@/legacy/store/userStore';
+import { useUserStore, type FuentesSesion } from '@/legacy/store/userStore';
 import SidePanel from '@/legacy/components/SidePanel';
 import HomeView from '@/legacy/components/views/HomeView';
 import ColombiaIcon from '@/legacy/components/ColombiaIcon';
@@ -21,13 +21,6 @@ const MapaColombia = dynamic(() => import('@/legacy/components/MapaColombia'), {
   ),
 });
 
-const UserView = dynamic(() => import('@/legacy/components/views/UserView'), {
-  loading: () => (
-    <div className="w-full h-full flex items-center justify-center">
-      <Loader2 className="w-6 h-6 animate-spin text-brand-accent" />
-    </div>
-  ),
-});
 
 const ServiciosView = dynamic(() => import('@/legacy/components/views/ServiciosView'), {
   loading: () => (
@@ -40,12 +33,20 @@ const ServiciosView = dynamic(() => import('@/legacy/components/views/ServiciosV
 /* ─────────────────────────────────────────
    Nav items
 ───────────────────────────────────────── */
-const NAV_ITEMS = [
+type ItemNav = { id: string; icon: React.ComponentType<{ className?: string }>; label: string; description: string };
+
+const NAV_ITEMS: ItemNav[] = [
   { id: 'home',        icon: Home,          label: 'Inicio',        description: 'Pantalla principal' },
   { id: 'map',         icon: ColombiaIcon,  label: 'Mapa',          description: 'Mapa cafetero' },
   { id: 'servicios',   icon: Sparkles,       label: 'Coffee Tasting', description: 'Nuestros servicios' },
-  { id: 'user',        icon: User,          label: 'Usuario',       description: 'Perfil y favoritos' },
-] as const;
+  { id: 'user',        icon: User,          label: 'Mi cuenta',     description: 'Ingreso y favoritos' },
+];
+
+/** Visible solo para administradores: lleva al panel unificado. */
+const ITEM_PANEL: ItemNav = { id: 'panel', icon: LayoutDashboard, label: 'Panel', description: 'Reservas y catálogo' };
+
+/** Pestañas internas de la SPA (cuenta y panel son páginas aparte). */
+const PESTANAS_INTERNAS = ['home', 'map', 'servicios'];
 
 /* ─────────────────────────────────────────
    Sidebar widths
@@ -60,23 +61,28 @@ const ACTIVE_TAB_KEY = 'deposito_active_tab';
  * Se monta desde src/app/page.tsx, que le entrega las experiencias del
  * motor de reservas. Se reemplaza por módulos en la fase 4.
  */
-export default function AppLegacy({ experiencias }: { experiencias: ExperienciaTasting[] }) {
+export default function AppLegacy({ experiencias, fuentesSesion }: { experiencias: ExperienciaTasting[]; fuentesSesion: FuentesSesion }) {
   const selectedDept = useCoffeeStore(s => s.selectedDept);
   const loadActiveDepts = useCoffeeStore(s => s.loadActiveDepts);
   const clearSelection = useCoffeeStore(s => s.clearSelection);
   const [activeTab, setActiveTab] = useState<string>('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
-  const initAuth = useUserStore(s => s.initAuth);
+  const conectarSesion = useUserStore(s => s.conectar);
+  const esAdmin = useUserStore(s => s.isAdmin);
+  const navItems = esAdmin ? [...NAV_ITEMS, ITEM_PANEL] : NAV_ITEMS;
 
-  useEffect(() => { initAuth(); }, [initAuth]);
+  // La sesión vive en el servidor (ingreso único en /ingresar).
+  useEffect(() => { conectarSesion(fuentesSesion); }, [conectarSesion, fuentesSesion]);
 
   // localStorage puede lanzar SecurityError si el navegador lo bloquea
   // (modo incógnito, sandbox, políticas de privacidad). Nunca debe tumbar la app.
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(ACTIVE_TAB_KEY);
-      if (saved) setActiveTab(saved);
+      // ?seccion=map (p. ej. desde "Ir al mapa" en la cuenta) tiene prioridad.
+      const pedida = new URLSearchParams(window.location.search).get('seccion');
+      const saved = pedida ?? localStorage.getItem(ACTIVE_TAB_KEY);
+      if (saved && PESTANAS_INTERNAS.includes(saved)) setActiveTab(saved);
     } catch {
       /* almacenamiento no disponible: se ignora */
     }
@@ -93,6 +99,9 @@ export default function AppLegacy({ experiencias }: { experiencias: ExperienciaT
   };
 
   const handleNav = (id: string) => {
+    // Cuenta y panel son páginas propias del sitio nuevo.
+    if (id === 'user') return router.push('/cuenta');
+    if (id === 'panel') return router.push('/panel/reservas');
     setActiveTab(id);
     try {
       localStorage.setItem(ACTIVE_TAB_KEY, id);
@@ -150,7 +159,7 @@ export default function AppLegacy({ experiencias }: { experiencias: ExperienciaT
         <div className="w-full h-px bg-outline-soft/20 mb-3" />
 
         {/* ── Nav items ── */}
-        {NAV_ITEMS.map(({ id, icon: Icon, label, description }) => {
+        {navItems.map(({ id, icon: Icon, label, description }) => {
           const isActive = activeTab === id;
           return (
             <button
@@ -241,7 +250,7 @@ export default function AppLegacy({ experiencias }: { experiencias: ExperienciaT
               transition={{ duration: 0.2 }}
               className="font-serif text-[15px] font-medium text-brand-accent tracking-wide absolute left-1/2 -translate-x-1/2"
             >
-              {NAV_ITEMS.find(n => n.id === activeTab)?.label ?? 'El Depósito'}
+              {navItems.find(n => n.id === activeTab)?.label ?? 'El Depósito'}
             </motion.span>
           </AnimatePresence>
           <div className="w-7" aria-hidden="true" />
@@ -257,7 +266,6 @@ export default function AppLegacy({ experiencias }: { experiencias: ExperienciaT
           {activeTab === 'home'        && <HomeView onMapClick={() => handleNav('map')} onUserClick={() => handleNav('user')} onReservationsClick={() => handleSelectPackage()} />}
           {activeTab === 'map'         && <MapaColombia />}
           {activeTab === 'servicios'   && <ServiciosView experiencias={experiencias} onSelectPackage={handleSelectPackage} />}
-          {activeTab === 'user'        && <UserView />}
         </div>
 
         {/* ── Blur overlay when side panel open (mobile) ── */}
@@ -285,7 +293,7 @@ export default function AppLegacy({ experiencias }: { experiencias: ExperienciaT
           }}
         >
 
-        {NAV_ITEMS.map(({ id, icon: Icon, label }) => {
+        {navItems.map(({ id, icon: Icon, label }) => {
           const isActive = activeTab === id;
           const inner = (
             <div className="relative flex flex-col items-center gap-[3px] px-4 py-2">
