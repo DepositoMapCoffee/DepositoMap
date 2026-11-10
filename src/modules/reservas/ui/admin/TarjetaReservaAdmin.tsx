@@ -79,7 +79,7 @@ export function TarjetaReservaAdmin({ reserva: r, hoy }: { reserva: ReservaAgend
     }
   };
 
-  const saludo = `Hola ${r.nombre.split(' ')[0]}, te escribimos de El Depósito por tu reserva ${r.codigo} del ${formatoFechaLarga(r.fecha).toLowerCase()} a las ${formatoHora(r.horaInicio)}.`;
+  const saludo = `Hola ${r.nombre.split(' ')[0]}, te escribimos de El Depósito por tu reserva ${r.codigo} del ${formatoFechaLarga(r.fecha).toLowerCase()} a las ${formatoHora(r.horaInicio)}`;
 
   return (
     <article
