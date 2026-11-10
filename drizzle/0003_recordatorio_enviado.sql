@@ -1,0 +1,1 @@
+ALTER TABLE "tasting_reservas" ADD COLUMN "recordatorio_enviado_en" timestamp with time zone;

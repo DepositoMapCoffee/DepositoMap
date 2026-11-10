@@ -17,6 +17,23 @@ export { Agenda } from './ui/admin/Agenda';
 export { FormReservaManual } from './ui/admin/FormReservaManual';
 export { Configuracion } from './ui/admin/Configuracion';
 
+// Para otros módulos (notificaciones, chatbot…)
+export {
+  reservaParaNotificar,
+  reservasParaRecordar,
+  fechaDeManana,
+  marcarRecordatorioEnviado,
+  type ReservaParaNotificar,
+} from './data/notificacion';
+export {
+  archivoIcs,
+  formatoDuracion,
+  formatoFechaLarga,
+  formatoHora,
+  formatoPrecio,
+  pluralPersonas,
+} from './ui/formato';
+
 // Tipos y eventos
 export type { CanalReserva } from './events';
 export type { Experiencia, ReservaPublica, EstadoReserva } from './domain/tipos';

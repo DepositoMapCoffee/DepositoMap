@@ -21,6 +21,27 @@ const serverSchema = z.object({
   DATABASE_URL: z.string().min(1),
   /** Zona horaria del negocio: todas las reglas de reservas se evalúan aquí. */
   BUSINESS_TIMEZONE: z.string().default('America/Bogota'),
+
+  /**
+   * Secreto para firmar los enlaces de gestión de reservas (/reserva/<código>?t=…).
+   * Permite volver a generar el enlace en cada correo sin guardarlo en claro.
+   * Cambiarlo invalida los enlaces ya enviados. Mínimo 32 caracteres.
+   */
+  RESERVAS_SECRETO: z.string().min(32, 'RESERVAS_SECRETO debe tener al menos 32 caracteres'),
+
+  // ── Correo ──
+  /** 'consola' (desarrollo: solo registra) o 'resend' (envío real). */
+  EMAIL_PROVEEDOR: z.enum(['consola', 'resend']).default('consola'),
+  RESEND_API_KEY: z.string().optional(),
+  /** Remitente, con dominio verificado en el proveedor. */
+  EMAIL_REMITENTE: z.string().default('El Depósito <onboarding@resend.dev>'),
+  /** A dónde llegan las respuestas de los clientes. */
+  EMAIL_RESPONDER_A: z.string().optional(),
+  /** Correos del equipo que reciben aviso de cada reserva nueva (separados por coma). */
+  EMAIL_AVISOS_NEGOCIO: z.string().optional(),
+
+  /** Protege el endpoint del cron de recordatorios (Vercel Cron lo envía solo). */
+  CRON_SECRET: z.string().optional(),
 });
 
 export type PublicEnv = z.infer<typeof publicSchema>;

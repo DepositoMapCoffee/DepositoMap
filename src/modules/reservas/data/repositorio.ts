@@ -2,9 +2,10 @@
  * Acceso a datos del motor de reservas (única capa que toca la BD).
  */
 import 'server-only';
-import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { and, asc, between, eq, inArray, sql } from 'drizzle-orm';
 import { db } from '@/shared/infra/db';
+import { serverEnv } from '@/shared/config/env';
 import { verificarFranja, type ContextoDisponibilidad } from '../domain/disponibilidad';
 import { generarCodigo } from '../domain/reglas';
 import type { Ahora, Fecha } from '../domain/tiempo';
@@ -121,6 +122,15 @@ export async function contextoDisponibilidad(
 
 // ─── Tokens del enlace de gestión ──────────────────────────────────
 
+/**
+ * Token del enlace de gestión: firma HMAC del id de la reserva con
+ * RESERVAS_SECRETO. Se puede regenerar para cada correo (confirmación,
+ * recordatorio) sin guardarlo en claro; en la BD solo queda su SHA-256.
+ */
+export function tokenDeGestion(reservaId: string): string {
+  return createHmac('sha256', serverEnv().RESERVAS_SECRETO).update(`gestion:${reservaId}`).digest('base64url').slice(0, 32);
+}
+
 function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
 }
@@ -176,7 +186,7 @@ export async function crearReserva(datos: NuevaReserva, ahora: Ahora): Promise<R
         .select({ id: reservas.id, codigo: reservas.codigo })
         .from(reservas)
         .where(eq(reservas.idempotencyKey, datos.idempotencyKey));
-      if (previa) return { ok: true, id: previa.id, codigo: previa.codigo, token: null, duplicada: true };
+      if (previa) return { ok: true, id: previa.id, codigo: previa.codigo, token: tokenDeGestion(previa.id), duplicada: true };
     }
 
     const experiencia = await obtenerExperienciaActiva(datos.experienciaId, tx);
@@ -197,12 +207,14 @@ export async function crearReserva(datos: NuevaReserva, ahora: Ahora): Promise<R
     if (!verificacion.ok) return { ok: false, motivo: verificacion.motivo };
 
     // 4. Inserta con un código único (reintenta ante la improbable colisión).
-    const token = randomBytes(24).toString('base64url');
+    const id = randomUUID();
+    const token = tokenDeGestion(id);
     for (let intento = 0; intento < 5; intento++) {
       const codigo = generarCodigo();
       const [creada] = await tx
         .insert(reservas)
         .values({
+          id,
           codigo,
           experienciaId: experiencia.id,
           fecha: datos.fecha,

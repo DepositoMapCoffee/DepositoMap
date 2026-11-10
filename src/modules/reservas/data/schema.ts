@@ -112,6 +112,8 @@ export const reservas = pgTable(
     tokenHash: text('token_hash').notNull(),
     /** Evita duplicados por doble clic o reintentos de red. */
     idempotencyKey: text('idempotency_key'),
+    /** Cuándo se envió el recordatorio del día anterior (null = no enviado). */
+    recordatorioEnviadoEn: timestamp('recordatorio_enviado_en', { withTimezone: true }),
     ...timestamps,
   },
   (t) => [
