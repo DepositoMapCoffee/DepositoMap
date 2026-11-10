@@ -1,5 +1,9 @@
 /**
- * Módulo `catalogo` — cafés, regiones y mapa de Colombia.
- * API PÚBLICA. (Se migra desde src/legacy en la fase 4.)
+ * Módulo `catalogo` — cafés y chocolates del mapa, y favoritos de clientes.
+ * API PÚBLICA. (El mapa interactivo sigue en src/legacy hasta su rediseño.)
  */
-export {};
+export { datosCatalogoAdmin, favoritosDe } from './consultas';
+export { alternarFavoritoAction, misFavoritos, type ResultadoFavorito } from './actions/usuario';
+export { CatalogoAdmin } from './ui/CatalogoAdmin';
+export { ListaFavoritos } from './ui/ListaFavoritos';
+export type { Producto } from './domain/tipos';

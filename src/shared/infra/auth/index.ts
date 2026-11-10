@@ -105,3 +105,44 @@ export async function cerrarSesionActual(): Promise<void> {
   const supabase = await supabaseServer();
   await supabase.auth.signOut();
 }
+
+export type ResultadoRegistro =
+  | { ok: true; requiereConfirmacion: boolean }
+  | { ok: false; motivo: string };
+
+/**
+ * Crea una cuenta con correo y clave. Si el proyecto de Supabase exige
+ * confirmar el correo, no hay sesión hasta que el usuario abra el enlace
+ * (que vuelve a `redirigirA`, donde se canjea el código).
+ */
+export async function registrarConClave(
+  email: string,
+  clave: string,
+  datos: Record<string, string>,
+  redirigirA: string,
+): Promise<ResultadoRegistro> {
+  const supabase = await supabaseServer();
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password: clave,
+    options: { data: datos, emailRedirectTo: redirigirA },
+  });
+  if (error) {
+    const motivo = /already registered|already exists/i.test(error.message)
+      ? 'Ya existe una cuenta con ese correo. Ingresa con tu contraseña.'
+      : /password/i.test(error.message)
+        ? 'La contraseña no cumple los requisitos (mínimo 8 caracteres).'
+        : /rate limit|too many/i.test(error.message)
+          ? 'Demasiados intentos. Espera unos minutos.'
+          : 'No pudimos crear la cuenta. Inténtalo de nuevo.';
+    return { ok: false, motivo };
+  }
+  return { ok: true, requiereConfirmacion: !data.session };
+}
+
+/** Canjea el código del enlace de confirmación por una sesión. */
+export async function confirmarCodigoCorreo(codigo: string): Promise<boolean> {
+  const supabase = await supabaseServer();
+  const { error } = await supabase.auth.exchangeCodeForSession(codigo);
+  return !error;
+}

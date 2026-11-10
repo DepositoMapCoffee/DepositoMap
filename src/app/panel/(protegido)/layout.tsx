@@ -1,19 +1,18 @@
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { Logo, NavPanel } from '@/shared/ui';
-import { adminActual, BotonSalir } from '@/modules/identidad';
+import { adminOIngresar, BotonSalir } from '@/modules/identidad';
 
 export const dynamic = 'force-dynamic';
 
 const SECCIONES = [
   { href: '/panel/reservas', etiqueta: 'Agenda' },
+  { href: '/panel/catalogo', etiqueta: 'Catálogo' },
   { href: '/panel/configuracion', etiqueta: 'Configuración' },
 ];
 
 /** Todo lo que está dentro exige un administrador (además de requireAdmin en cada acción). */
 export default async function LayoutProtegido({ children }: { children: React.ReactNode }) {
-  const admin = await adminActual();
-  if (!admin) redirect('/panel/ingresar');
+  const admin = await adminOIngresar();
 
   return (
     <>
