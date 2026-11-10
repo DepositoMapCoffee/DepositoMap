@@ -27,7 +27,11 @@ datos iniciales, correo opcional y `recordatorio_enviado_en`). Para nuevas migra
 
 **Bloqueantes**
 1. [x] Unificar reservas: botones de la home → `/reservar` (paquete preseleccionado o selección libre); `ReservaSidePanel` y la pestaña de reservas del `/admin` viejo retirados. Pendiente aparte: la sección "Coffee Tasting" de la home muestra precios fijos de `src/legacy/data/paquetes.ts` (se resuelve en la fase 4).
-2. [ ] Página de política de tratamiento de datos (Ley 1581), enlazada desde la casilla de autorización. **Texto legal: lo define el negocio.**
+2. [x] Política de tratamiento de datos en `/privacidad` (módulo `legal`), enlazada desde la reserva, la reserva manual del panel, el registro de usuarios y el pie de página. Cada reserva guarda la versión aceptada (`POLITICA_DATOS.version`, migración 0004).
+   - [ ] **Revisión por el asesor legal** (texto en `src/modules/legal/ui/PoliticaDatos.tsx`; al cambiarlo, subir `POLITICA_DATOS.version`).
+   - [ ] La política promete conservar reservas 24 meses: falta la limpieza automática de reservas antiguas.
+   - [ ] Solicitudes de supresión: hoy se atienden a mano (no hay botón de eliminar datos en el panel).
+   - [ ] El registro de usuarios (legacy) pide aceptar la política pero no guarda la prueba (se resuelve en la fase 4).
 3. [ ] Variables en Vercel: `DATABASE_URL` (sin corchetes), `RESERVAS_SECRETO` (mismo valor que `.env.local`), `CRON_SECRET`, `NEXT_PUBLIC_SITE_URL` (URL real; hoy localhost).
 4. [ ] Deploy de vista previa de `v2` en Vercel y probar: CSP, sesión del panel, cron, fuentes.
 5. [ ] Probar en el panel: reserva manual, cierres, editar horarios/reglas/experiencias, asistió/no asistió.
