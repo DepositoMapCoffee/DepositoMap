@@ -3,13 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { Home, User, Loader2, Sparkles } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCoffeeStore } from '@/legacy/store/coffeeStore';
 import { useUserStore } from '@/legacy/store/userStore';
 import SidePanel from '@/legacy/components/SidePanel';
 import HomeView from '@/legacy/components/views/HomeView';
 import ColombiaIcon from '@/legacy/components/ColombiaIcon';
-import ReservaSidePanel from '@/legacy/components/ReservaSidePanel';
 import type { ReservationPackageId } from '@/legacy/types';
 
 /* ── Lazy loading de vistas pesadas ── */
@@ -61,8 +61,7 @@ export default function HomePage() {
   const clearSelection = useCoffeeStore(s => s.clearSelection);
   const [activeTab, setActiveTab] = useState<string>('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [selectedReservaPackage, setSelectedReservaPackage] = useState<ReservationPackageId | null>(null);
-  const [showReservaPanel, setShowReservaPanel] = useState(false);
+  const router = useRouter();
   const initAuth = useUserStore(s => s.initAuth);
 
   useEffect(() => { initAuth(); }, [initAuth]);
@@ -80,14 +79,14 @@ export default function HomePage() {
 
   useEffect(() => { loadActiveDepts(); }, [loadActiveDepts]);
 
-  const handleSelectPackage = (packageId: ReservationPackageId) => {
-    setSelectedReservaPackage(packageId);
-    setShowReservaPanel(true);
-  };
-
-  const handleCloseReservaPanel = () => {
-    setShowReservaPanel(false);
-    setSelectedReservaPackage(null);
+  /**
+   * Las reservas viven en el motor nuevo (/reservar). Los paquetes de la home
+   * legacy se traducen a las experiencias del motor (fase 4: se retira legacy).
+   */
+  const handleSelectPackage = (packageId?: ReservationPackageId) => {
+    if (!packageId) return router.push('/reservar');
+    const experiencia = packageId === 'testing_2' ? 'tasting-completo' : 'tasting';
+    router.push(`/reservar?experiencia=${experiencia}`);
   };
 
   const handleNav = (id: string) => {
@@ -252,7 +251,7 @@ export default function HomePage() {
           lg:ml-[68px]
           ${selectedDept && activeTab === 'map' ? 'lg:mr-[480px]' : ''}
         `}>
-          {activeTab === 'home'        && <HomeView onMapClick={() => handleNav('map')} onUserClick={() => handleNav('user')} onReservationsClick={() => handleSelectPackage('testing_1')} />}
+          {activeTab === 'home'        && <HomeView onMapClick={() => handleNav('map')} onUserClick={() => handleNav('user')} onReservationsClick={() => handleSelectPackage()} />}
           {activeTab === 'map'         && <MapaColombia />}
           {activeTab === 'servicios'   && <ServiciosView onSelectPackage={handleSelectPackage} />}
           {activeTab === 'user'        && <UserView />}
@@ -269,14 +268,6 @@ export default function HomePage() {
 
         {/* ── Map side panel ── */}
         {activeTab === 'map' && <SidePanel />}
-
-        {/* ── Coffee Tasting reservation panel ── */}
-        {showReservaPanel && (
-          <ReservaSidePanel
-            initialPackage={selectedReservaPackage ?? undefined}
-            onClose={handleCloseReservaPanel}
-          />
-        )}
 
         {/* ── BOTTOM NAV — mobile / tablet (< lg) ── */}
         <nav

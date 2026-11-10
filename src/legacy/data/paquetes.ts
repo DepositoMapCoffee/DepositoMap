@@ -4,7 +4,7 @@
  * Paquetes de Coffee Testing — fuente única de verdad.
  *
  * Antes, la lista de paquetes estaba duplicada en:
- *   - components/ReservaSidePanel.tsx  (datos transaccionales: precio COP, duración en min)
+ *   - (antes) ReservaSidePanel, retirado: las reservas usan el motor v2 (/reservar)
  *   - components/views/ServiciosView.tsx (presentación de marketing: imagen, copy largo)
  *
  * Aquí viven los datos canónicos (tipo ReservationPackage de @/types) y la

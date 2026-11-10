@@ -13,7 +13,8 @@ import { PAQUETES, PAQUETES_MARKETING } from '@/legacy/data/paquetes';
    Tipos
 ────────────────────────────────────────── */
 interface ServiciosViewProps {
-  onSelectPackage?: (packageId: ReservationPackageId) => void;
+  /** Sin paquete = ir a /reservar para que el cliente elija. */
+  onSelectPackage?: (packageId?: ReservationPackageId) => void;
 }
 
 /* ─────────────────────────────────────────
@@ -105,7 +106,7 @@ export default function ServiciosView({ onSelectPackage }: ServiciosViewProps) {
               className={`flex flex-col sm:flex-row gap-3 transition-all duration-700 delay-500 ease-out ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-7'}`}
             >
               <button
-                onClick={() => onSelectPackage?.('testing_1')}
+                onClick={() => onSelectPackage?.()}
                 className="flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm font-sans font-semibold
                   bg-brand-accent text-brand-black hover:bg-verde transition-all duration-300
                   cursor-pointer active:scale-[0.97] shadow-[0_4px_20px_rgba(47,163,107,0.28)]"
@@ -302,7 +303,7 @@ export default function ServiciosView({ onSelectPackage }: ServiciosViewProps) {
             de conocimiento hacen la diferencia.
           </p>
           <button
-            onClick={() => onSelectPackage?.('testing_1')}
+            onClick={() => onSelectPackage?.()}
             className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm font-sans font-semibold
               bg-brand-accent text-brand-black hover:bg-verde transition-all duration-300
               cursor-pointer active:scale-[0.97] shadow-[0_4px_20px_rgba(47,163,107,0.28)]"

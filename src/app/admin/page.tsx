@@ -1,20 +1,15 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LogOut, Plus, Search, Trash2, Edit2, Loader2, Map as MapIcon, Eye, EyeOff, ArrowLeft, CalendarClock, Coffee as CoffeeIcon, Bell } from 'lucide-react';
+import { LogOut, Plus, Search, Trash2, Edit2, Loader2, Map as MapIcon, Eye, EyeOff, ArrowLeft, CalendarClock } from 'lucide-react';
 import { getSupabase } from '@/legacy/lib/supabase';
-import type { RealtimeChannel } from '@supabase/supabase-js';
 import { Coffee, CoffeeFormData, CoffeeCategory, CoffeeProcess } from '@/legacy/types';
 import { departamentos } from '@/legacy/data/mapaData';
 import { useCoffeeStore } from '@/legacy/store/coffeeStore';
 import { useToastStore } from '@/legacy/store/toastStore';
-import AdminReservasView from '@/legacy/components/views/AdminReservasView';
 
-const PAQUETE_LABELS: Record<string, string> = {
-  testing_1: 'Coffee Tasting',
-  testing_2: 'Coffee Tasting Completo',
-};
 
 const INITIAL_FORM_STATE: CoffeeFormData = {
   nombre: '',
@@ -38,9 +33,6 @@ export default function AdminPage() {
   
   const [session, setSession] = useState<any>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
-  const [adminTab, setAdminTab] = useState<'catalog' | 'reservations'>('catalog');
-  const [unseenCount, setUnseenCount] = useState(0);
-  const channelRef = useRef<RealtimeChannel | null>(null);
   
   const [coffees, setCoffees] = useState<Coffee[]>([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -114,37 +106,6 @@ export default function AdminPage() {
     }
   }, [session]);
 
-  /* ── Realtime: notificación de nuevas reservas ── */
-  useEffect(() => {
-    if (!session) return;
-
-    // Obtener conteo inicial de pendientes como referencia
-    const channel = getSupabase()
-      .channel('admin-reservations')
-      .on('postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'reservations' },
-        (payload) => {
-          const r = payload.new as any;
-          // Si ya estamos viendo reservas, auto-refrescar sin badge
-          if (adminTab === 'reservations') {
-            return;
-          }
-          setUnseenCount(prev => prev + 1);
-          const pkgName = PAQUETE_LABELS[r.paquete] || r.paquete;
-          useToastStore.getState().addToast(
-            `Nueva reserva de ${r.nombre} — ${pkgName} — ${r.cupos || 1} cupo${r.cupos !== 1 ? 's' : ''}`,
-            'info'
-          );
-        }
-      )
-      .subscribe();
-
-    channelRef.current = channel;
-
-    return () => {
-      getSupabase().removeChannel(channel);
-    };
-  }, [session, adminTab]);
 
   // Logout
   const handleLogout = async () => {
@@ -273,7 +234,7 @@ export default function AdminPage() {
             <div>
               <h1 className="font-serif text-2xl text-brand-cream">Panel Administrativo</h1>
               <p className="text-xs text-gray-500 uppercase tracking-wider mt-1">
-                {adminTab === 'catalog' ? 'Gestión de Catálogo' : 'Gestión de Reservas'}
+                Gestión de Catálogo
               </p>
             </div>
             
@@ -295,48 +256,20 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* ── Tabs ── */}
-          <div className="flex gap-1">
-            <button
-              onClick={() => setAdminTab('catalog')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-sans font-medium transition-all cursor-pointer
-                ${adminTab === 'catalog'
-                  ? 'bg-brand-accent/15 text-brand-accent ring-1 ring-brand-accent/30'
-                  : 'text-gray-500 hover:text-gray-300 hover:bg-brand-gray-light/30'
-                }`}
-            >
-              <CoffeeIcon className="w-4 h-4" />
-              Catálogo
-            </button>
-            <button
-              onClick={() => {
-                setAdminTab('reservations');
-                setUnseenCount(0);
-              }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-sans font-medium transition-all cursor-pointer relative
-                ${adminTab === 'reservations'
-                  ? 'bg-brand-accent/15 text-brand-accent ring-1 ring-brand-accent/30'
-                  : 'text-gray-500 hover:text-gray-300 hover:bg-brand-gray-light/30'
-                }`}
-            >
-              <CalendarClock className="w-4 h-4" />
-              Reservas
-              {unseenCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] flex items-center justify-center
-                  bg-red-500 text-white text-[10px] font-bold rounded-full px-1
-                  shadow-lg shadow-red-500/30">
-                  {unseenCount > 9 ? '9+' : unseenCount}
-                </span>
-              )}
-            </button>
-          </div>
+          {/* Las reservas se gestionan en el panel nuevo (motor v2). */}
+          <Link
+            href="/panel/reservas"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-sans font-medium bg-brand-accent/15 text-brand-accent ring-1 ring-brand-accent/30 hover:bg-brand-accent/25 transition-colors"
+          >
+            <CalendarClock className="w-4 h-4" />
+            Reservas: abrir el panel nuevo
+          </Link>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 py-8">
-        {adminTab === 'catalog' ? (
-          <>
+        <>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
               {/* Search */}
               <div className="relative w-full sm:w-96">
@@ -459,10 +392,7 @@ export default function AdminPage() {
                 </div>
               )}
             </div>
-          </>
-        ) : (
-          <AdminReservasView />
-        )}
+        </>
       </main>
 
       {/* Modal Añadir/Editar */}
