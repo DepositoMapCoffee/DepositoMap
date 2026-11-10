@@ -12,6 +12,18 @@ import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
 import { publicEnv } from '@/shared/config/env';
 
+/**
+ * Opciones forzadas en las cookies de sesión: el panel solo usa la sesión
+ * desde el servidor, así que JavaScript del navegador nunca necesita leerlas
+ * (httpOnly evita que un script inyectado robe la sesión).
+ */
+export const OPCIONES_COOKIE_SESION = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  path: '/',
+} as const;
+
 export type CurrentUser = {
   id: string;
   email: string;
@@ -26,7 +38,7 @@ export async function supabaseServer() {
       getAll: () => cookieStore.getAll(),
       setAll: (toSet) => {
         try {
-          toSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+          toSet.forEach(({ name, value, options }) => cookieStore.set(name, value, { ...options, ...OPCIONES_COOKIE_SESION }));
         } catch {
           // Llamado desde un Server Component: las cookies son de solo lectura.
           // El refresco de sesión lo hace el proxy/middleware o la siguiente acción.
