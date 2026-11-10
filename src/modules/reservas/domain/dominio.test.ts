@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { calendarioMes, franjasDelDia, verificarFranja, type ContextoDisponibilidad } from './disponibilidad';
 import { domingoDePascua, esFestivo, festivosColombia } from './festivos';
 import { generarCodigo, puedeCancelarCliente, puedeTransicionar } from './reglas';
-import { ahoraEnZona, diaSemana, esFechaValida, minutosHasta, rangoMes, sumarDias } from './tiempo';
+import { ahoraEnZona, diaSemana, esFechaValida, minutosHasta, rangoMes, semanaDe, sumarDias } from './tiempo';
 import { claveFranja, type Ajustes, type Horario } from './tipos';
 import { solicitudReservaSchema } from './validacion';
 
@@ -53,6 +53,13 @@ describe('tiempo', () => {
   it('convierte un instante UTC a la hora de Bogotá (UTC-5)', () => {
     const ahora = ahoraEnZona('America/Bogota', new Date('2026-11-10T03:30:00Z'));
     expect(ahora).toEqual({ fecha: '2026-11-09', minutos: 22 * 60 + 30 });
+  });
+
+  it('semana de lunes a domingo, incluso cruzando meses', () => {
+    expect(semanaDe('2026-11-12')).toEqual([
+      '2026-11-09', '2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13', '2026-11-14', '2026-11-15',
+    ]);
+    expect(semanaDe('2026-11-01')[0]).toBe('2026-10-26'); // domingo → lunes anterior
   });
 
   it('minutosHasta cruza días', () => {

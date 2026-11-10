@@ -13,3 +13,4 @@ export { Container } from './components/Container';
 export { TextField, TextAreaField, SelectField } from './components/Field';
 export { EncabezadoSitio } from './layout/EncabezadoSitio';
 export { PieSitio } from './layout/PieSitio';
+export { NavPanel, type ItemNav } from './layout/NavPanel';

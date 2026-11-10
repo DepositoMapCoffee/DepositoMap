@@ -140,13 +140,22 @@ export type NuevaReserva = {
   cupos: number;
   idioma: string;
   nombre: string;
-  email: string;
+  /** Opcional solo en reservas registradas por el admin (teléfono, presencial…). */
+  email: string | null;
   telefono: string;
   notas?: string;
   canal: Canal;
   idempotencyKey?: string;
   /** 'cliente' o el email del admin que la registra. */
   actor: string;
+  /**
+   * Reserva registrada por el admin: puede saltarse la anticipación mínima
+   * (hasta 3 h hacia atrás, para registrar a quien llegó sin reserva), el
+   * límite de días futuros y el máximo de personas por reserva.
+   * La CAPACIDAD de la franja se respeta siempre.
+   */
+  porAdmin?: boolean;
+  estadoInicial?: 'pendiente' | 'confirmada';
 };
 
 export type ResultadoCrear =
@@ -177,7 +186,13 @@ export async function crearReserva(datos: NuevaReserva, ahora: Ahora): Promise<R
     }
 
     // 3. Recalcula la disponibilidad DENTRO del bloqueo.
-    const ctx = await contextoDisponibilidad(datos.fecha, datos.fecha, ahora, tx);
+    const ctxBase = await contextoDisponibilidad(datos.fecha, datos.fecha, ahora, tx);
+    const ctx = datos.porAdmin
+      ? {
+          ...ctxBase,
+          ajustes: { ...ctxBase.ajustes, anticipacionMinMinutos: -180, diasMaxFuturo: 3650, cuposMaxPorReserva: 999 },
+        }
+      : ctxBase;
     const verificacion = verificarFranja(datos.fecha, datos.hora, datos.cupos, ctx);
     if (!verificacion.ok) return { ok: false, motivo: verificacion.motivo };
 
@@ -199,6 +214,7 @@ export async function crearReserva(datos: NuevaReserva, ahora: Ahora): Promise<R
           telefono: datos.telefono,
           notas: datos.notas ?? null,
           precioUnitario: experiencia.precio,
+          estado: datos.estadoInicial ?? 'pendiente',
           canal: datos.canal,
           tokenHash: hashToken(token),
           idempotencyKey: datos.idempotencyKey ?? null,
@@ -210,7 +226,7 @@ export async function crearReserva(datos: NuevaReserva, ahora: Ahora): Promise<R
         await tx.insert(reservasHistorial).values({
           reservaId: creada.id,
           estadoAnterior: null,
-          estadoNuevo: 'pendiente',
+          estadoNuevo: datos.estadoInicial ?? 'pendiente',
           actor: datos.actor,
           nota: `Creada por canal ${datos.canal}`,
         });

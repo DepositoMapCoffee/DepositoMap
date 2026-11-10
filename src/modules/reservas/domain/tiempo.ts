@@ -94,3 +94,9 @@ export function rangoMes(mes: string): { desde: Fecha; hasta: Fecha } {
 export function esMesValido(valor: string): boolean {
   return /^\d{4}-(0[1-9]|1[0-2])$/.test(valor);
 }
+
+/** Los 7 días (lunes → domingo) de la semana que contiene `fecha`. */
+export function semanaDe(fecha: Fecha): Fecha[] {
+  const lunes = sumarDias(fecha, -((diaSemana(fecha) + 6) % 7));
+  return Array.from({ length: 7 }, (_, i) => sumarDias(lunes, i));
+}

@@ -100,7 +100,8 @@ export const reservas = pgTable(
     cupos: integer('cupos').notNull(),
     idioma: text('idioma').notNull(),
     nombre: text('nombre').notNull(),
-    email: text('email').notNull(),
+    /** Null solo en reservas registradas por el admin sin correo. */
+    email: text('email'),
     telefono: text('telefono').notNull(),
     notas: text('notas'),
     /** Precio por persona al momento de reservar (no cambia si luego sube el precio). */

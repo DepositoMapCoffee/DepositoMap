@@ -84,9 +84,43 @@ export type ReservaPublica = {
   cupos: number;
   idioma: string;
   nombre: string;
-  email: string;
+  email: string | null;
   telefono: string;
   notas: string | null;
   precioUnitario: number;
   estado: EstadoReserva;
 };
+
+// ─── Panel administrativo ─────────────────────────────────────────
+
+/** Reserva tal como la ve el admin en la agenda. */
+export type ReservaAgenda = {
+  id: string;
+  codigo: string;
+  experienciaId: string;
+  experienciaNombre: string;
+  fecha: Fecha;
+  horaInicio: Hora;
+  cupos: number;
+  idioma: string;
+  nombre: string;
+  email: string | null;
+  telefono: string;
+  notas: string | null;
+  precioUnitario: number;
+  estado: EstadoReserva;
+  canal: Canal;
+  creadaEn: string; // ISO
+};
+
+export type CambioHistorial = {
+  estadoAnterior: string | null;
+  estadoNuevo: string;
+  actor: string;
+  nota: string | null;
+  fecha: string; // ISO
+};
+
+export type HorarioAdmin = Horario & { id: string; activo: boolean };
+export type BloqueoAdmin = Bloqueo & { id: string };
+export type ExperienciaAdmin = Experiencia & { activa: boolean; orden: number };

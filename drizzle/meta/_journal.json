@@ -15,6 +15,13 @@
       "when": 1794263322362,
       "tag": "0001_datos_iniciales",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794268945954,
+      "tag": "0002_email_opcional",
+      "breakpoints": true
     }
   ]
 }
