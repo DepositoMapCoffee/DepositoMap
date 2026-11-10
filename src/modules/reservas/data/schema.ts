@@ -112,6 +112,9 @@ export const reservas = pgTable(
     tokenHash: text('token_hash').notNull(),
     /** Evita duplicados por doble clic o reintentos de red. */
     idempotencyKey: text('idempotency_key'),
+    /** Prueba de autorización de datos (Ley 1581): versión de la política aceptada y cuándo. */
+    autorizacionDatosVersion: text('autorizacion_datos_version'),
+    autorizacionDatosEn: timestamp('autorizacion_datos_en', { withTimezone: true }),
     /** Cuándo se envió el recordatorio del día anterior (null = no enviado). */
     recordatorioEnviadoEn: timestamp('recordatorio_enviado_en', { withTimezone: true }),
     ...timestamps,

@@ -145,6 +145,18 @@ export default function UserView() {
               >
                 {authLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (isLogin ? 'Iniciar Sesión' : 'Crear Cuenta')}
               </button>
+              {!isLogin && (
+                <label className="flex items-start gap-2.5 text-left text-xs text-on-surface-soft/70 cursor-pointer">
+                  <input type="checkbox" required className="mt-0.5 w-4 h-4 accent-[#2fa36b] cursor-pointer" />
+                  <span>
+                    Acepto la{' '}
+                    <a href="/privacidad" target="_blank" rel="noopener" className="text-brand-accent underline underline-offset-2">
+                      política de tratamiento de datos
+                    </a>
+                    .
+                  </span>
+                </label>
+              )}
             </form>
 
             <div className="mt-8">

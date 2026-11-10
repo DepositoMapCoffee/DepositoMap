@@ -7,6 +7,7 @@
  * se valida aquí: formato con Zod y reglas de negocio con el dominio.
  */
 import { publish } from '@/shared/events';
+import { POLITICA_DATOS } from '@/shared/config/negocio';
 import { serverEnv } from '@/shared/config/env';
 import { calendarioMes, franjasDelDia } from '../domain/disponibilidad';
 import { puedeCancelarCliente } from '../domain/reglas';
@@ -62,6 +63,7 @@ export async function reservar(_previo: EstadoReservar, formData: FormData): Pro
         canal: 'web',
         idempotencyKey: datos.idempotencyKey,
         actor: 'cliente',
+        autorizacionDatosVersion: POLITICA_DATOS.version,
       },
       ahora(),
     );

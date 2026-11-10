@@ -166,6 +166,8 @@ export type NuevaReserva = {
    */
   porAdmin?: boolean;
   estadoInicial?: 'pendiente' | 'confirmada';
+  /** Versión de la política de datos que el cliente autorizó (prueba de autorización). */
+  autorizacionDatosVersion: string;
 };
 
 export type ResultadoCrear =
@@ -230,6 +232,8 @@ export async function crearReserva(datos: NuevaReserva, ahora: Ahora): Promise<R
           canal: datos.canal,
           tokenHash: hashToken(token),
           idempotencyKey: datos.idempotencyKey ?? null,
+          autorizacionDatosVersion: datos.autorizacionDatosVersion,
+          autorizacionDatosEn: new Date(),
         })
         .onConflictDoNothing({ target: reservas.codigo })
         .returning({ id: reservas.id, codigo: reservas.codigo });

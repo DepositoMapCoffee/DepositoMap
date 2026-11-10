@@ -74,6 +74,8 @@ export const reservaManualSchema = z.object({
   notas: z.string().trim().max(500).optional().transform((v) => v || undefined),
   canal: z.enum(['whatsapp', 'telefono', 'presencial']),
   confirmada: z.boolean(),
+  /** El cliente autorizó el tratamiento de datos por el canal de contacto (Ley 1581). */
+  autorizaDatos: z.literal(true, { error: 'Confirma que el cliente autorizó el tratamiento de sus datos' }),
 });
 
 export const horarioNuevoSchema = z.object({

@@ -7,6 +7,7 @@
  */
 import { revalidatePath } from 'next/cache';
 import { publish } from '@/shared/events';
+import { POLITICA_DATOS } from '@/shared/config/negocio';
 import { serverEnv } from '@/shared/config/env';
 import { requireAdmin, UnauthorizedError } from '@/modules/identidad';
 import { franjasDelDia } from '../domain/disponibilidad';
@@ -95,6 +96,7 @@ export async function crearReservaManual(_previo: EstadoFormAdmin, formData: For
     const parsed = reservaManualSchema.safeParse({
       ...Object.fromEntries(formData),
       confirmada: formData.get('confirmada') === 'on',
+      autorizaDatos: formData.get('autorizaDatos') === 'on',
     });
     if (!parsed.success) return { ok: false, error: primerError(parsed.error) };
     const d = parsed.data;
@@ -114,6 +116,7 @@ export async function crearReservaManual(_previo: EstadoFormAdmin, formData: For
         actor: email,
         porAdmin: true,
         estadoInicial: d.confirmada ? 'confirmada' : 'pendiente',
+        autorizacionDatosVersion: POLITICA_DATOS.version,
       },
       ahora(),
     );

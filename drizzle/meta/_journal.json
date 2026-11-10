@@ -29,6 +29,13 @@
       "when": 1794324829372,
       "tag": "0003_recordatorio_enviado",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794339553445,
+      "tag": "0004_autorizacion_datos",
+      "breakpoints": true
     }
   ]
 }

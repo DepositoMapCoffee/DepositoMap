@@ -1,5 +1,6 @@
 import { MapPin, MessageCircle } from 'lucide-react';
-import { NEGOCIO, enlaceWhatsApp } from '@/shared/config/negocio';
+import Link from 'next/link';
+import { NEGOCIO, POLITICA_DATOS, RESPONSABLE_DATOS, enlaceWhatsApp } from '@/shared/config/negocio';
 
 /** Pie de página de las páginas públicas nuevas (v2). */
 export function PieSitio() {
@@ -10,15 +11,23 @@ export function PieSitio() {
           <MapPin className="w-4 h-4 text-accent-hover shrink-0" />
           {NEGOCIO.direccion}, {NEGOCIO.ciudad}
         </p>
-        <a
-          href={enlaceWhatsApp()}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-2 hover:text-on-surface transition-colors"
-        >
-          <MessageCircle className="w-4 h-4" /> WhatsApp
-        </a>
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <Link href={POLITICA_DATOS.ruta} className="hover:text-on-surface transition-colors">
+            Política de datos
+          </Link>
+          <a
+            href={enlaceWhatsApp()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 hover:text-on-surface transition-colors"
+          >
+            <MessageCircle className="w-4 h-4" /> WhatsApp
+          </a>
+        </div>
       </div>
+      <p className="mx-auto max-w-7xl px-5 sm:px-8 pb-8 text-xs text-on-surface-muted/70">
+        {RESPONSABLE_DATOS.razonSocial} · NIT {RESPONSABLE_DATOS.nit}
+      </p>
     </footer>
   );
 }

@@ -152,10 +152,23 @@ export function FormReservaManual({ experiencias, fechaInicial }: Props) {
         <TextAreaField label="Notas (opcional)" name="notas" className="min-h-12" rows={1} />
       </div>
 
-      <label className="flex items-center gap-3 cursor-pointer">
-        <input type="checkbox" name="confirmada" defaultChecked className="w-5 h-5 accent-[var(--color-primary)] cursor-pointer" />
-        <span className="text-sm text-on-surface-soft">Registrar como confirmada</span>
-      </label>
+      <div className="space-y-3">
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input type="checkbox" name="confirmada" defaultChecked className="w-5 h-5 accent-[var(--color-primary)] cursor-pointer" />
+          <span className="text-sm text-on-surface-soft">Registrar como confirmada</span>
+        </label>
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input type="checkbox" name="autorizaDatos" required className="mt-0.5 w-5 h-5 accent-[var(--color-primary)] cursor-pointer" />
+          <span className="text-sm text-on-surface-soft">
+            El cliente autorizó el tratamiento de sus datos para gestionar la reserva (por WhatsApp, teléfono o en persona),
+            según la{' '}
+            <a href="/privacidad" target="_blank" rel="noopener" className="text-primary underline underline-offset-2">
+              política de datos
+            </a>
+            .
+          </span>
+        </label>
+      </div>
 
       {estado.ok === false && (
         <p role="alert" className="text-sm text-danger">

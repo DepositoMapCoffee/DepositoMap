@@ -4,7 +4,7 @@ import { useActionState, useEffect, useRef, useState, useTransition } from 'reac
 import Image from 'next/image';
 import { ArrowLeft, ArrowRight, Check, Clock3, Coffee, MessageCircle } from 'lucide-react';
 import { Button, TextAreaField, TextField, cn } from '@/shared/ui';
-import { enlaceWhatsApp } from '@/shared/config/negocio';
+import { POLITICA_DATOS, enlaceWhatsApp } from '@/shared/config/negocio';
 import { obtenerCalendario, obtenerFranjas, reservar, type EstadoReservar } from '../actions/publicas';
 import { sumarDias, type Fecha, type Hora } from '../domain/tiempo';
 import type { DiaCalendario, Experiencia, Franja } from '../domain/tipos';
@@ -334,7 +334,16 @@ export function FlujoReserva({
                   aria-describedby={errores.aceptaDatos ? 'error-datos' : undefined}
                 />
                 <span className="text-sm text-on-surface-soft leading-relaxed">
-                  Autorizo a El Depósito a usar mis datos para gestionar esta reserva y contactarme sobre ella
+                  Autorizo a El Depósito a usar mis datos para gestionar esta reserva y contactarme sobre ella, según
+                  la{' '}
+                  <a
+                    href={POLITICA_DATOS.ruta}
+                    target="_blank"
+                    rel="noopener"
+                    className="text-primary underline underline-offset-2 hover:text-primary-hover"
+                  >
+                    política de tratamiento de datos
+                  </a>{' '}
                   (Ley 1581 de 2012).
                   {errores.aceptaDatos && (
                     <span id="error-datos" role="alert" className="block text-xs text-danger mt-1">
