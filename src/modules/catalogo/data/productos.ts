@@ -113,3 +113,30 @@ export async function productoVisible(id: string): Promise<boolean> {
   const [f] = await db().select({ visible: cafes.visible }).from(cafes).where(eq(cafes.id, id));
   return f?.visible === true;
 }
+
+// ─── Vitrina pública ───────────────────────────────────────────────
+
+/** Productos visibles más recientes de un tipo (para destacar en la home). */
+export async function productosVisiblesRecientes(tipo: 'cafe' | 'chocolate', limite: number): Promise<Producto[]> {
+  const filas = await db()
+    .select(columnas)
+    .from(cafes)
+    .where(and(eq(cafes.visible, true), eq(cafes.tipoProducto, tipo)))
+    .orderBy(desc(cafes.createdAt))
+    .limit(limite);
+  return filas.map(aProducto);
+}
+
+/** Cantidad de productos visibles por departamento. */
+export async function conteoVisiblesPorDepartamento(): Promise<{ departamentoId: string; total: number }[]> {
+  const filas = await db().select({ departamentoId: cafes.departamentoId }).from(cafes).where(eq(cafes.visible, true));
+  const conteo = new Map<string, number>();
+  for (const f of filas) conteo.set(f.departamentoId, (conteo.get(f.departamentoId) ?? 0) + 1);
+  return [...conteo].map(([departamentoId, total]) => ({ departamentoId, total })).sort((a, b) => b.total - a.total);
+}
+
+/** Todos los productos visibles (para el mapa de orígenes). */
+export async function productosVisibles(): Promise<Producto[]> {
+  const filas = await db().select(columnas).from(cafes).where(eq(cafes.visible, true)).orderBy(asc(cafes.nombre));
+  return filas.map(aProducto);
+}

@@ -8,8 +8,6 @@
      1. Primitivos de marca  → --color-verde, --color-marrom, …
      2. Semánticos           → --color-primary, --color-danger, …
         (los componentes nuevos SOLO usan semánticos)
-     3. Aliases legacy       → --color-brand-* (se eliminan cuando
-        termine la migración de src/legacy)
    ═══════════════════════════════════════════════════════════════════ */
 
 @theme {
@@ -90,16 +88,4 @@
     from { opacity: 0; }
     to   { opacity: 1; }
   }
-
-  /* ── 3. Aliases legacy (no usar en código nuevo) ──────────────── */
-  --color-brand-black:       #0A0A0A;
-  --color-brand-white:       #F5F5F5;
-  --color-brand-cream:       #C8C0B4;
-  --color-brand-gray:        #111111;
-  --color-brand-gray-light:  #1E1E1E;
-  --color-brand-accent:      #2fa36b;
-  --color-brand-gold:        #955a23;
-  --color-gold-primary:      #955a23;
-  --color-gold-container:    #6e421a;
-  --color-gold-dim:          #955a23;
 }

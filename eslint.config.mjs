@@ -25,7 +25,6 @@ export default defineConfig([
         { type: 'app', pattern: 'src/app' },
         { type: 'module', pattern: 'src/modules/*', capture: ['modulo'] },
         { type: 'shared', pattern: 'src/shared/*', capture: ['pieza'] },
-        { type: 'legacy', pattern: 'src/legacy' },
         { type: 'bootstrap', pattern: 'src/bootstrap' },
       ],
     },
@@ -38,12 +37,12 @@ export default defineConfig([
             // Dentro de una misma pieza, todo vale.
             { allow: { dependency: { relationship: { to: 'internal' } } } },
 
-            // app/ compone: usa la API pública de módulos, shared y (temporalmente) legacy.
+            // app/ compone: usa la API pública de módulos y shared.
             {
               from: { element: { type: 'app' } },
               allow: [
                 { to: { element: { type: 'module', fileInternalPath: MODULE_ENTRIES } } },
-                { to: { element: { types: ['shared', 'legacy'] } } },
+                { to: { element: { type: 'shared' } } },
               ],
             },
 
@@ -68,23 +67,9 @@ export default defineConfig([
             // shared es la base: solo depende de otras piezas de shared.
             { from: { element: { type: 'shared' } }, allow: { to: { element: { type: 'shared' } } } },
 
-            // legacy (código antiguo): puede usar shared mientras se migra.
-            { from: { element: { type: 'legacy' } }, allow: { to: { element: { types: ['legacy', 'shared'] } } } },
           ],
         },
       ],
-    },
-  },
-
-  // El código legacy se reemplaza por módulos: no se le exige el estándar nuevo.
-  {
-    files: ['src/legacy/**', 'src/app/page.tsx', 'src/app/admin/**'],
-    rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@next/next/no-img-element': 'off',
-      'react-hooks/exhaustive-deps': 'off',
-      'react-hooks/set-state-in-effect': 'off',
-      'react/no-unescaped-entities': 'off',
     },
   },
 
