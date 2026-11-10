@@ -1,0 +1,1 @@
+ALTER TABLE "tasting_reservas" ALTER COLUMN "email" DROP NOT NULL;

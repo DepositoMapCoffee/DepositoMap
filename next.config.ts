@@ -1,4 +1,8 @@
 import type { NextConfig } from "next";
+import path from "node:path";
+
+/** Raíz del proyecto (evita que Next tome un lockfile de una carpeta superior). */
+const ROOT = path.resolve(__dirname);
 
 /**
  * Headers de seguridad incluyendo Content-Security-Policy.
@@ -39,6 +43,10 @@ function buildSecurityHeaders(): { key: string; value: string }[] {
 }
 
 const nextConfig: NextConfig = {
+  // Servidor autocontenido para la imagen Docker del VPS (Vercel lo ignora).
+  output: 'standalone',
+  outputFileTracingRoot: ROOT,
+  turbopack: { root: ROOT },
   allowedDevOrigins: ['192.168.0.183'],
   async headers() {
     const htmlHeaders = [
